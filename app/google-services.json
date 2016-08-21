@@ -1,0 +1,51 @@
+{
+  "project_info": {
+    "project_number": "462430669536",
+    "project_id": "firebase-totemz"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462430669536:android:570c57f8acbdd642",
+        "android_client_info": {
+          "package_name": "ro.cluj.totemz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "462430669536-po83k146vumme8lpitsm4m40pgm8of4t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.cluj.totemz",
+            "certificate_hash": "87CCEFB9220ABA9E78E9E9420C86A938BBEE9AD1"
+          }
+        },
+        {
+          "client_id": "462430669536-6f4cvgeo9ssk9r0mogh2elbetc5hav55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMiFCoFzdHV_UdVM6mCeFfrteuUTfate8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-41865862-3"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
