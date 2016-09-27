@@ -1,5 +1,7 @@
 package ro.cluj.totemz;
 
+import com.moovel.drivenow.ui.MvpBase;
+
 /**
  * Created by andre on 10/05/16.
  */
