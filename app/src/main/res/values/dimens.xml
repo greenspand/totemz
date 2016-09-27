@@ -2,4 +2,54 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="menu_height">90dp</dimen>
+
+    <!--Universal grid system-->
+    <dimen name="grid1">5dp</dimen>
+    <dimen name="grid2">10dp</dimen>
+    <dimen name="grid3">15dp</dimen>
+    <dimen name="grid4">20dp</dimen>
+    <dimen name="grid5">25dp</dimen>
+    <dimen name="grid6">30dp</dimen>
+    <dimen name="grid7">35dp</dimen>
+    <dimen name="grid8">40dp</dimen>
+    <dimen name="grid9">45dp</dimen>
+    <dimen name="grid10">50dp</dimen>
+    <dimen name="grid11">55dp</dimen>
+    <dimen name="grid12">60dp</dimen>
+    <dimen name="grid13">65dp</dimen>
+    <dimen name="grid14">70dp</dimen>
+    <dimen name="grid15">75dp</dimen>
+    <dimen name="grid16">80dp</dimen>
+    <dimen name="grid17">85dp</dimen>
+    <dimen name="grid18">90dp</dimen>
+    <dimen name="grid24">120dp</dimen>
+    <dimen name="grid28">140dp</dimen>
+    <dimen name="grid30">150dp</dimen>
+    <dimen name="grid34">170dp</dimen>
+    <dimen name="grid36">180dp</dimen>
+    <dimen name="grid40">200dp</dimen>
+    <dimen name="grid50">250dp</dimen>
+
+    <!--Custom CardView attributes-->
+    <dimen name="card_corner_radius">6dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+
+    <!--Text sizes-->
+    <dimen name="txt_size_xs">10dp</dimen>
+    <dimen name="txt_size_s">12dp</dimen>
+    <dimen name="txt_size_m">14dp</dimen>
+    <dimen name="txt_size_ml">18dp</dimen>
+    <dimen name="txt_size_mxl">22dp</dimen>
+    <dimen name="txt_size_l">26dp</dimen>
+    <dimen name="txt_size_xl">30dp</dimen>
+    <dimen name="txt_size_xxl">34dp</dimen>
+
+    <!--Elevations-->
+    <dimen name="toolbar_elevation">4dp</dimen>
+
+    <!--Custom Margins-->
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 </resources>
