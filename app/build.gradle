@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.getkeepsafe.dexcount'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 1
+def versionPatch = 3
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
@@ -20,19 +21,26 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "${version}"
+        vectorDrawables.useSupportLibrary = true
+        /** Keep language resources in libraries only for supported locales*/
+        resConfigs "en", "de"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            multiDexEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            shrinkResources true
+        }
     }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 }
-final COMPAT_LIB_V = '24.2.0'
-final PLAY_SERVICES_VERSION = '9.4.0'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -40,10 +48,15 @@ dependencies {
     compile "com.android.support:appcompat-v7:${COMPAT_LIB_V}"
     compile "com.google.android.gms:play-services-auth:${PLAY_SERVICES_VERSION}"
     compile "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
+    compile "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
     compile "com.android.support:design:${COMPAT_LIB_V}"
+    compile "org.jetbrains.anko:anko-sdk15:${ANKO_VERSION}"
+    compile "org.jetbrains.anko:anko-support-v4:${ANKO_VERSION}"
+    compile "org.jetbrains.anko:anko-appcompat-v7:${ANKO_VERSION}"
+    compile 'com.google.maps.android:android-maps-utils:0.4+'
 
     //Utilities
-    compile 'com.greenspnd:kotlin-ext:0.0.1'
+    compile "com.greenspnd:kotlin-ext:$ktExtVersion"
 
     //DI Framework
     compile 'com.github.salomonbrys.kodein:kodein:3.0.0'
@@ -53,12 +66,12 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.6'
     compile 'io.reactivex:rxkotlin:0.60.0'
 
-    //Firebase
-    compile 'com.google.firebase:firebase-core:9.4.0'
-    compile 'com.google.firebase:firebase-crash:9.4.0'
-    compile 'com.google.firebase:firebase-auth:9.4.0'
-    compile 'com.google.firebase:firebase-database:9.4.0'
-    compile 'com.google.firebase:firebase-messaging:9.4.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    //Fabric IO crashlytics
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+        transitive = true;
+    }
+
 }
 apply plugin: 'com.google.gms.google-services'
