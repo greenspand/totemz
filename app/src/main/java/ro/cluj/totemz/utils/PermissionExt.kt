@@ -1,4 +1,4 @@
-package com.moovel.drivenow.ui.utils
+package ro.cluj.totemz.utils
 
 import android.app.Activity
 import android.content.pm.PackageManager
