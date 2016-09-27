@@ -1,15 +1,17 @@
 package ro.cluj.totemz
 
 
+import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.greenspand.kotlin_ext.snack
+import rx.functions.Action1
+import rx.subscriptions.CompositeSubscription
 
 /**
  * Created by sorin on 8/21/16.
@@ -20,21 +22,37 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
 
     abstract fun getRootLayout(): View
 
-    val log: Logger by instance()
+    private lateinit var subscriptions: CompositeSubscription
     override val injector = KodeinInjector()
+    val rxBus: RxBus by instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inject(appKodein())
-        Log.i("Kodein", "=====================-BINDINGS-=====================")
-        log.callback = {
-            Log.i("RECEIVED", "received")
+    }
+
+
+    fun getRxBusObserver(): Action1<Any> {
+        return Action1 { event ->
+            if (event is Location) {
+                snack(getRootLayout(), "Location is: ${event.latitude} ${event.longitude}")
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        snack(getRootLayout(), "Olaaa").show()
+        subscriptions = CompositeSubscription()
+        subscriptions.add(rxBus.toObservable().subscribe(getRxBusObserver()))
+    }
+
+    override fun onPause() {
+        subscriptions.unsubscribe()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     override fun setTitle(title: CharSequence) {
