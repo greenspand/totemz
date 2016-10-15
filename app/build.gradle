@@ -6,14 +6,14 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 3
+def versionPatch = 4
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         applicationId "ro.cluj.totemz"
@@ -55,7 +55,6 @@ dependencies {
     compile "org.jetbrains.anko:anko-appcompat-v7:${ANKO_VERSION}"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
-    //Utilities
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
 
     //DI Framework
