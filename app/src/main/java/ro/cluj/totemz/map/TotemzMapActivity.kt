@@ -1,10 +1,14 @@
-package ro.cluj.totemz
+package ro.cluj.totemz.map
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import android.location.LocationManager
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.annotation.StringRes
 import android.view.View
+import android.view.animation.AccelerateInterpolator
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
@@ -18,9 +22,11 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.greenspand.kotlin_ext.snack
 import kotlinx.android.synthetic.main.activity_main.*
-import ro.cluj.totemz.map.TotemzMapPresenter
-import ro.cluj.totemz.map.TotemzMapView
+import ro.cluj.totemz.BaseActivity
+import ro.cluj.totemz.R
+import ro.cluj.totemz.utils.ExpandViewsOnSubscribe
 import ro.cluj.totemz.utils.withPermissionGranted
+import rx.Completable
 
 class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
         GoogleMap.OnCameraMoveListener,
@@ -35,6 +41,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
     lateinit var googleApiClient: GoogleApiClient
     var isMapReady = false
     val DEFAULT_ZOOM = 16f
+    var CAMERA_REQUEST = 93
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -48,9 +55,9 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        fab.setOnClickListener {
-            snack(getRootLayout(), "Location is: Lardland, similar to Wallyland, only fatter :-)").show()
-        }
+        presenter = TotemzMapPresenter()
+        presenter.attachView(this)
+
         //init google API client
         googleApiClient = GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build()
         //Get Map
@@ -60,6 +67,31 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
         //Init Location Service
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        // Set menu click listeners
+        img_camera.setOnClickListener {
+            startScaleUpAnimation(arrayListOf(img_camera))
+            startScaleDownAnimation(arrayListOf(img_compass, img_user))
+            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(cameraIntent, CAMERA_REQUEST)
+        }
+
+        img_user.setOnClickListener {
+            startScaleUpAnimation(arrayListOf(img_user))
+            startScaleDownAnimation(arrayListOf(img_camera, img_compass))
+        }
+
+        img_compass.setOnClickListener {
+            startScaleUpAnimation(arrayListOf(img_compass))
+            startScaleDownAnimation(arrayListOf(img_camera, img_user))
+        }
+
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == CAMERA_REQUEST && resultCode === RESULT_OK) {
+//            val photo = data?.extras?.get("data") as Bitmap
+        }
     }
 
     override fun onStart() {
@@ -70,6 +102,11 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
     override fun onStop() {
         super.onStop()
         googleApiClient.disconnect()
+    }
+
+    override fun onDestroy() {
+        presenter.detachView()
+        super.onDestroy()
     }
 
     override fun onConnected(p0: Bundle?) {
@@ -87,9 +124,21 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
         markerOptions.anchor(0.0f, 0.0f)
         totemzMarker = this.googleMap.addMarker(markerOptions)
         this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(48.737463, 9.127979), DEFAULT_ZOOM))
-        withPermissionGranted(android.Manifest.permission.ACCESS_FINE_LOCATION) {
-            this.googleMap.isMyLocationEnabled = true
-        }
+
+    }
+
+    fun scaleDownAnimation(items: MutableList<View>): Completable = Completable
+            .create(ExpandViewsOnSubscribe(items, 0.7f, 400, AccelerateInterpolator()))
+
+    fun scaleUpAnimation(items: MutableList<View>): Completable = Completable
+            .create(ExpandViewsOnSubscribe(items, 1f, 400, AccelerateInterpolator()))
+
+    fun startScaleUpAnimation(items: MutableList<View>) {
+         scaleUpAnimation(items).subscribe()
+    }
+
+    fun startScaleDownAnimation(items: MutableList<View>) {
+        scaleDownAnimation(items).subscribe()
     }
 
     fun GoogleMap.onLocationTouched(label: String, lat: Double, lng: Double) {
