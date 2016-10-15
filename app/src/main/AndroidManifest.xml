@@ -18,7 +18,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".TotemzMapActivity">
+        <activity android:name=".map.TotemzMapActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
