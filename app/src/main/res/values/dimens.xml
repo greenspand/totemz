@@ -5,6 +5,7 @@
     <dimen name="menu_height">90dp</dimen>
 
     <!--Universal grid system-->
+    <dimen name="grid0.5">2.5dp</dimen>
     <dimen name="grid1">5dp</dimen>
     <dimen name="grid2">10dp</dimen>
     <dimen name="grid3">15dp</dimen>
@@ -23,6 +24,11 @@
     <dimen name="grid16">80dp</dimen>
     <dimen name="grid17">85dp</dimen>
     <dimen name="grid18">90dp</dimen>
+    <dimen name="grid19">95dp</dimen>
+    <dimen name="grid20">100dp</dimen>
+    <dimen name="grid21">105dp</dimen>
+    <dimen name="grid22">110dp</dimen>
+    <dimen name="grid23">115dp</dimen>
     <dimen name="grid24">120dp</dimen>
     <dimen name="grid28">140dp</dimen>
     <dimen name="grid30">150dp</dimen>
