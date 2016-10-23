@@ -104,7 +104,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback,
                     .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION, BounceInterpolator()))
                     .subscribe())
         }
-
     }
 
     override fun onConnected(p0: Bundle?) {
