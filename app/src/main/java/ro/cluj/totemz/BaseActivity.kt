@@ -1,6 +1,8 @@
 package ro.cluj.totemz
 
 
+import android.app.NotificationManager
+import android.content.SharedPreferences
 import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -8,6 +10,7 @@ import android.view.View
 import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.greenspand.kotlin_ext.snack
 import rx.functions.Action1
@@ -23,8 +26,13 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
     abstract fun getRootLayout(): View
 
     private lateinit var subscriptions: CompositeSubscription
+
     override val injector = KodeinInjector()
+
+    //Inject components
     val rxBus: RxBus by instance()
+    val notificationManager: NotificationManager by withContext(this).instance()
+    val sharedPrefs: SharedPreferences by withContext(this).instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
