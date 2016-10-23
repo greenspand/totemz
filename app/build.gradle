@@ -6,19 +6,19 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 4
+def versionPatch = 5
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
         applicationId "ro.cluj.totemz"
         minSdkVersion 16
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 1
         versionName "${version}"
         vectorDrawables.useSupportLibrary = true
