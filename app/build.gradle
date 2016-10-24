@@ -57,6 +57,10 @@ dependencies {
 
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
 
+    //MQTT
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
+
     //DI Framework
     compile 'com.github.salomonbrys.kodein:kodein:3.0.0'
     compile 'com.github.salomonbrys.kodein:kodein-android:3.0.0'
