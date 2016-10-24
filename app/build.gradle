@@ -10,7 +10,6 @@ def versionPatch = 5
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
-
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
