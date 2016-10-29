@@ -7,6 +7,7 @@ import com.github.salomonbrys.kodein.KodeinAware
 import com.github.salomonbrys.kodein.android.androidModule
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.lazy
+import com.karumi.dexter.Dexter
 import io.fabric.sdk.android.Fabric
 import ro.cluj.totemz.map.mapModule
 
@@ -18,12 +19,13 @@ class TotemzApplication : Application(), KodeinAware {
     override val kodein by Kodein.lazy {
         import(mapModule)
         import(androidModule)
-        bind<RxBus>() with instance( RxBus)
+        bind<RxBus>() with instance( RxBus())
     }
 
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this@TotemzApplication, Crashlytics())
+        Dexter.initialize(this)
     }
 
     override fun onTerminate() {
