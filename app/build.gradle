@@ -10,7 +10,6 @@ def versionPatch = 5
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
-
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
@@ -55,11 +54,19 @@ dependencies {
     compile "org.jetbrains.anko:anko-appcompat-v7:${ANKO_VERSION}"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
+    //KOtlin extensions
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
+
+    //Permissions
+    compile 'com.karumi:dexter:2.3.1'
+
+    //EventBus
+    compile 'org.greenrobot:eventbus:3.0.0'
 
     //MQTT
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
+
 
     //DI Framework
     compile 'com.github.salomonbrys.kodein:kodein:3.0.0'
@@ -67,6 +74,7 @@ dependencies {
 
     //Reactive Extensions
     compile 'io.reactivex:rxjava:1.1.6'
+    compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxkotlin:0.60.0'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
