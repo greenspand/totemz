@@ -25,6 +25,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".mqtt.MQTTService"/>
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="279bb68bcb0c7c8513677fdc4e88e0719f9e0556" />
