@@ -26,26 +26,15 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
 
     abstract fun getRootLayout(): View
 
-    private lateinit var subscriptions: CompositeSubscription
-
     override val injector = KodeinInjector()
 
     //Inject components
-    val rxBus: RxBus by instance()
     val notificationManager: NotificationManager by withContext(this).instance()
     val sharedPrefs: SharedPreferences by withContext(this).instance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inject(appKodein())
-    }
-
-
-
-    override fun onResume() {
-        super.onResume()
-        subscriptions = CompositeSubscription()
-        subscriptions.add(rxBus.toObservable().subscribe(getRxBusObserver()))
     }
 
     fun getRxBusObserver(): Action1<Any> {
@@ -55,16 +44,6 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
             }
         }
     }
-
-    override fun onPause() {
-        subscriptions.unsubscribe()
-        super.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     override fun setTitle(title: CharSequence) {
         super.setTitle(getActivityTitle())
     }

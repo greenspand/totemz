@@ -19,7 +19,6 @@ class TotemzApplication : Application(), KodeinAware {
     override val kodein by Kodein.lazy {
         import(mapModule)
         import(androidModule)
-        bind<RxBus>() with instance( RxBus())
     }
 
     override fun onCreate() {
