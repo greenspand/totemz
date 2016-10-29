@@ -12,6 +12,7 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
+import com.google.android.gms.maps.model.LatLng
 import com.greenspand.kotlin_ext.snack
 import rx.functions.Action1
 import rx.subscriptions.CompositeSubscription
@@ -40,18 +41,19 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
     }
 
 
-    fun getRxBusObserver(): Action1<Any> {
-        return Action1 { event ->
-            if (event is Location) {
-                snack(getRootLayout(), "Location is: ${event.latitude} ${event.longitude}")
-            }
-        }
-    }
 
     override fun onResume() {
         super.onResume()
         subscriptions = CompositeSubscription()
         subscriptions.add(rxBus.toObservable().subscribe(getRxBusObserver()))
+    }
+
+    fun getRxBusObserver(): Action1<Any> {
+        return Action1 { event ->
+            if (event is LatLng) {
+                snack(getRootLayout(), "Location is: ${event.latitude} ${event.longitude}")
+            }
+        }
     }
 
     override fun onPause() {
