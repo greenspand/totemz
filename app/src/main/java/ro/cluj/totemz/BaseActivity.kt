@@ -3,7 +3,6 @@ package ro.cluj.totemz
 
 import android.app.NotificationManager
 import android.content.SharedPreferences
-import android.location.Location
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -12,8 +11,9 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
-import com.google.android.gms.maps.model.LatLng
 import com.greenspand.kotlin_ext.snack
+import ro.cluj.totemz.model.MyLocation
+import ro.cluj.totemz.utils.RxBus
 import rx.functions.Action1
 import rx.subscriptions.CompositeSubscription
 
@@ -37,13 +37,6 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
         inject(appKodein())
     }
 
-    fun getRxBusObserver(): Action1<Any> {
-        return Action1 { event ->
-            if (event is LatLng) {
-                snack(getRootLayout(), "Location is: ${event.latitude} ${event.longitude}")
-            }
-        }
-    }
     override fun setTitle(title: CharSequence) {
         super.setTitle(getActivityTitle())
     }
