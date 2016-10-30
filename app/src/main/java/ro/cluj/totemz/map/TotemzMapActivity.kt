@@ -6,6 +6,7 @@ import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.provider.MediaStore
+import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.util.Log
 import android.view.View
@@ -18,23 +19,23 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import kotlinx.android.synthetic.main.activity_main.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.utils.RxBus
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
 
 class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, PermissionListener,
@@ -44,8 +45,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
         GoogleApiClient.OnConnectionFailedListener {
 
 
-    lateinit var totemzMarker: Marker
-    lateinit var markerOptions: MarkerOptions
     var googleMap: GoogleMap? = null
     lateinit var googleApiClient: GoogleApiClient
 
@@ -54,8 +53,8 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
 
     var isMapReady = false
 
-    // Map proerties
-    val DEFAULT_ZOOM = 15f
+    // Map properties
+    val DEFAULT_ZOOM = 12f
     var CAMERA_REQUEST = 93
 
     //Animation properties
@@ -69,7 +68,9 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     //Injections
     val presenter: TotemzMapPresenter by instance()
     val activityManager: ActivityManager by withContext(this).instance()
+    val rxBus: RxBus by instance()
 
+    var lastKnownLocation: Location? = null
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -83,11 +84,15 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         presenter.attachView(this)
+
+        Dexter.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
         //init google API client
         googleApiClient = GoogleApiClient.Builder(this).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build()
-        //Get Map
+
+        // Get Map
         val mapFragment = supportFragmentManager.findFragmentById(R.id.frag_map) as SupportMapFragment
         mapFragment.getMapAsync(this@TotemzMapActivity)
 
@@ -115,12 +120,24 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                     .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION, BounceInterpolator()))
                     .subscribe())
             if (serviceIsRunning())
-                stopMQTTLOcationService()
+                stopMQTTLocationService()
         }
+
+        compositeSubscription.add(rxBus.toObservable()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { o ->
+                    when (o) {
+                        is FriendLocation -> googleMap?.let {
+                            googleMap?.createAndAddMarker(o.location, R.mipmap.ic_totem)
+                        }
+                    }
+                })
+
         startService(intentFor<MQTTService>())
     }
 
-    //Permission request callback
+    // Permission request callback
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
         response?.let {
             if (response.permissionName == Manifest.permission.ACCESS_FINE_LOCATION) {
@@ -132,37 +149,34 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
         }
     }
 
-
     override fun onMapReady(googleMap: GoogleMap?) {
         googleMap?.let {
-            it.isMyLocationEnabled = true
-            it.uiSettings.isMyLocationButtonEnabled = true
             isMapReady = true
             this.googleMap = googleMap
-            val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-            location?.let {
-                markerOptions = MarkerOptions().position(LatLng(location.latitude, location.longitude)).icon(BitmapDescriptorFactory.fromResource(R.drawable.overwatch))
-                markerOptions.anchor(0.0f, 0.0f)
-                totemzMarker = this.googleMap?.addMarker(markerOptions) as Marker
-                this.googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_ZOOM))
-            }
         }
     }
 
     override fun onLocationChanged(location: Location?) {
         location?.let {
-            EventBus.getDefault().post(MyLocation(LatLng(location.latitude, location.longitude)))
+            rxBus.send(MyLocation(LatLng(location.latitude, location.longitude)))
+            googleMap?.createAndAddMarker(LatLng(location.latitude, location.longitude), R.mipmap.ic_totem)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_ZOOM))
         }
     }
-
 
     override fun onConnected(connectionHint: Bundle?) {
         val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
         location?.let {
-            EventBus.getDefault().post(MyLocation(LatLng(location.latitude, location.longitude)))
+            rxBus.send(MyLocation(LatLng(location.latitude, location.longitude)))
+            googleMap?.createAndAddMarker(LatLng(location.latitude, location.longitude), R.mipmap.ic_totem)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_ZOOM))
         }
-
     }
+
+    private fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
+        this.addMarker(MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
+    }
+
 
     override fun onCameraMove() {
     }
@@ -173,14 +187,13 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onConnectionFailed(p0: ConnectionResult) {
     }
 
-
     override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest?, token: PermissionToken?) {
     }
 
     override fun onPermissionDenied(response: PermissionDeniedResponse?) {
     }
 
-    private fun stopMQTTLOcationService() {
+    private fun stopMQTTLocationService() {
         val intent = Intent(this, MQTTService::class.java)
         stopService(intent)
     }
@@ -197,23 +210,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     }
 
 
-    // This method will be called when a MessageEvent is posted (in the UI thread for Toast)
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onMessageEvent(event: FriendLocation) {
-        val location = event.location
-        Log.w("TotemzMapActivity","Location received ${location.latitude} ${location.longitude}")
-
-        //When the map is ready we show the friends position
-        googleMap?.let {
-            val markerOptions = MarkerOptions().position(location).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_totemz))
-            markerOptions.anchor(0.0f, 0.0f)
-            it.addMarker(markerOptions)
-            this.googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude,location.longitude), DEFAULT_ZOOM))
-        }
-    }
-
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == CAMERA_REQUEST && resultCode === RESULT_OK) {
 //            val photo = data?.extras?.get("data") as Bitmap
@@ -223,12 +219,10 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onStart() {
         super.onStart()
         googleApiClient.connect()
-        EventBus.getDefault().register(this)
     }
 
     override fun onStop() {
         super.onStop()
-        EventBus.getDefault().unregister(this)
         googleApiClient.disconnect()
     }
 
