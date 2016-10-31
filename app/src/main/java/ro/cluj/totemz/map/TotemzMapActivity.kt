@@ -34,11 +34,9 @@ import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.utils.RxBus
-import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.util.concurrent.TimeUnit
 
 class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, PermissionListener,
         GoogleMap.OnCameraMoveListener,
@@ -55,7 +53,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     var isMapReady = false
 
     // Map properties
-    val DEFAULT_ZOOM = 12f
+    val DEFAULT_ZOOM = 6f
     var CAMERA_REQUEST = 93
 
     //Animation properties
@@ -176,17 +174,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
             googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
         }
-        compositeSubscription.add(Observable.interval(5000, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-                    currentLocation?.let {
-                        val lat = location.latitude
-                        val lng = location.longitude
-                        rxBus.send(MyLocation(LatLng(lat, lng)))
-                    }
-                })
     }
 
 
