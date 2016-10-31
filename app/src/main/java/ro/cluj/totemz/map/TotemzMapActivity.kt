@@ -141,8 +141,21 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                 googleMap?.let {
                     it.isMyLocationEnabled = true
                     it.uiSettings.isMyLocationButtonEnabled = true
+                    getLocationAndAnimateMarker()
                 }
             }
+        }
+    }
+
+    private fun getLocationAndAnimateMarker(): Unit? {
+        val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+        return location?.let {
+            val lat = location.latitude
+            val lng = location.longitude
+
+            rxBus.send(MyLocation(LatLng(lat, lng)))
+            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
         }
     }
 
@@ -165,15 +178,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
 
 
     override fun onConnected(connectionHint: Bundle?) {
-        val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-        location?.let {
-            val lat = location.latitude
-            val lng = location.longitude
-
-            rxBus.send(MyLocation(LatLng(lat, lng)))
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
-            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
-        }
+        getLocationAndAnimateMarker()
     }
 
 
