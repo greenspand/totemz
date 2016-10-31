@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
@@ -17,6 +16,7 @@ import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.utils.RxBus
+import ro.cluj.totemz.utils.truncateDecimal
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -26,7 +26,7 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
 
     override val injector = KodeinInjector()
     val rxBus: RxBus by instance()
-    lateinit var android_id: String
+     var android_id: String? = null
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://greenspand.ddns.net:4000"
@@ -40,11 +40,13 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
     override fun onCreate() {
         super.onCreate()
         inject(appKodein())
-        android_id = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
+        android_id = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         sub = rxBus.toObservable().subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread()).subscribe {
             o ->
             when (o) {
-                is MyLocation -> publishMsg(TOPIC_USER, "${o.location.latitude} ${o.location.longitude}")
+                is MyLocation ->{
+                    android_id?.let {publishMsg(TOPIC_USER, "$android_id:${o.location.latitude}:${o.location.longitude}")}
+                }
             }
         }
     }
@@ -64,6 +66,7 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
             mqttClient?.setCallback(this)
             mqttClient?.connect()
             mqttClient?.subscribe(arrayOf(TOPIC_FRIEND))
+            toast("Client connected")
         } catch (e: MqttException) {
             toast("Something went wrong!" + e.message)
             e.printStackTrace()
@@ -81,8 +84,15 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
     override fun messageArrived(topic: String, message: MqttMessage) {
         when (topic) {
             TOPIC_FRIEND -> {
-                val data = String(message.payload).split(",")
-                rxBus.send(FriendLocation(LatLng(data[0].toDouble(), data[1].toDouble())))
+                    val msg = String(message.payload)
+                    if (msg.isNotEmpty()) {
+                        val data = msg.split(":")
+                        if (data[0] != android_id) {
+                            val lat = truncateDecimal(data[1].toDouble(), 5).toDouble()
+                            val lng = truncateDecimal(data[2].toDouble(),5).toDouble()
+                            rxBus.send(FriendLocation(LatLng(lat, lng)))
+                        }
+                    }
             }
         }
     }
@@ -96,11 +106,10 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
     override fun onDestroy() {
         sub.unsubscribe()
         try {
-            mqttClient?.disconnect(0)
+            mqttClient?.disconnect()
         } catch (e: MqttException) {
-            Toast.makeText(applicationContext, "Something went wrong!" + e.message, Toast.LENGTH_LONG).show()
+            toast("Something went wrong!" + e.message)
             e.printStackTrace()
         }
-
     }
 }
