@@ -88,8 +88,8 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
                     if (msg.isNotEmpty()) {
                         val data = msg.split(":")
                         if (data[0] != android_id) {
-                            val lat = truncateDecimal(data[1].toDouble(), 5).toDouble()
-                            val lng = truncateDecimal(data[2].toDouble(),5).toDouble()
+                            val lat = data[1].toDouble()
+                            val lng = data[2].toDouble()
                             rxBus.send(FriendLocation(LatLng(lat, lng)))
                         }
                     }
