@@ -6,7 +6,7 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 5
+def versionPatch = 6
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
