@@ -34,9 +34,11 @@ import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.utils.RxBus
+import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
+import java.util.concurrent.TimeUnit
 
 class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, PermissionListener,
         GoogleMap.OnCameraMoveListener,
@@ -49,7 +51,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     lateinit var googleApiClient: GoogleApiClient
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
-
 
     var isMapReady = false
 
@@ -70,8 +71,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     val activityManager: ActivityManager by withContext(this).instance()
     val rxBus: RxBus by instance()
 
-    var lastKnownLocation: Location? = null
-
     @StringRes
     override fun getActivityTitle(): Int {
         return R.string.app_name
@@ -84,7 +83,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         presenter.attachView(this)
 
         Dexter.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -119,8 +117,9 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
             compositeSubscription.add(presenter.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION, BounceInterpolator())
                     .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION, BounceInterpolator()))
                     .subscribe())
-            if (serviceIsRunning())
+            if (serviceIsRunning()) {
                 stopMQTTLocationService()
+            }
         }
 
         compositeSubscription.add(rxBus.toObservable()
@@ -158,20 +157,38 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
 
     override fun onLocationChanged(location: Location?) {
         location?.let {
-            rxBus.send(MyLocation(LatLng(location.latitude, location.longitude)))
-            googleMap?.createAndAddMarker(LatLng(location.latitude, location.longitude), R.mipmap.ic_totem)
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_ZOOM))
+            val lat = location.latitude
+            val lng = location.longitude
+            rxBus.send(MyLocation(LatLng(lat, lng)))
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
         }
     }
+
 
     override fun onConnected(connectionHint: Bundle?) {
         val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
         location?.let {
-            rxBus.send(MyLocation(LatLng(location.latitude, location.longitude)))
-            googleMap?.createAndAddMarker(LatLng(location.latitude, location.longitude), R.mipmap.ic_totem)
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), DEFAULT_ZOOM))
+            val lat = location.latitude
+            val lng = location.longitude
+
+            rxBus.send(MyLocation(LatLng(lat, lng)))
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
         }
+        compositeSubscription.add(Observable.interval(5000, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    val currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+                    currentLocation?.let {
+                        val lat = location.latitude
+                        val lng = location.longitude
+                        rxBus.send(MyLocation(LatLng(lat, lng)))
+                    }
+                })
     }
+
 
     private fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
         this.addMarker(MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
