@@ -28,6 +28,7 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
+import org.jetbrains.anko.toast
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FriendLocation
@@ -168,6 +169,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
 
     override fun onLocationChanged(location: Location?) {
         location?.let {
+            googleMap?.clear()
             val lat = location.latitude
             val lng = location.longitude
             rxBus.send(MyLocation(LatLng(lat, lng)))
@@ -205,6 +207,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     private fun stopMQTTLocationService() {
         val intent = Intent(this, MQTTService::class.java)
         stopService(intent)
+        toast("Client stopped")
     }
 
     private fun serviceIsRunning(): Boolean {
@@ -238,6 +241,9 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onDestroy() {
         presenter.detachView()
         compositeSubscription.unsubscribe()
+        if (serviceIsRunning()) {
+            stopMQTTLocationService()
+        }
         super.onDestroy()
     }
 }
