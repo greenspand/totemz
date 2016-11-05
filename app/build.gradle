@@ -6,7 +6,7 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 6
+def versionPatch = 7
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
@@ -54,29 +54,30 @@ dependencies {
     compile "org.jetbrains.anko:anko-appcompat-v7:${ANKO_VERSION}"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
-    //KOtlin extensions
+    /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
 
-    //Permissions
+    /**Permissions*/
     compile 'com.karumi:dexter:2.3.1'
 
-    //MQTT
+    /**MQTT*/
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
 
 
-    //DI Framework
-    compile 'com.github.salomonbrys.kodein:kodein:3.0.0'
-    compile 'com.github.salomonbrys.kodein:kodein-android:3.0.0'
+    /**DI Framework*/
+    compile 'com.github.salomonbrys.kodein:kodein:3.1.0'
+    compile 'com.github.salomonbrys.kodein:kodein-android:3.1.0'
 
-    //Reactive Extensions
+
+    /**Reactive Extensions*/
     compile 'io.reactivex:rxjava:1.1.6'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'io.reactivex:rxkotlin:0.60.0'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    //Fabric IO crashlytics
+    /**Fabric IO crashlytics*/
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
         transitive = true;
     }
