@@ -2,9 +2,13 @@ package ro.cluj.totemz.map
 
 import android.Manifest
 import android.app.ActivityManager
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.location.Location
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.MediaStore
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
@@ -69,6 +73,8 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     val presenter: TotemzMapPresenter by instance()
     val activityManager: ActivityManager by withContext(this).instance()
     val rxBus: RxBus by instance()
+    var mService: MQTTService? = null
+    var mBound = false
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -108,7 +114,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                     .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION, BounceInterpolator()))
                     .subscribe())
             if (!serviceIsRunning()) {
-                startService(intentFor<MQTTService>())
+                bindService( Intent(this, MQTTService::class.java), mConnection, Context.BIND_AUTO_CREATE)
             }
         }
 
@@ -117,7 +123,10 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                     .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION, BounceInterpolator()))
                     .subscribe())
             if (serviceIsRunning()) {
-                stopMQTTLocationService()
+                if (mBound) {
+                    unbindService(mConnection)
+                    mBound = false
+                }
             }
         }
 
@@ -132,7 +141,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                     }
                 })
 
-        startService(intentFor<MQTTService>())
     }
 
     // Permission request callback
@@ -145,6 +153,23 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
                     getLocationAndAnimateMarker()
                 }
             }
+        }
+    }
+
+
+
+    /** Defines callbacks for service binding, passed to bindService()  */
+    private val mConnection = object : ServiceConnection {
+
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            val binder = service as MQTTService.LocalBinder
+            mService = binder.service
+            mBound = true
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            mBound = false
         }
     }
 
@@ -231,11 +256,18 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     override fun onStart() {
         super.onStart()
         googleApiClient.connect()
+        // Bind to LocalService
+        bindService( Intent(this, MQTTService::class.java), mConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         super.onStop()
         googleApiClient.disconnect()
+        // Unbind from the service
+        if (mBound) {
+            unbindService(mConnection)
+            mBound = false
+        }
     }
 
     override fun onDestroy() {
