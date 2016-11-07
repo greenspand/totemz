@@ -23,7 +23,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
 
-class MQTTService() : Service(), MqttCallback, IMqttActionListener, KodeinInjected {
+class MQTTService() : Service(), MqttCallbackExtended, IMqttActionListener, KodeinInjected {
 
 
     override val injector = KodeinInjector()
@@ -48,6 +48,7 @@ class MQTTService() : Service(), MqttCallback, IMqttActionListener, KodeinInject
         val service: MQTTService
             get() = this@MQTTService
     }
+
     override fun onCreate() {
         super.onCreate()
         inject(appKodein())
@@ -61,31 +62,40 @@ class MQTTService() : Service(), MqttCallback, IMqttActionListener, KodeinInject
         }
     }
 
-    private fun publishMsg(topic: String, msg: String) {
-        mqttClient?.let {
-            if (it.isConnected) {
-                val message = MqttMessage(msg.toByteArray())
-                message.qos = 2
-                mqttClient?.publish(topic, message)
-            }
-        }
-    }
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        val mqttConnectOptions = MqttConnectOptions()
+        mqttConnectOptions.isAutomaticReconnect = true
+        mqttConnectOptions.isCleanSession = false
+        mqttClient = MqttAndroidClient(this, BROKER_URL, userInfo.id)
         try {
-            mqttClient = MqttAndroidClient(this@MQTTService, BROKER_URL, userInfo.id, MemoryPersistence())
-            mqttClient?.setCallback(this@MQTTService)
-            mqttClient?.connect()
+            mqttClient?.connect(mqttConnectOptions, null, this)
         } catch(e: MqttException) {
             toast("Error" + e.message)
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
+
+    private fun publishMsg(topic: String, msg: String) {
+        mqttClient?.let {
+            if (it.isConnected) {
+                val message = MqttMessage(msg.toByteArray())
+                it.publish(topic, message)
+            }
+        }
+    }
+
+
     override fun onSuccess(asyncActionToken: IMqttToken?) {
         Log.i("MQTT", "Client connected")
         Log.i("MQTT", "Topics=" + asyncActionToken?.topics)
-        mqttClient?.subscribe(TOPIC_FRIEND, 2)
+        val disconnectedBufferOptions = DisconnectedBufferOptions()
+        disconnectedBufferOptions.isBufferEnabled = true
+        disconnectedBufferOptions.bufferSize = 100
+        disconnectedBufferOptions.isPersistBuffer = false
+        disconnectedBufferOptions.isDeleteOldestMessages = false
+        mqttClient?.setBufferOpts(disconnectedBufferOptions)
+        mqttClient?.subscribe(TOPIC_FRIEND, 0, null, this)
         toast("Client connected")
     }
 
@@ -97,6 +107,11 @@ class MQTTService() : Service(), MqttCallback, IMqttActionListener, KodeinInject
         toast("Connection to Server lost")
     }
 
+    override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+        if (reconnect) {
+            mqttClient?.subscribe(TOPIC_FRIEND, 0, null, this)
+        }
+    }
 
     @Throws(Exception::class)
     override fun messageArrived(topic: String, message: MqttMessage) {
@@ -126,8 +141,7 @@ class MQTTService() : Service(), MqttCallback, IMqttActionListener, KodeinInject
         try {
             mqttClient?.let { if (it.isConnected) it.disconnectForcibly() }
         } catch (e: MqttException) {
-            toast("Something went wrong!" + e.message)
-            e.printStackTrace()
         }
+        super.onDestroy()
     }
 }
