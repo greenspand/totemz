@@ -63,14 +63,18 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         doAsync {
             try {
+                val connOpts = MqttConnectOptions()
+                connOpts.isCleanSession = true
+                connOpts.connectionTimeout = 3000
+                connOpts.keepAliveInterval = 10 * 60
                 mqttClient = MqttClient(BROKER_URL, userInfo.id, MemoryPersistence())
                 mqttClient.setCallback(this@MQTTService)
-                mqttClient.connect()
+                mqttClient.connectWithResult(connOpts)
                 mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
                 runOnUiThread {
                     toast("Client connected")
                 }
-            } catch(e: MqttException) {
+            } catch(e: MqttException ) {
                 runOnUiThread {
                     toast("Error" + e.message)
                 }
