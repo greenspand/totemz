@@ -28,7 +28,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
 
-class MQTTService() : Service(), MqttCallback, KodeinInjected {
+class MQTTService() : Service(), MqttCallback, ViewMQTT, KodeinInjected {
 
   override val injector = KodeinInjector()
   val rxBus: RxBus by instance()
@@ -37,7 +37,7 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
   var TOPIC_USER = "/user/"
   var TOPIC_FRIEND = "/friend/"
   val BROKER_URL = "tcp://greenspand.ddns.net:4000"
-
+  lateinit var presenter: PresenterMQTT
   lateinit var mqttClient: MqttClient
 
   lateinit var sub: Subscription
@@ -57,6 +57,8 @@ class MQTTService() : Service(), MqttCallback, KodeinInjected {
         }
       }
     }
+    presenter = PresenterMQTT()
+    presenter.attachView(this)
   }
 
   private fun publishMsg(topic: String, msg: String) {
