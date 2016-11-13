@@ -2,7 +2,6 @@ package ro.cluj.totemz.mqtt
 
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import com.github.salomonbrys.kodein.KodeinInjected
@@ -10,9 +9,15 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
-import org.eclipse.paho.android.service.MqttAndroidClient
-import org.eclipse.paho.client.mqttv3.*
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.MqttCallback
+import org.eclipse.paho.client.mqttv3.MqttClient
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
@@ -23,125 +28,104 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
 
-class MQTTService() : Service(), MqttCallbackExtended, IMqttActionListener, KodeinInjected {
+class MQTTService() : Service(), MqttCallback, KodeinInjected {
 
+  override val injector = KodeinInjector()
+  val rxBus: RxBus by instance()
+  val userInfo: UserInfo by instance()
+  val TAG = MQTTService::class.java.simpleName
+  var TOPIC_USER = "/user/"
+  var TOPIC_FRIEND = "/friend/"
+  val BROKER_URL = "tcp://greenspand.ddns.net:4000"
 
-    override val injector = KodeinInjector()
-    val rxBus: RxBus by instance()
-    val userInfo: UserInfo by instance()
-    var TOPIC_USER = "/user/"
-    var TOPIC_FRIEND = "/friend/"
-    val BROKER_URL = "tcp://greenspand.ddns.net:4000"
+  lateinit var mqttClient: MqttClient
 
-    var mqttClient: MqttAndroidClient? = null
+  lateinit var sub: Subscription
 
-    lateinit var sub: Subscription
+  override fun onBind(intent: Intent): IBinder? {
+    return null
+  }
 
-    private val binder = LocalBinder()
-
-    //BInder implementation details
-    override fun onBind(intent: Intent): IBinder? {
-        return binder
-    }
-
-    inner class LocalBinder : Binder() {
-        val service: MQTTService
-            get() = this@MQTTService
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        inject(appKodein())
-        sub = rxBus.toObservable().subscribeOn(Schedulers.computation()).observeOn(AndroidSchedulers.mainThread()).subscribe {
-            o ->
-            when (o) {
-                is MyLocation -> {
-                    publishMsg(TOPIC_USER, "${userInfo.id}:${o.location.latitude}:${o.location.longitude}")
-                }
-            }
+  override fun onCreate() {
+    super.onCreate()
+    inject(appKodein())
+    sub = rxBus.toObservable().subscribeOn(Schedulers.computation()).observeOn(
+        AndroidSchedulers.mainThread()).subscribe { o ->
+      when (o) {
+        is MyLocation -> {
+          publishMsg(TOPIC_USER, "${userInfo.id}:${o.location.latitude}:${o.location.longitude}")
         }
+      }
     }
+  }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val mqttConnectOptions = MqttConnectOptions()
-        mqttConnectOptions.isAutomaticReconnect = true
-        mqttConnectOptions.isCleanSession = false
-        mqttClient = MqttAndroidClient(this, BROKER_URL, userInfo.id)
-        try {
-            mqttClient?.connect(mqttConnectOptions, null, this)
-        } catch(e: MqttException) {
-            toast("Error" + e.message)
+  private fun publishMsg(topic: String, msg: String) {
+    if (mqttClient.isConnected) {
+      val message = MqttMessage(msg.toByteArray())
+      mqttClient.publish(topic, message)
+    }
+  }
+
+  override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    doAsync {
+      try {
+        val connOpts = MqttConnectOptions()
+        connOpts.isCleanSession = true
+        connOpts.connectionTimeout = 3000
+        connOpts.keepAliveInterval = 10 * 60
+        mqttClient = MqttClient(BROKER_URL, userInfo.id, MemoryPersistence())
+        mqttClient.setCallback(this@MQTTService)
+        mqttClient.connectWithResult(connOpts)
+        mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
+        runOnUiThread {
+          toast("Client connected")
         }
-        return super.onStartCommand(intent, flags, startId)
-    }
-
-
-    private fun publishMsg(topic: String, msg: String) {
-        mqttClient?.let {
-            if (it.isConnected) {
-                val message = MqttMessage(msg.toByteArray())
-                it.publish(topic, message)
-            }
+      } catch(e: MqttException) {
+        runOnUiThread {
+          Log.e(TAG, e.message);
+          toast("Error" + e.message)
         }
+      }
     }
+    return super.onStartCommand(intent, flags, startId)
+  }
 
+  override fun connectionLost(cause: Throwable) {
+    toast("Connection to Server lost")
+  }
 
-    override fun onSuccess(asyncActionToken: IMqttToken?) {
-        Log.i("MQTT", "Client connected")
-        Log.i("MQTT", "Topics=" + asyncActionToken?.topics)
-        val disconnectedBufferOptions = DisconnectedBufferOptions()
-        disconnectedBufferOptions.isBufferEnabled = true
-        disconnectedBufferOptions.bufferSize = 100
-        disconnectedBufferOptions.isPersistBuffer = false
-        disconnectedBufferOptions.isDeleteOldestMessages = false
-        mqttClient?.setBufferOpts(disconnectedBufferOptions)
-        mqttClient?.subscribe(TOPIC_FRIEND, 0, null, this)
-        toast("Client connected")
-    }
-
-    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-        toast("Couldn't connect to server")
-    }
-
-    override fun connectionLost(cause: Throwable) {
-        toast("Connection to Server lost")
-    }
-
-    override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-        if (reconnect) {
-            mqttClient?.subscribe(TOPIC_FRIEND, 0, null, this)
+  @Throws(Exception::class)
+  override fun messageArrived(topic: String, message: MqttMessage) {
+    when (topic) {
+      TOPIC_FRIEND -> {
+        val msg = String(message.payload)
+        if (msg.isNotEmpty()) {
+          val data = msg.split(":")
+          if (data[0] != userInfo.id) {
+            val lat = data[1].toDouble()
+            val lng = data[2].toDouble()
+            rxBus.send(FriendLocation(LatLng(lat, lng)))
+          }
         }
+      }
     }
+  }
 
-    @Throws(Exception::class)
-    override fun messageArrived(topic: String, message: MqttMessage) {
-        when (topic) {
-            TOPIC_FRIEND -> {
-                val msg = String(message.payload)
-                if (msg.isNotEmpty()) {
-                    val data = msg.split(":")
-                    if (data[0] != userInfo.id) {
-                        val lat = data[1].toDouble()
-                        val lng = data[2].toDouble()
-                        rxBus.send(FriendLocation(LatLng(lat, lng)))
-                    }
-                }
-            }
-        }
+  override fun deliveryComplete(token: IMqttDeliveryToken) {
+    Log.i("MSG", "delivery copmplete")
+
+  }
+
+  override fun onDestroy() {
+    sub.unsubscribe()
+    try {
+      if (mqttClient.isConnected) {
+        mqttClient.disconnectForcibly()
+        toast("Client disconnected")
+      }
+    } catch (e: MqttException) {
+      toast("Something went wrong!" + e.message)
+      e.printStackTrace()
     }
-
-
-    override fun deliveryComplete(token: IMqttDeliveryToken) {
-        Log.i("MSG", "delivery copmplete")
-
-    }
-
-    override fun onDestroy() {
-        sub.unsubscribe()
-        try {
-            mqttClient?.let { if (it.isConnected) it.disconnectForcibly() }
-        } catch (e: MqttException) {
-        }
-        super.onDestroy()
-    }
+  }
 }
