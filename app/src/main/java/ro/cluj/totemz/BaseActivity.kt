@@ -10,35 +10,28 @@ import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
-import com.github.salomonbrys.kodein.instance
-import com.greenspand.kotlin_ext.snack
-import ro.cluj.totemz.model.MyLocation
-import ro.cluj.totemz.utils.RxBus
-import rx.functions.Action1
-import rx.subscriptions.CompositeSubscription
 
 /**
  * Created by sorin on 8/21/16.
  */
 abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
 
-    abstract fun getActivityTitle(): Int
+  abstract fun getActivityTitle(): Int
 
-    abstract fun getRootLayout(): View
+  abstract fun getRootLayout(): View
 
-    override val injector = KodeinInjector()
+  override val injector = KodeinInjector()
 
-    //Inject components
-    val notificationManager: NotificationManager by withContext(this).instance()
-    val sharedPrefs: SharedPreferences by withContext(this).instance()
+  //Inject components
+  val notificationManager: NotificationManager by withContext(this).instance()
+  val sharedPrefs: SharedPreferences by withContext(this).instance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        inject(appKodein())
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    inject(appKodein())
+  }
 
-    override fun setTitle(title: CharSequence) {
-        super.setTitle(getActivityTitle())
-    }
-
+  override fun setTitle(title: CharSequence) {
+    if(getActivityTitle()!= 0){super.setTitle(getActivityTitle())}
+  }
 }

@@ -28,7 +28,7 @@ android {
     release {
       minifyEnabled false
       shrinkResources false
-      multiDexEnabled false
+      multiDexEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
     debug {
@@ -45,9 +45,10 @@ dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   testCompile 'junit:junit:4.12'
   compile "com.android.support:appcompat-v7:${COMPAT_LIB_V}"
-  compile "com.google.android.gms:play-services-auth:${PLAY_SERVICES_VERSION}"
   compile "com.google.android.gms:play-services-maps:${PLAY_SERVICES_VERSION}"
   compile "com.google.android.gms:play-services-location:${PLAY_SERVICES_VERSION}"
+  compile "com.google.firebase:firebase-core:${PLAY_SERVICES_VERSION}"
+  compile "com.google.firebase:firebase-messaging:${PLAY_SERVICES_VERSION}"
   compile "com.android.support:design:${COMPAT_LIB_V}"
   compile "org.jetbrains.anko:anko-sdk15:${ANKO_VERSION}"
   compile "org.jetbrains.anko:anko-support-v4:${ANKO_VERSION}"
@@ -78,12 +79,14 @@ dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
   /**Fabric IO crashlytics*/
-  compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') {
+  compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
     transitive = true;
   }
 
   /**Pulse animation*/
   compile 'pl.bclogic:pulsator4droid:1.0.3'
+
+
 
 }
 apply plugin: 'com.google.gms.google-services'
