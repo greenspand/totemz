@@ -5,57 +5,102 @@
     android:id="@+id/container_totem"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ro.cluj.totemz.map.TotemzMapActivity">
+    tools:context="ro.cluj.totemz.map.TotemzMapActivity"
+    >
 
-    <include
-        android:id="@+id/moovel_toolbar"
-        layout="@layout/toolbar" />
+  <include
+      layout="@layout/toolbar"
+      android:id="@+id/moovel_toolbar"
+      />
 
-    <fragment
-        android:id="@+id/frag_map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".TotemzMapActivity" />
+  <fragment
+      android:id="@+id/frag_map"
+      android:name="com.google.android.gms.maps.SupportMapFragment"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context=".TotemzMapActivity"
+      />
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/grid10"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorAccent" />
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="@dimen/grid10"
+      android:layout_alignParentBottom="true"
+      android:background="@color/colorAccent"
+      />
+  <pl.bclogic.pulsator4droid.library.PulsatorLayout
+      android:id="@+id/cont_pulse_camera"
+      android:layout_width="@dimen/grid24"
+      android:layout_height="@dimen/grid24"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentLeft="true"
+      android:layout_alignParentStart="true"
+      app:pulse_color="@color/colorCameraFill"
+      app:pulse_count="1"
+      app:pulse_duration="1000"
+      app:pulse_interpolator="Linear"
+      app:pulse_repeat="1"
+      app:pulse_startFromScratch="false"
+      >
 
     <ImageView
         android:id="@+id/img_camera"
+        android:layout_width="@dimen/grid18"
+        android:layout_height="@dimen/grid18"
+        android:layout_centerInParent="true"
         android:scaleX="0.7"
         android:scaleY="0.7"
-        android:layout_width="@dimen/grid20"
-        android:layout_height="@dimen/grid20"
-        android:layout_margin="@dimen/grid2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        app:srcCompat="@drawable/vector_camera" />
+        app:srcCompat="@drawable/vector_camera"
+        />
+  </pl.bclogic.pulsator4droid.library.PulsatorLayout>
 
+  <pl.bclogic.pulsator4droid.library.PulsatorLayout
+      android:id="@+id/cont_pulse_compass"
+      android:layout_width="@dimen/grid24"
+      android:layout_height="@dimen/grid24"
+      android:layout_alignParentBottom="true"
+      android:layout_centerHorizontal="true"
+      android:layout_gravity="center"
+      app:pulse_color="@color/colorCompassFill"
+      app:pulse_count="1"
+      app:pulse_duration="1000"
+      app:pulse_interpolator="Linear"
+      app:pulse_repeat="0"
+      app:pulse_startFromScratch="false"
+      >
     <ImageView
         android:id="@+id/img_compass"
-        android:layout_width="@dimen/grid20"
-        android:layout_height="@dimen/grid20"
-        android:layout_margin="@dimen/grid2"
-        android:layout_alignParentBottom="true"
+        android:layout_width="@dimen/grid18"
+        android:layout_height="@dimen/grid18"
         android:layout_centerInParent="true"
-        app:srcCompat="@drawable/vector_gps" />
+        app:srcCompat="@drawable/vector_gps"
+        />
+  </pl.bclogic.pulsator4droid.library.PulsatorLayout>
+
+  <pl.bclogic.pulsator4droid.library.PulsatorLayout
+      android:id="@+id/cont_pulse_uer"
+      android:layout_width="@dimen/grid24"
+      android:layout_height="@dimen/grid24"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentRight="true"
+      app:pulse_color="@color/colorUserFill"
+      app:pulse_count="1"
+      app:pulse_duration="1000"
+      app:pulse_interpolator="Linear"
+      app:pulse_repeat="1"
+      app:pulse_startFromScratch="false"
+      >
 
     <ImageView
+        android:id="@+id/img_user"
+        android:layout_width="@dimen/grid18"
+        android:layout_height="@dimen/grid18"
+        android:layout_centerInParent="true"
         android:scaleX="0.7"
         android:scaleY="0.7"
-        android:id="@+id/img_user"
-        android:layout_width="@dimen/grid20"
-        android:layout_height="@dimen/grid20"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="@dimen/grid2"
-        app:srcCompat="@drawable/vector_profle" />
+        app:srcCompat="@drawable/vector_profle"
+        />
+  </pl.bclogic.pulsator4droid.library.PulsatorLayout>
 
 </RelativeLayout>
