@@ -3,6 +3,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'realm-android'
 
 def versionMajor = 0
 def versionMinor = 0
@@ -22,7 +23,7 @@ android {
     versionName "${version}"
     vectorDrawables.useSupportLibrary = true
     /** Keep language resources in libraries only for supported locales*/
-    resConfigs "en", "de"
+    resConfigs "en", "de", "ro"
   }
   buildTypes {
     release {

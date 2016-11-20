@@ -29,19 +29,15 @@ class TotemzApplication : Application(), KodeinAware {
 
     override fun onCreate() {
         super.onCreate()
-
         Fabric.with(this@TotemzApplication, Crashlytics())
         Dexter.initialize(this)
+        Realm.init(this)
 
         val config = realmConfiguration {
             schemaVersion(SCHEMA_VERSION)
             deleteRealmIfMigrationNeeded()
         }
+
         Realm.setDefaultConfiguration(config)
     }
-
-    override fun onTerminate() {
-        super.onTerminate()
-    }
-
 }

@@ -1,13 +1,13 @@
 package ro.cluj.totemz.utils
 
-import android.app.Notification
+import android.content.Context
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
 /**
+ * Realm related extension function expressions
  * Created by sorin on 19.11.16.
  */
-
 
 
 
