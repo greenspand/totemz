@@ -21,7 +21,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 
 
-class MQTTService() : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected {
+class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected {
 
 
     override val injector = KodeinInjector()
