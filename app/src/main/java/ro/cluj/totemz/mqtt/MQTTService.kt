@@ -10,8 +10,10 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
-import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
@@ -19,10 +21,10 @@ import ro.cluj.totemz.utils.RxBus
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
+import timber.log.Timber
 
 
 class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected {
-
 
     override val injector = KodeinInjector()
     val rxBus: RxBus by instance()
@@ -30,8 +32,9 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
+    val ANDROID_OS = "-android"
     lateinit var presenter: PresenterMQTT
-    var client: MqttAndroidClient? = null
+    lateinit var mqttClient: MqttClient
     var clientID: String? = null
     lateinit var sub: Subscription
 
@@ -43,7 +46,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         super.onCreate()
         inject(appKodein())
 
-        clientID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) + "-android"
+        clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
 
         sub = rxBus.toObservable().subscribeOn(Schedulers.computation()).observeOn(
                 AndroidSchedulers.mainThread()).subscribe { o ->
@@ -58,7 +61,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     }
 
     private fun publishMsg(topic: String, msg: String) {
-        client?.let {
+        mqttClient.let {
             if (it.isConnected) {
                 val message = MqttMessage(msg.toByteArray())
                 it.publish(topic, message)
@@ -66,24 +69,39 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         }
     }
 
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val clientID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) + "-android";
-        val options = MqttConnectOptions()
-        options.isCleanSession = true
-        options.connectionTimeout = 3000
-        options.keepAliveInterval = 10 * 60
-        client = MqttAndroidClient(this, BROKER_URL, clientID)
-        client?.connect(options, null, this)
-        client?.setCallback(this)
+        val clientID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) + "-android"
+//        val options = MqttConnectOptions()
+//        options.isCleanSession = true
+//        options.connectionTimeout = 3000
+//        options.keepAliveInterval = 10 * 60
+        doAsync {
+            try {
+                mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
+                mqttClient.setCallback(this@MQTTService)
+                mqttClient.connect()
+                mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
+                runOnUiThread {
+                    toast("Client connected")
+                }
+            } catch(e: MqttException) {
+                Timber.e(e)
+                runOnUiThread {
+                    toast("Error" + e.message)
+                }
+            }
+        }
         return super.onStartCommand(intent, flags, startId)
     }
+
 
     override fun connectionLost(cause: Throwable) {
         toast("Connection to Server lost")
     }
 
     override fun onSuccess(asyncActionToken: IMqttToken?) {
-        client?.subscribe(TOPIC_FRIEND, 0)
+        mqttClient.subscribe(TOPIC_FRIEND, 0)
         toast("Connected")
     }
 
@@ -109,20 +127,15 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     }
 
     override fun deliveryComplete(token: IMqttDeliveryToken) {
-        Log.i("MSG", "delivery copmplete")
-
+        Log.i("MSG", "delivery complete")
     }
 
     override fun onDestroy() {
         sub.unsubscribe()
         try {
-            client?.let {
-                if (it.isConnected) {
-                    it.disconnectForcibly()
-                    toast("Client disconnected")
-                }
-            }
+            mqttClient.disconnect()
         } catch (e: MqttException) {
+            Timber.e(e)
             toast("Something went wrong!" + e.message)
             e.printStackTrace()
         }
