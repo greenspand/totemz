@@ -13,7 +13,7 @@ version "${versionMajor}.${versionMinor}.${versionPatch}"
 
 android {
   compileSdkVersion 25
-  buildToolsVersion "25.0.0"
+  buildToolsVersion "25.0.2"
 
   defaultConfig {
     applicationId "ro.cluj.totemz"
@@ -68,8 +68,8 @@ dependencies {
 
 
   /**DI Framework*/
-  compile 'com.github.salomonbrys.kodein:kodein:3.1.0'
-  compile 'com.github.salomonbrys.kodein:kodein-android:3.1.0'
+  compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
+  compile "com.github.salomonbrys.kodein:kodein-android:$kodeinVersion"
 
 
   /**Reactive Extensions*/
