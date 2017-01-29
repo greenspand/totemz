@@ -10,6 +10,7 @@ import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
+import com.github.salomonbrys.kodein.instance
 
 /**
  * Created by sorin on 8/21/16.

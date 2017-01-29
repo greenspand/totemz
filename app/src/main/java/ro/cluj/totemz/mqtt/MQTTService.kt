@@ -29,7 +29,7 @@ class MQTTService() : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Ko
     val TAG = MQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
-    val BROKER_URL = "tcp://greenspand.ddns.net:4000"
+    val BROKER_URL = "tcp://totemz.ddns.net:4000"
     lateinit var presenter: PresenterMQTT
     var client: MqttAndroidClient? = null
     var clientID: String? = null

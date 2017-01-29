@@ -2,11 +2,8 @@ package ro.cluj.totemz
 
 import android.app.Application
 import com.crashlytics.android.Crashlytics
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.KodeinAware
+import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
-import com.github.salomonbrys.kodein.lazy
-import com.github.salomonbrys.kodein.singleton
 import com.karumi.dexter.Dexter
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
