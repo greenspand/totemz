@@ -163,10 +163,7 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
             }
           }
         })
-
-
     cont_pulse_compass.start()
-
     Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
   }
 
@@ -188,7 +185,6 @@ class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, Per
     return location?.let {
       val lat = location.latitude
       val lng = location.longitude
-
       rxBus.send(MyLocation(LatLng(lat, lng)))
       googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
       googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))

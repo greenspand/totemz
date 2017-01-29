@@ -134,6 +134,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         sub.unsubscribe()
         try {
             mqttClient.disconnect()
+            toast("Client disconnected")
         } catch (e: MqttException) {
             Timber.e(e)
             toast("Something went wrong!" + e.message)
