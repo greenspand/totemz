@@ -7,7 +7,7 @@ apply plugin: 'realm-android'
 
 def versionMajor = 0
 def versionMinor = 0
-def versionPatch = 7
+def versionPatch = 8
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
