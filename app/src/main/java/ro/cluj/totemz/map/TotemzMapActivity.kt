@@ -16,11 +16,7 @@ import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.LocationSource
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -30,13 +26,7 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
-import kotlinx.android.synthetic.main.activity_main.cont_pulse_camera
-import kotlinx.android.synthetic.main.activity_main.cont_pulse_compass
-import kotlinx.android.synthetic.main.activity_main.cont_pulse_uer
-import kotlinx.android.synthetic.main.activity_main.container_totem
-import kotlinx.android.synthetic.main.activity_main.img_camera
-import kotlinx.android.synthetic.main.activity_main.img_compass
-import kotlinx.android.synthetic.main.activity_main.img_user
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
@@ -44,230 +34,238 @@ import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.utils.RxBus
+import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subscriptions.CompositeSubscription
-import java.util.Timer
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.timerTask
 
 class TotemzMapActivity : BaseActivity(), TotemzMapView, OnMapReadyCallback, PermissionListener,
-    GoogleMap.OnCameraMoveListener,
-    LocationSource.OnLocationChangedListener,
-    GoogleApiClient.ConnectionCallbacks,
-    GoogleApiClient.OnConnectionFailedListener {
+        GoogleMap.OnCameraMoveListener,
+        LocationSource.OnLocationChangedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
 
-  var googleMap: GoogleMap? = null
-  lateinit var googleApiClient: GoogleApiClient
+    var googleMap: GoogleMap? = null
+    lateinit var googleApiClient: GoogleApiClient
 
-  val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
+    val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
 
-  var isMapReady = false
+    var isMapReady = false
 
-  // Map properties
-  val DEFAULT_ZOOM = 6f
-  var CAMERA_REQUEST = 93
+    // Map properties
+    val DEFAULT_ZOOM = 6f
+    var CAMERA_REQUEST = 93
 
-  //Animation properties
-  val SCALE_UP = 1f
-  val SCALE_DOWN = 0.7f
-  val DURATION = 300L
-  val TAG = TotemzMapActivity::class.java.simpleName
-  
-  //Subscriptions
-  val compositeSubscription = CompositeSubscription()
+    //Animation properties
+    val SCALE_UP = 1f
+    val SCALE_DOWN = 0.7f
+    val DURATION = 300L
+    val TAG = TotemzMapActivity::class.java.simpleName
 
-  //Injections
-  val presenterTotemzMap: TotemzMapPresenter by instance()
-  val activityManager: ActivityManager by withContext(this).instance()
-  val rxBus: RxBus by instance()
+    //Subscriptions
+    val subscriptions = CompositeSubscription()
 
-  @StringRes
-  override fun getActivityTitle(): Int {
-    return R.string.app_name
-  }
+    //Injections
+    val presenterTotemzMap: TotemzMapPresenter by instance()
+    val activityManager: ActivityManager by withContext(this).instance()
+    val rxBus: RxBus by instance()
 
-  override fun getRootLayout(): View {
-    return container_totem
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
-    presenterTotemzMap.attachView(this)
-
-    Dexter.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-
-    //init google API client
-    googleApiClient = GoogleApiClient.Builder(this).addConnectionCallbacks(
-        this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build()
-
-    // Get Map
-    val mapFragment = supportFragmentManager.findFragmentById(R.id.frag_map) as SupportMapFragment
-    mapFragment.getMapAsync(this@TotemzMapActivity)
-
-    // Set menu click listeners
-    img_camera.setOnClickListener {
-      compositeSubscription.add(
-          presenterTotemzMap.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
-              BounceInterpolator()).mergeWith(
-              presenterTotemzMap.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
-                  DURATION, BounceInterpolator()))
-
-              .subscribe({
-                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                startActivityForResult(cameraIntent, CAMERA_REQUEST)
-              }))
-      cont_pulse_camera.start()
-      cont_pulse_compass.stop()
+    @StringRes
+    override fun getActivityTitle(): Int {
+        return R.string.app_name
     }
 
-    img_compass.setOnClickListener {
-      compositeSubscription.add(
-          presenterTotemzMap.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
-              BounceInterpolator())
-              .mergeWith(
-                  presenterTotemzMap.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN,
-                      DURATION,
-                      BounceInterpolator()))
-              .subscribe())
-      cont_pulse_compass.start()
-      if (!serviceIsRunning()) {
-        startService(intentFor<MQTTService>())
-      }
+    override fun getRootLayout(): View {
+        return container_totem
     }
 
-    img_user.setOnClickListener {
-      compositeSubscription.add(
-          presenterTotemzMap.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
-              BounceInterpolator())
-              .mergeWith(
-                  presenterTotemzMap.scaleAnimation(arrayListOf(img_camera, img_compass),
-                      SCALE_DOWN,
-                      DURATION, BounceInterpolator()))
-              .subscribe())
-      if (serviceIsRunning()) {
-        stopMQTTLocationService()
-      }
-      cont_pulse_uer.start()
-      cont_pulse_compass.stop()
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        presenterTotemzMap.attachView(this)
 
-    compositeSubscription.add(rxBus.toObservable()
-        .subscribeOn(Schedulers.computation())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { o ->
-          when (o) {
-            is FriendLocation -> googleMap?.let {
-              googleMap?.createAndAddMarker(o.location, R.mipmap.ic_totem)
-            }
-          }
-        })
-    cont_pulse_compass.start()
-    Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
-  }
+        Dexter.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
-  // Permission request callback
-  override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-    response?.let {
-      if (response.permissionName == Manifest.permission.ACCESS_FINE_LOCATION) {
-        googleMap?.let {
-          it.isMyLocationEnabled = true
-          it.uiSettings.isMyLocationButtonEnabled = true
-          getLocationAndAnimateMarker()
+        //init google API client
+        googleApiClient = GoogleApiClient.Builder(this).addConnectionCallbacks(
+                this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build()
+
+        // Get Map
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.frag_map) as SupportMapFragment
+        mapFragment.getMapAsync(this@TotemzMapActivity)
+
+        // Set menu click listeners
+        img_camera.setOnClickListener {
+            subscriptions.add(
+                    presenterTotemzMap.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
+                            BounceInterpolator()).mergeWith(
+                            presenterTotemzMap.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
+                                    DURATION, BounceInterpolator()))
+
+                            .subscribe({
+                                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+                            }))
+            cont_pulse_camera.start()
+            cont_pulse_compass.stop()
         }
-      }
+
+        img_compass.setOnClickListener {
+            subscriptions.add(
+                    presenterTotemzMap.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
+                            BounceInterpolator())
+                            .mergeWith(
+                                    presenterTotemzMap.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN,
+                                            DURATION,
+                                            BounceInterpolator()))
+                            .subscribe())
+            cont_pulse_compass.start()
+            if (!serviceIsRunning()) {
+                startService(intentFor<MQTTService>())
+            }
+        }
+
+        img_user.setOnClickListener {
+            subscriptions.add(
+                    presenterTotemzMap.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
+                            BounceInterpolator())
+                            .mergeWith(
+                                    presenterTotemzMap.scaleAnimation(arrayListOf(img_camera, img_compass),
+                                            SCALE_DOWN,
+                                            DURATION, BounceInterpolator()))
+                            .subscribe())
+            if (serviceIsRunning()) {
+                stopMQTTLocationService()
+            }
+            cont_pulse_uer.start()
+            cont_pulse_compass.stop()
+        }
+
+        subscriptions.add(rxBus.toObservable()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { o ->
+                    when (o) {
+                        is FriendLocation -> googleMap?.let {
+                            googleMap?.createAndAddMarker(o.location, R.mipmap.ic_totem)
+                        }
+                    }
+                })
+        cont_pulse_compass.start()
+        Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
     }
-  }
 
-  private fun getLocationAndAnimateMarker(): Unit? {
-    val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-    return location?.let {
-      val lat = location.latitude
-      val lng = location.longitude
-      rxBus.send(MyLocation(LatLng(lat, lng)))
-      googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
-      googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+    // Permission request callback
+    override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+        response?.let {
+            if (response.permissionName == Manifest.permission.ACCESS_FINE_LOCATION) {
+                googleMap?.let {
+                    it.isMyLocationEnabled = true
+                    it.uiSettings.isMyLocationButtonEnabled = true
+                    getLocationAndAnimateMarker()
+                }
+            }
+        }
     }
-  }
 
-  override fun onMapReady(googleMap: GoogleMap?) {
-    googleMap?.let {
-      isMapReady = true
-      this.googleMap = googleMap
+    private fun getLocationAndAnimateMarker() {
+        val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+        location?.let {
+            val lat = location.latitude
+            val lng = location.longitude
+            rxBus.send(MyLocation(LatLng(lat, lng)))
+            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+            val subInterval = Observable.interval(6000, TimeUnit.MILLISECONDS)
+                    .subscribeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe {
+                rxBus.send(MyLocation(LatLng(lat, lng)))
+            }
+            subscriptions.add(subInterval)
+        }
     }
-  }
 
-  override fun onLocationChanged(location: Location?) {
-    location?.let {
-      val lat = location.latitude
-      val lng = location.longitude
-      rxBus.send(MyLocation(LatLng(lat, lng)))
-      googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
-      googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
+    override fun onMapReady(googleMap: GoogleMap?) {
+        googleMap?.let {
+            isMapReady = true
+            this.googleMap = googleMap
+        }
     }
-  }
 
-  override fun onConnected(connectionHint: Bundle?) {
-    getLocationAndAnimateMarker()
-  }
-
-  private fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
-    this.addMarker(
-        MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
-  }
-
-  override fun onCameraMove() {
-  }
-
-  override fun onConnectionSuspended(p0: Int) {
-  }
-
-  override fun onConnectionFailed(p0: ConnectionResult) {
-  }
-
-  override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest?,
-      token: PermissionToken?) {
-  }
-
-  override fun onPermissionDenied(response: PermissionDeniedResponse?) {
-  }
-
-  private fun stopMQTTLocationService() {
-    val intent = Intent(this, MQTTService::class.java)
-    stopService(intent)
-  }
-
-  private fun serviceIsRunning(): Boolean {
-    for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
-      if (SERVICE_CLASSNAME == service.service.className) {
-        Log.i("MQTT", "SERVICE IS RUNNING")
-        return true
-      }
+    override fun onLocationChanged(location: Location?) {
+        location?.let {
+            googleMap?.clear()
+            val lat = location.latitude
+            val lng = location.longitude
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
+        }
     }
-    Log.i("MQTT", "SERVICE HAS STOPPED")
-    return false
-  }
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    if (requestCode == CAMERA_REQUEST && resultCode === RESULT_OK) {
+    override fun onConnected(connectionHint: Bundle?) {
+        getLocationAndAnimateMarker()
+    }
+
+    private fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
+        this.addMarker(
+                MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
+    }
+
+    override fun onCameraMove() {
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+    }
+
+    override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest?,
+                                                    token: PermissionToken?) {
+    }
+
+    override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+    }
+
+    private fun stopMQTTLocationService() {
+        val intent = Intent(this, MQTTService::class.java)
+        stopService(intent)
+    }
+
+    private fun serviceIsRunning(): Boolean {
+        for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (SERVICE_CLASSNAME == service.service.className) {
+                Log.i("MQTT", "SERVICE IS RUNNING")
+                return true
+            }
+        }
+        Log.i("MQTT", "SERVICE HAS STOPPED")
+        return false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == CAMERA_REQUEST && resultCode === RESULT_OK) {
 //            val photo = data?.extras?.get("data") as Bitmap
+        }
     }
-  }
 
-  override fun onStart() {
-    super.onStart()
-    googleApiClient.connect()
-  }
+    override fun onStart() {
+        super.onStart()
+        googleApiClient.connect()
+    }
 
-  override fun onStop() {
-    super.onStop()
-    googleApiClient.disconnect()
-  }
+    override fun onStop() {
+        super.onStop()
+        googleApiClient.disconnect()
+    }
 
-  override fun onDestroy() {
-    presenterTotemzMap.detachView()
-    compositeSubscription.unsubscribe()
-    super.onDestroy()
-  }
+    override fun onDestroy() {
+        presenterTotemzMap.detachView()
+        subscriptions.unsubscribe()
+        super.onDestroy()
+    }
 }

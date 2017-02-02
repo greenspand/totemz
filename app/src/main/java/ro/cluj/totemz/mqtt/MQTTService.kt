@@ -48,8 +48,10 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 
         clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
 
-        sub = rxBus.toObservable().subscribeOn(Schedulers.computation()).observeOn(
-                AndroidSchedulers.mainThread()).subscribe { o ->
+        sub = rxBus.toObservable()
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { o ->
             when (o) {
                 is MyLocation -> {
                     publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}")
