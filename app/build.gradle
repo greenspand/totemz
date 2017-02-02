@@ -65,6 +65,9 @@ dependencies {
     /**Logger*/
     compile 'com.jakewharton.timber:timber:4.5.1'
 
+    /**Protocol Buffers*/
+    compile 'com.squareup.wire:wire-runtime:2.2.0'
+
     /**MQTT*/
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
