@@ -1,15 +1,13 @@
 package ro.cluj.totemz;
 
-import com.moovel.drivenow.ui.MvpBase;
 
-/**
- * Created by andre on 10/05/16.
- */
+import android.support.annotation.Nullable;
+
 public abstract class BasePresenter<V extends MvpBase.View> implements MvpBase.Presenter<V> {
     private V view;
 
     @Override
-    public void attachView(V view) {
+    public void attachView(@Nullable V view) {
         this.view = view;
     }
 
