@@ -8,5 +8,5 @@ import com.github.salomonbrys.kodein.instance
  * Created by sorin on 23.10.16.
  */
 val mapModule = Kodein.Module {
-    bind<TotemzMapPresenter>() with instance(TotemzMapPresenter())
+    bind<TotemzBasePresenter>() with instance(TotemzBasePresenter())
 }
