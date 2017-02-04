@@ -1,8 +1,5 @@
-package com.moovel.drivenow.ui;
+package ro.cluj.totemz
 
-/**
- * Created by andre on 10/05/16.
- */
 interface MvpBase {
     interface View
 
