@@ -1,6 +1,6 @@
 package ro.cluj.totemz.mqtt
 
-import com.moovel.drivenow.ui.MvpBase
+import ro.cluj.totemz.MvpBase
 
 /**
  * Created by sorin on 7/12/16.
