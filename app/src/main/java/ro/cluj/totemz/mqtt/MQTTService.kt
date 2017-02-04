@@ -10,6 +10,7 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.analytics.FirebaseAnalytics
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.jetbrains.anko.doAsync
@@ -47,17 +48,18 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         inject(appKodein())
 
         clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
+        FirebaseAnalytics.getInstance(this).setUserId(clientID)
 
         sub = rxBus.toObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o ->
-            when (o) {
-                is MyLocation -> {
-                    publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}")
+                    when (o) {
+                        is MyLocation -> {
+                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}")
+                        }
+                    }
                 }
-            }
-        }
         presenter = PresenterMQTT()
         presenter.attachView(this)
     }
