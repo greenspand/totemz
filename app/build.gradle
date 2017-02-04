@@ -56,6 +56,10 @@ dependencies {
     compile "org.jetbrains.anko:anko-appcompat-v7:${ankoVersion}"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
+    /**Fire-base analytics*/
+    compile "com.google.firebase:firebase-core:$playServicesVersion"
+    compile "com.google.firebase:firebase-crash:$playServicesVersion"
+
     /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
 
