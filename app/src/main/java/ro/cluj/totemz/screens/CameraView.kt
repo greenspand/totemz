@@ -1,4 +1,4 @@
-package ro.cluj.totemz.map
+package ro.cluj.totemz.screens
 
 import ro.cluj.totemz.MvpBase
 

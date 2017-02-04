@@ -5,7 +5,7 @@
                 android:id="@+id/container_totem"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="ro.cluj.totemz.map.TotemzBaseActivity">
+                tools:context="ro.cluj.totemz.screens.TotemzBaseActivity">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager_menu_switch"

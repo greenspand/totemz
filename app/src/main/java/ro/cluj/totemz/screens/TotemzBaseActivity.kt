@@ -1,4 +1,4 @@
-package ro.cluj.totemz.map
+package ro.cluj.totemz.screens
 
 import android.app.ActivityManager
 import android.content.Intent
@@ -13,6 +13,7 @@ import com.github.salomonbrys.kodein.instance
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.*
+import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.utils.FadePageTransformer
 import ro.cluj.totemz.utils.RxBus

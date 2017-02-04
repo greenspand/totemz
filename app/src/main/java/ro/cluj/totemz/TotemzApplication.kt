@@ -7,7 +7,7 @@ import com.github.salomonbrys.kodein.android.androidModule
 import com.karumi.dexter.Dexter
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
-import ro.cluj.totemz.map.mapModule
+import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.realmConfiguration
 

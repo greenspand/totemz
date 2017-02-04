@@ -1,4 +1,4 @@
-package ro.cluj.totemz.map
+package ro.cluj.totemz.screens
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
-import ro.cluj.totemz.FragmentTypes
+import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.R
 import rx.subscriptions.CompositeSubscription
 

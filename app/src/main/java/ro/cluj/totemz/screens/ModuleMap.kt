@@ -1,4 +1,4 @@
-package ro.cluj.totemz.map
+package ro.cluj.totemz.screens
 
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind

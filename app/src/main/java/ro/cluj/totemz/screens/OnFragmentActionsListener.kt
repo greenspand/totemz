@@ -1,4 +1,6 @@
-package ro.cluj.totemz
+package ro.cluj.totemz.screens
+
+import ro.cluj.totemz.model.FragmentTypes
 
 /**
  * Interface used to notify onboarding screen actions events

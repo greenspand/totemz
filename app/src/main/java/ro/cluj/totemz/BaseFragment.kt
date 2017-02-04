@@ -7,6 +7,8 @@ import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
+import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.screens.OnFragmentActionsListener
 import ro.cluj.totemz.utils.RxBus
 
 abstract class BaseFragment : Fragment(), KodeinInjected, OnFragmentActionsListener {

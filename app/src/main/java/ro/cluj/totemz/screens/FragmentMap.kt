@@ -1,4 +1,4 @@
-package ro.cluj.totemz.map
+package ro.cluj.totemz.screens
 
 import android.Manifest
 import android.app.Activity
@@ -21,7 +21,7 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
-import ro.cluj.totemz.FragmentTypes
+import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
