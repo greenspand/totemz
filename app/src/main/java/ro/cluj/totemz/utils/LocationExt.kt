@@ -4,6 +4,11 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.support.annotation.DrawableRes
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import java.util.*
 
 /**
@@ -24,3 +29,6 @@ fun Context.getStreetAddress(location: Location?): StreetAddress? {
 data class StreetAddress(val street: String, val postalCode: String, val locality: String)
 
 
+fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
+    this.addMarker(MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
+}
