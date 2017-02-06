@@ -66,35 +66,19 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
         /*Set ofscreen page limit for fragment state retention*/
         pager_menu_switch.offscreenPageLimit = 3
-
+        pager_menu_switch.addOnPageChangeListener(this)
 
         // Set menu click listeners
         img_camera.setOnClickListener {
             pager_menu_switch.currentItem = TAB_CAMERA
-            disposables.add(
-                    presenter.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
-                            BounceInterpolator()).mergeWith(
-                            presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
-                                    DURATION, BounceInterpolator()))
-
-                            .subscribe({
-                                //                                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                                startActivityForResult(cameraIntent, CAMERA_REQUEST)
-                            }))
+            disposables.add(scaleCameraAnim())
             cont_pulse_camera.start()
             cont_pulse_compass.stop()
         }
 
         img_compass.setOnClickListener {
             pager_menu_switch.currentItem = TAB_MAP
-            disposables.add(
-                    presenter.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
-                            BounceInterpolator())
-                            .mergeWith(
-                                    presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN,
-                                            DURATION,
-                                            BounceInterpolator()))
-                            .subscribe())
+            disposables.add(scaleMapAnim())
             cont_pulse_compass.start()
             if (!serviceIsRunning()) {
                 startService(intentFor<MQTTService>())
@@ -103,14 +87,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
         img_user.setOnClickListener {
             pager_menu_switch.currentItem = TAB_USER
-            disposables.add(
-                    presenter.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
-                            BounceInterpolator())
-                            .mergeWith(
-                                    presenter.scaleAnimation(arrayListOf(img_camera, img_compass),
-                                            SCALE_DOWN,
-                                            DURATION, BounceInterpolator()))
-                            .subscribe())
+            disposables.add(scaleUserAnim())
             if (serviceIsRunning()) {
                 stopMQTTLocationService()
             }
@@ -173,8 +150,39 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
     }
 
-    override fun onPageSelected(position: Int) {
-
+    override fun onPageSelected(pos: Int) {
+        when (pos) {
+            TAB_CAMERA -> {
+            }
+            TAB_MAP -> {
+            }
+            TAB_USER -> {
+            }
+        }
     }
+
+    fun scaleCameraAnim() = presenter.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
+            BounceInterpolator()).mergeWith(
+            presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
+                    DURATION, BounceInterpolator()))
+
+            .subscribe({
+                //                                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//                                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+            })
+
+    fun scaleMapAnim() = presenter.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
+            BounceInterpolator())
+            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION,
+                    BounceInterpolator()))
+            .subscribe()
+
+    fun scaleUserAnim() = presenter.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
+            BounceInterpolator())
+            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION,
+                    BounceInterpolator()))
+            .subscribe()
+
+
 }
 
