@@ -1,4 +1,4 @@
-package ro.cluj.totemz.screens
+package ro.cluj.totemz.screens.camera
 
 import ro.cluj.totemz.BasePresenter
 

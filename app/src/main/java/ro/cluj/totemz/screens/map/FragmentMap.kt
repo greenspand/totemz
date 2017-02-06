@@ -1,4 +1,4 @@
-package ro.cluj.totemz.screens
+package ro.cluj.totemz.screens.map
 
 import android.Manifest
 import android.app.Activity
@@ -29,6 +29,9 @@ import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
+import ro.cluj.totemz.screens.camera.CameraPresenter
+import ro.cluj.totemz.screens.camera.CameraView
+import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.utils.createAndAddMarker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit

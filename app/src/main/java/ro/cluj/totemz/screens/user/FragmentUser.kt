@@ -1,4 +1,4 @@
-package ro.cluj.totemz.screens
+package ro.cluj.totemz.screens.user
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.screens.camera.CameraPresenter
+import ro.cluj.totemz.screens.camera.FragmentCamera
 
 /**
  * Created by sorin on 11.10.16.
@@ -18,23 +20,22 @@ import ro.cluj.totemz.model.FragmentTypes
  * All rights reserved<br>
 <p></p>
  */
-class FragmentCamera : BaseFragment(), CameraView {
+class FragmentUser : BaseFragment(), UserView {
 
 
-
-    private val subscriptions = CompositeDisposable()
+    private val disposables = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = FragmentCamera::class.java.simpleName
 
     companion object {
-        fun newInstance(): FragmentCamera {
-            val fragment = FragmentCamera()
+        fun newInstance(): FragmentUser {
+            val fragment = FragmentUser()
             return fragment
         }
     }
 
     override fun getFragType(): FragmentTypes {
-        return FragmentTypes.FRAG_CAM
+        return FragmentTypes.FRAG_USER
     }
 
     override fun getPresenter(): BasePresenter<*> {
@@ -42,7 +43,7 @@ class FragmentCamera : BaseFragment(), CameraView {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.frag_totem_camera, container, false)
+        val view = inflater.inflate(R.layout.frag_user_profile, container, false)
         presenter = CameraPresenter()
         return view
     }
@@ -50,6 +51,6 @@ class FragmentCamera : BaseFragment(), CameraView {
 
     override fun onDetach() {
         super.onDetach()
-        subscriptions.clear()
+        disposables.clear()
     }
 }

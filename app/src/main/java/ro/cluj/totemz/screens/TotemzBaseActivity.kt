@@ -18,6 +18,9 @@ import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.screens.camera.FragmentCamera
+import ro.cluj.totemz.screens.map.FragmentMap
+import ro.cluj.totemz.screens.user.FragmentUser
 import ro.cluj.totemz.utils.FadePageTransformer
 import java.util.*
 import kotlin.concurrent.timerTask
