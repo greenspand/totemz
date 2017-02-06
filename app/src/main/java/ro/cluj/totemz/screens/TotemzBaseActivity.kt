@@ -91,12 +91,10 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             if (serviceIsRunning()) {
                 stopMQTTLocationService()
             }
-            cont_pulse_uer.start()
-            cont_pulse_compass.stop()
+
         }
 
-
-        cont_pulse_compass.start()
+        pager_menu_switch.currentItem = TAB_MAP
         Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
     }
 
@@ -152,9 +150,24 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     override fun onPageSelected(pos: Int) {
         when (pos) {
-            TAB_CAMERA -> scaleCameraAnim()
-            TAB_MAP -> scaleMapAnim()
-            TAB_USER -> scaleUserAnim()
+            TAB_CAMERA -> {
+                scaleCameraAnim()
+                cont_pulse_camera.start()
+                cont_pulse_compass.stop()
+                cont_pulse_user.stop()
+            }
+            TAB_MAP -> {
+                scaleMapAnim()
+                cont_pulse_camera.stop()
+                cont_pulse_compass.start()
+                cont_pulse_user.stop()
+            }
+            TAB_USER -> {
+                scaleUserAnim()
+                cont_pulse_camera.stop()
+                cont_pulse_compass.stop()
+                cont_pulse_user.start()
+            }
         }
     }
 
