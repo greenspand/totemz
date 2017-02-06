@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId "ro.cluj.totemz"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 25
         versionCode 1
         versionName "${version}"
@@ -59,6 +59,10 @@ dependencies {
     /**Fire-base analytics*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
+
+    /**Firebase authentication*/
+    compile "com.google.firebase:firebase-auth:$playServicesVersion"
+    compile "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
