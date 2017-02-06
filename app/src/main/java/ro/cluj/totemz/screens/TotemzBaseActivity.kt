@@ -10,14 +10,16 @@ import android.view.View
 import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.intentFor
-import ro.cluj.totemz.*
+import ro.cluj.totemz.BaseActivity
+import ro.cluj.totemz.BaseFragAdapter
+import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.utils.FadePageTransformer
 import ro.cluj.totemz.utils.RxBus
-import rx.subscriptions.CompositeSubscription
 import java.util.*
 import kotlin.concurrent.timerTask
 
@@ -34,15 +36,14 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     val TAG = TotemzBaseActivity::class.java.simpleName
 
     //Subscriptions
-    val subscriptions = CompositeSubscription()
+    val subscriptions = CompositeDisposable()
     val TAB_CAMERA = 0
     val TAB_MAP = 1
     val TAB_USER = 2
     //Injections
     val presenterTotemzBase: TotemzBasePresenter by instance()
     val activityManager: ActivityManager by withContext(this).instance()
-    val rxBus: RxBus by instance()
-
+    private val disposables = CompositeDisposable()
     @StringRes
     override fun getActivityTitle(): Int {
         return R.string.app_name
@@ -72,7 +73,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         // Set menu click listeners
         img_camera.setOnClickListener {
             pager_menu_switch.currentItem = TAB_CAMERA
-            subscriptions.add(
+            disposables.add(
                     presenterTotemzBase.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
                             BounceInterpolator()).mergeWith(
                             presenterTotemzBase.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
@@ -88,7 +89,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
         img_compass.setOnClickListener {
             pager_menu_switch.currentItem = TAB_MAP
-            subscriptions.add(
+            disposables.add(
                     presenterTotemzBase.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
                             BounceInterpolator())
                             .mergeWith(
@@ -104,7 +105,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
         img_user.setOnClickListener {
             pager_menu_switch.currentItem = TAB_USER
-            subscriptions.add(
+            disposables.add(
                     presenterTotemzBase.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
                             BounceInterpolator())
                             .mergeWith(
@@ -163,7 +164,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     override fun onDestroy() {
         presenterTotemzBase.detachView()
-        subscriptions.unsubscribe()
+        disposables.dispose()
         super.onDestroy()
     }
 

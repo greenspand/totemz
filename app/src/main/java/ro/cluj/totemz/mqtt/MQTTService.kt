@@ -11,6 +11,9 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.jetbrains.anko.doAsync
@@ -19,9 +22,6 @@ import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.utils.RxBus
-import rx.Subscription
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
 import timber.log.Timber
 
 
@@ -37,7 +37,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     lateinit var presenter: PresenterMQTT
     lateinit var mqttClient: MqttClient
     var clientID: String? = null
-    lateinit var sub: Subscription
+    private val disposables = CompositeDisposable()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -50,7 +50,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
         FirebaseAnalytics.getInstance(this).setUserId(clientID)
 
-        sub = rxBus.toObservable()
+        disposables.add(rxBus.toObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o ->
@@ -59,7 +59,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
                             publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}")
                         }
                     }
-                }
+                })
         presenter = PresenterMQTT()
         presenter.attachView(this)
     }
@@ -135,7 +135,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     }
 
     override fun onDestroy() {
-        sub.unsubscribe()
+        disposables.dispose()
         try {
             mqttClient.disconnect()
             toast("Client disconnected")

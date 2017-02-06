@@ -19,17 +19,17 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
-import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.R
+import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.utils.createAndAddMarker
-import rx.Observable
-import rx.android.schedulers.AndroidSchedulers
-import rx.schedulers.Schedulers
-import rx.subscriptions.CompositeSubscription
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -54,7 +54,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     // Map properties
     val DEFAULT_ZOOM = 13f
-    private val subscriptions = CompositeSubscription()
+    private val subscriptions = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = FragmentCamera::class.java.simpleName
 
@@ -80,6 +80,8 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                             when (o) {
                                 is FriendLocation -> googleMap?.let {
                                     googleMap?.createAndAddMarker(o.location, R.mipmap.ic_totem)
+                                }
+                                else -> {
                                 }
                             }
                         })
@@ -136,8 +138,6 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun onMapReady(googleMap: GoogleMap?) {
         googleMap?.let {
             Timber.i("Map Ready")
-            it.uiSettings.isMyLocationButtonEnabled = true
-            it.isMyLocationEnabled = true
             isMapReady = true
             this.googleMap = googleMap
         }
@@ -163,15 +163,15 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         mapView.onPause()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        subscriptions.unsubscribe()
-        mapView.onDestroy()
-    }
-
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        subscriptions.clear()
+        mapView.onDestroy()
     }
 
     override fun onLocationChanged(location: Location?) {
