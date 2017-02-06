@@ -71,7 +71,7 @@
     </pl.bclogic.pulsator4droid.library.PulsatorLayout>
 
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
-        android:id="@+id/cont_pulse_uer"
+        android:id="@+id/cont_pulse_user"
         android:layout_width="@dimen/grid24"
         android:layout_height="@dimen/grid24"
         android:layout_alignParentBottom="true"
