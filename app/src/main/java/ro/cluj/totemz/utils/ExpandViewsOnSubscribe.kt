@@ -1,4 +1,4 @@
-package ro.cluj.totemz.utils
+package com.greenspand.legoomo.utils
 
 /**
  * Created by sorin on 12.10.16.
@@ -6,24 +6,23 @@ package ro.cluj.totemz.utils
 import android.support.v4.view.ViewCompat
 import android.view.View
 import android.view.animation.Interpolator
-import rx.Completable
+import io.reactivex.CompletableEmitter
+import io.reactivex.CompletableOnSubscribe
 import java.util.concurrent.atomic.AtomicInteger
 
 class ExpandViewsOnSubscribe(private val views: List<View>,
                              private val scaleTo: Float,
                              private val duration: Long,
-                             private val interpolator: Interpolator) : Completable.CompletableOnSubscribe {
+                             private val interpolator: Interpolator) : CompletableOnSubscribe {
 
 
     lateinit private var numberOfAnimationsToRun: AtomicInteger
-
-    override fun call(subscriber: Completable.CompletableSubscriber) {
+    override fun subscribe(e: CompletableEmitter?) {
         if (views.isEmpty()) {
-            subscriber.onCompleted()
+            e?.onComplete()
             return
         }
         numberOfAnimationsToRun = AtomicInteger(views.size)
-
 
         // We need to run as much as animations as there are views.
         for (i in views.indices) {
@@ -35,12 +34,11 @@ class ExpandViewsOnSubscribe(private val views: List<View>,
                     .withEndAction {
                         // Once all animations are done, call onCompleted().
                         if (numberOfAnimationsToRun.decrementAndGet() == 0) {
-                            subscriber.onCompleted()
+                            e?.onComplete()
                         }
                     }
         }
     }
-
 
 
 }
