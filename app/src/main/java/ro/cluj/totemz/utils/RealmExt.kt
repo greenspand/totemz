@@ -1,7 +1,5 @@
 package ro.cluj.totemz.utils
 
-import android.content.Context
-import io.realm.Realm
 import io.realm.RealmConfiguration
 
 /**
