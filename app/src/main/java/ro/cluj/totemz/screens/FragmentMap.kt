@@ -54,7 +54,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     // Map properties
     val DEFAULT_ZOOM = 13f
-    private val subscriptions = CompositeDisposable()
+    private val disposables = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = FragmentCamera::class.java.simpleName
 
@@ -73,7 +73,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         super.onAttach(context)
         context?.let {
             if (context is Activity) {
-                subscriptions.add(rxBus.toObservable()
+                disposables.add(rxBus.toObservable()
                         .subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe { o ->
@@ -170,7 +170,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     override fun onDestroy() {
         super.onDestroy()
-        subscriptions.clear()
+        disposables.clear()
         mapView.onDestroy()
     }
 
@@ -211,7 +211,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
                 rxBus.send(MyLocation(LatLng(lat, lng)))
             }
-            subscriptions.add(subInterval)
+            disposables.add(subInterval)
         }
     }
 
