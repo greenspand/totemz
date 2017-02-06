@@ -152,12 +152,9 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     override fun onPageSelected(pos: Int) {
         when (pos) {
-            TAB_CAMERA -> {
-            }
-            TAB_MAP -> {
-            }
-            TAB_USER -> {
-            }
+            TAB_CAMERA -> scaleCameraAnim()
+            TAB_MAP -> scaleMapAnim()
+            TAB_USER -> scaleUserAnim()
         }
     }
 
