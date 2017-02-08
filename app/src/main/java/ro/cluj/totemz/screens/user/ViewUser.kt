@@ -1,9 +1,9 @@
-package ro.cluj.totemz.screens.map
+package ro.cluj.totemz.screens.user
 
 import ro.cluj.totemz.MvpBase
 
 /**
  * Created by sorin on 7/12/16.
  */
-interface MapView : MvpBase.View {
+interface ViewUser : MvpBase.View {
 }

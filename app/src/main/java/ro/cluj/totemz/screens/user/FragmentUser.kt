@@ -20,7 +20,7 @@ import ro.cluj.totemz.screens.camera.FragmentCamera
  * All rights reserved<br>
 <p></p>
  */
-class FragmentUser : BaseFragment(), UserView {
+class FragmentUser : BaseFragment(), ViewUser {
 
 
     private val disposables = CompositeDisposable()

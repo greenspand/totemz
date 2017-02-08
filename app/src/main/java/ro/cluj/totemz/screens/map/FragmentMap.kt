@@ -12,6 +12,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
