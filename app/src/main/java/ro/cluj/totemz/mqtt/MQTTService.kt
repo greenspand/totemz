@@ -21,6 +21,7 @@ import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
+import ro.cluj.totemz.proto.UserLocation
 import ro.cluj.totemz.utils.RxBus
 import timber.log.Timber
 
@@ -56,7 +57,11 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
                 .subscribe { o ->
                     when (o) {
                         is MyLocation -> {
-                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}")
+//                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
+                            //TODO FINALIZE PROTOBUF IMPLEMENTATION
+                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
+                            val payload = UserLocation.ADAPTER.encode(userLocation)
+                            publishMsg(TOPIC_USER, payload)
                         }
                     }
                 })
@@ -64,10 +69,10 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         presenter.attachView(this)
     }
 
-    private fun publishMsg(topic: String, msg: String) {
+    private fun publishMsg(topic: String, msg: ByteArray) {
         mqttClient.let {
             if (it.isConnected) {
-                val message = MqttMessage(msg.toByteArray())
+                val message = MqttMessage(msg)
                 it.publish(topic, message)
             }
         }
@@ -117,15 +122,21 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
     override fun messageArrived(topic: String, message: MqttMessage) {
         when (topic) {
             TOPIC_FRIEND -> {
-                val msg = String(message.payload)
-                if (msg.isNotEmpty()) {
-                    val data = msg.split(":")
-                    if (data[0] != clientID) {
-                        val lat = data[1].toDouble()
-                        val lng = data[2].toDouble()
-                        rxBus.send(FriendLocation(LatLng(lat, lng)))
-                    }
+                //TODO FINALIZE PROTOBUF IMPLEMENTATION
+                val location = UserLocation.ADAPTER.decode(message.payload)
+                if (location.clientID != clientID){
+                    rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
                 }
+
+//                val msg = String(message.payload)
+//                if (msg.isNotEmpty()) {
+//                    val data = msg.split(":")
+//                    if (data[0] != clientID) {
+//                        val lat = data[1].toDouble()
+//                        val lng = data[2].toDouble()
+//                        rxBus.send(FriendLocation(LatLng(lat, lng)))
+//                    }
+//                }
             }
         }
     }
