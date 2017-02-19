@@ -12,6 +12,7 @@ import io.realm.Realm
 import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.realmConfiguration
+import timber.log.Timber
 
 /**
  * Created by mihai on 8/27/2016.
@@ -31,6 +32,7 @@ class TotemzApplication : Application(), KodeinAware {
         Fabric.with(this@TotemzApplication, Crashlytics())
         Dexter.initialize(this)
         Realm.init(this)
+        Timber.plant()
 
         val config = realmConfiguration {
             schemaVersion(SCHEMA_VERSION)
