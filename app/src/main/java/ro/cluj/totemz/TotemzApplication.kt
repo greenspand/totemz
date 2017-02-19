@@ -4,9 +4,8 @@ import android.app.Application
 import com.crashlytics.android.Crashlytics
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crash.FirebaseCrash
 import com.karumi.dexter.Dexter
+import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import ro.cluj.totemz.screens.mapModule
