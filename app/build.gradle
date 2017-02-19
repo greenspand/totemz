@@ -84,6 +84,10 @@ dependencies {
     compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
     compile "com.github.salomonbrys.kodein:kodein-android:$kodeinVersion"
 
+    /**Memory leaks detector*/
+    debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
+
     /**Reactive Extensions*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
     compile "io.reactivex.rxjava2:rxjava:$rxVersion"

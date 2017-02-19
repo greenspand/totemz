@@ -32,7 +32,15 @@ class TotemzApplication : Application(), KodeinAware {
         Fabric.with(this@TotemzApplication, Crashlytics())
         Dexter.initialize(this)
         Realm.init(this)
-        Timber.plant()
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+            if (LeakCanary.isInAnalyzerProcess(this)) {
+                /**This process is dedicated to LeakCanary for heap analysis.
+                You should not init your app in this process.*/
+                return
+            }
+            LeakCanary.install(this)
+        }
 
         val config = realmConfiguration {
             schemaVersion(SCHEMA_VERSION)
