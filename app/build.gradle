@@ -88,9 +88,6 @@ dependencies {
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 
-    /**Realm Kotlin Extensions*/
-    compile 'com.github.vicpinm:krealmextensions:1.0.6'
-
     /**Rx Java*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
     compile "io.reactivex.rxjava2:rxjava:$rxVersion"
