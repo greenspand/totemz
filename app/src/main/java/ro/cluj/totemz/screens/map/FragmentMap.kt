@@ -34,6 +34,7 @@ import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.utils.createAndAddMarker
+import ro.cluj.totemz.utils.loadMapStyle
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -141,8 +142,9 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     override fun onMapReady(googleMap: GoogleMap?) {
         googleMap?.let {
-            Timber.i("Map Ready")
             isMapReady = true
+            Timber.i("Map Ready")
+            it.loadMapStyle(activity, R.raw.google_map_style)
             this.googleMap = googleMap
         }
     }
