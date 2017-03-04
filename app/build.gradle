@@ -14,7 +14,6 @@ version "${versionMajor}.${versionMinor}.${versionPatch}"
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
-
     defaultConfig {
         applicationId "ro.cluj.totemz"
         minSdkVersion 17
@@ -33,17 +32,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            shrinkResources false
+            shrinkResources true
         }
     }
-
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+    }
+    productFlavors {
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile "com.android.support:appcompat-v7:${compatLibVersion}"
     compile "com.google.android.gms:play-services-maps:${playServicesVersion}"
@@ -55,53 +55,38 @@ dependencies {
     compile "org.jetbrains.anko:anko-support-v4:${ankoVersion}"
     compile "org.jetbrains.anko:anko-appcompat-v7:${ankoVersion}"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
-
     /**Fire-base analytics*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
-
     /**Firebase authentication*/
     compile "com.google.firebase:firebase-auth:$playServicesVersion"
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
-
     /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
-
     /**Permissions*/
     compile 'com.karumi:dexter:2.3.1'
-
     /**Logger*/
     compile 'com.jakewharton.timber:timber:4.5.1'
-
     /**Protocol Buffers*/
     compile 'com.squareup.wire:wire-runtime:2.2.0'
-
     /**MQTT*/
-    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.0'
-
+    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqttVersion"
+    compile "org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersion"
     /**DI Framework*/
     compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
     compile "com.github.salomonbrys.kodein:kodein-android:$kodeinVersion"
-
     /**Memory leaks detector*/
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
-
     /**Rx Java*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
     compile "io.reactivex.rxjava2:rxjava:$rxVersion"
-
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
     /**Fabric IO crashlytics*/
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
-
     /**Pulse animation*/
     compile 'pl.bclogic:pulsator4droid:1.0.3'
-
-
 }
 apply plugin: 'com.google.gms.google-services'
