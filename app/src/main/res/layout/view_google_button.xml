@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Button
     xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Moovel.Button.Google"
+    style="@style/Totemz.Google"
     android:layout_marginBottom="10dp"
     android:layout_marginTop="20dp"
     android:drawableLeft="@drawable/vector_google_signin"
     android:drawableStart="@drawable/vector_google_signin"
     android:paddingEnd="@dimen/grid1"
+    android:paddingLeft="@dimen/grid1"
     android:paddingRight="@dimen/grid1"
-    android:paddingStart="@dimen/grid0_5"
-    android:paddingLeft="@dimen/grid0_5"
-    android:text="@string/login_btn_login"/>
+    android:paddingStart="@dimen/grid1"
+    android:text="@string/login"/>

@@ -2,4 +2,5 @@
     <string name="app_name">Totemz</string>
 
     <string name="gps_alert">Please turn on your GPS</string>
+    <string name="login">Login</string>
 </resources>

@@ -7,4 +7,6 @@
   <color name="colorCompassFill">#C75C5C</color>
   <color name="colorCameraFill">#e0995e</color>
   <color name="colorUserFill">#4F5D73</color>
+  <color name="colorGoogleSignin">#4285f4</color>
+  <color name="colorFacebookSignin">#3b5998</color>
 </resources>

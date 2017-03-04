@@ -21,10 +21,9 @@
     <style name="Totemz.Facebook">
         <item name="android:layout_width">220dp</item>
         <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:elevation">@dimen/grid0_5</item>
+        <item name="android:elevation">@dimen/grid0.5</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:paddingLeft">@dimen/grid1</item>
-        <item name="fontPath">@string/font_light</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
         <item name="android:layout_height">48dp</item>
@@ -35,10 +34,9 @@
     <style name="Totemz.Google">
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:layout_width">220dp</item>
-        <item name="android:elevation">@dimen/grid0_5</item>
+        <item name="android:elevation">@dimen/grid0.5</item>
         <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:paddingLeft">@dimen/grid0_5</item>
-        <item name="fontPath">@string/font_regular</item>
+        <item name="android:paddingLeft">@dimen/grid0.5</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
         <item name="android:layout_height">48dp</item>
