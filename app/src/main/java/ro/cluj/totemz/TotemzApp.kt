@@ -1,6 +1,7 @@
 package ro.cluj.totemz
 
 import android.app.Application
+import android.content.Context
 import com.crashlytics.android.Crashlytics
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
@@ -20,6 +21,8 @@ open class TotemzApp : Application(), KodeinAware {
     override val kodein by Kodein.lazy {
         bind<RxBus>() with singleton { RxBus }
         bind<Realm>() with singleton { Realm.getDefaultInstance() }
+        bind<Context>() with singleton { applicationContext }
+
         import(mapModule)
         import(androidModule)
     }
