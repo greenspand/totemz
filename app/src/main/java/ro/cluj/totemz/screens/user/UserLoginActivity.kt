@@ -3,7 +3,7 @@ package ro.cluj.totemz.screens.user
 import android.os.Bundle
 import android.support.annotation.StringRes
 import android.view.View
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
 
@@ -23,7 +23,7 @@ class UserLoginActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.activity_user_login)
 
         btnFacebookLogin.setOnClickListener { }
         btnGoogleLogin.setOnClickListener { }
