@@ -133,7 +133,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == CAMERA_REQUEST && resultCode === RESULT_OK) {
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
 //            val photo = data?.extras?.get("data") as Bitmap
         }
     }

@@ -21,7 +21,7 @@ import java.util.*
 fun Context.getStreetAddress(location: Location?): StreetAddress? {
     try {
         val geocoder = Geocoder(this, Locale.getDefault())
-        val addresses: List<Address>? = geocoder.getFromLocation(location?.latitude as Double, location?.longitude as Double, 1)
+        val addresses: List<Address>? = geocoder.getFromLocation(location?.latitude as Double, location.longitude, 1)
         return addresses?.first()?.let { address ->
             StreetAddress(street = address.getAddressLine(0).toString(), postalCode = address.postalCode, locality = address.locality)
         }
