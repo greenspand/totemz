@@ -35,6 +35,7 @@
     <dimen name="grid34">170dp</dimen>
     <dimen name="grid36">180dp</dimen>
     <dimen name="grid40">200dp</dimen>
+    <dimen name="grid44">220dp</dimen>
     <dimen name="grid50">250dp</dimen>
 
     <!--Custom CardView attributes-->

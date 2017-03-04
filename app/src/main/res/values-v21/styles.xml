@@ -1,5 +1,10 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2015 Daimler AG / Moovel GmbH
+  ~
+  ~ All rights reserved
+  -->
 
+<resources>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -14,27 +19,32 @@
 
 
     <style name="Totemz.Facebook">
-        <item name="android:layout_width">@dimen/grid44</item>
+        <item name="android:layout_width">220dp</item>
         <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:elevation">@dimen/grid0_5</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
         <item name="android:paddingLeft">@dimen/grid1</item>
         <item name="fontPath">@string/font_light</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
-        <item name="android:layout_height">@dimen/grid10</item>
+        <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/states_button_facebook</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="Totemz.Google">
-        <item name="android:layout_width">@dimen/grid44</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:layout_width">220dp</item>
+        <item name="android:elevation">@dimen/grid0_5</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:paddingLeft">@dimen/grid0_5</item>
         <item name="fontPath">@string/font_regular</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
-        <item name="android:layout_height">@dimen/grid10</item>
+        <item name="android:layout_height">48dp</item>
         <item name="android:background">@drawable/states_button_google</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
+
 
 </resources>
