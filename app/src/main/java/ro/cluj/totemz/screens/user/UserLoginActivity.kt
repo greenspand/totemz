@@ -6,11 +6,16 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+
+
 
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity() {
+class UserLoginActivity : BaseActivity(), ViewUser{
+
+    lateinit var presenter: PresenterUser
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -24,8 +29,16 @@ class UserLoginActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_login)
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
 
-        btnFacebookLogin.setOnClickListener { }
+        presenter  = PresenterUser()
+        btnFacebookLogin.setOnClickListener {
+
+
+        }
         btnGoogleLogin.setOnClickListener { }
     }
 

@@ -15,8 +15,9 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
-        minSdkVersion 17
+        minSdkVersion 18
         targetSdkVersion 25
         versionCode 1
         versionName "${version}"
@@ -46,14 +47,15 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:$compatLibVersion"
+    compile "com.android.support:appcompat-v7:$supportlibVersion"
     compile "com.google.android.gms:play-services-maps:$playServicesVersion"
     compile "com.google.android.gms:play-services-location:$playServicesVersion"
     compile "com.google.firebase:firebase-core:$playServicesVersion"
     compile "com.google.firebase:firebase-messaging:$playServicesVersion"
-    compile "com.android.support:design:$compatLibVersion"
+    compile "com.android.support:design:$supportlibVersion"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
-
+    /**Constraint Layout*/
+    compile 'com.android.support.constraint:constraint-layout:1.0.1'
     /**Anko DSL*/
     compile "org.jetbrains.anko:anko-sdk15:${ankoVersion}"
     compile "org.jetbrains.anko:anko-support-v4:${ankoVersion}"
@@ -106,6 +108,18 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
+
+
+
+
+    androidTestCompile 'com.android.support:support-annotations:25.2.0'
+    androidTestCompile 'com.android.support.test:runner:0.4'
+    // Set this dependency to use JUnit 4 rules
+    androidTestCompile 'com.android.support.test:rules:0.4'
+    // Set this dependency to build and run Espresso tests
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    // Set this dependency to build and run UI Automator tests
+    androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
 
     /**Pulse animation*/
     compile 'pl.bclogic:pulsator4droid:1.0.3'
