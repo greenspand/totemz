@@ -19,7 +19,6 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
 
   abstract fun getActivityTitle(): Int
 
-  abstract fun getRootLayout(): View
 
   override val injector = KodeinInjector()
 
