@@ -54,6 +54,11 @@ dependencies {
     compile "com.android.support:design:$compatLibVersion"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
+    /**Anko DSL*/
+    compile "org.jetbrains.anko:anko-sdk15:${ankoVersion}"
+    compile "org.jetbrains.anko:anko-support-v4:${ankoVersion}"
+    compile "org.jetbrains.anko:anko-appcompat-v7:${ankoVersion}"
+
     /**Firebase analytics*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
@@ -64,9 +69,6 @@ dependencies {
 
     /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
-
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.12'
-
 
     /**Permissions*/
     compile 'com.karumi:dexter:2.3.1'
@@ -91,6 +93,9 @@ dependencies {
 
     /**Facebook SDK*/
     compile 'com.facebook.android:facebook-android-sdk:4.16.1'
+
+    /**Kotlin Coroutines*/
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.12'
 
     /**Rx Java*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
