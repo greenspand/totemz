@@ -25,14 +25,18 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
-        //MQTT
+        /*MQTT*/
         maven {
             url "https://repo.eclipse.org/content/repositories/paho-releases/"
         }
-        //BINTRAY
+        /*Coroutines*/
+        maven {
+            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
+        }
+        /*BINTRAY*/
         maven { url "http://dl.bintray.com/populov/maven" }
         maven {
-            url  "https://dl.bintray.com/greenlibs/greenspand-libs"
+            url "https://dl.bintray.com/greenlibs/greenspand-libs"
             credentials {
                 username project.hasProperty('bintrayPrivateUser') ? project.bintrayPrivateUser : System.getenv('BINTRAY_USER')
                 password project.hasProperty('bintrayPrivateKey') ? project.bintrayPrivateKey : System.getenv('BINTRAY_PASSWORD')

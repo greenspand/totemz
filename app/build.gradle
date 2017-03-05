@@ -46,15 +46,12 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:${compatLibVersion}"
-    compile "com.google.android.gms:play-services-maps:${playServicesVersion}"
-    compile "com.google.android.gms:play-services-location:${playServicesVersion}"
-    compile "com.google.firebase:firebase-core:${playServicesVersion}"
-    compile "com.google.firebase:firebase-messaging:${playServicesVersion}"
-    compile "com.android.support:design:${compatLibVersion}"
-    compile "org.jetbrains.anko:anko-sdk15:${ankoVersion}"
-    compile "org.jetbrains.anko:anko-support-v4:${ankoVersion}"
-    compile "org.jetbrains.anko:anko-appcompat-v7:${ankoVersion}"
+    compile "com.android.support:appcompat-v7:$compatLibVersion"
+    compile "com.google.android.gms:play-services-maps:$playServicesVersion"
+    compile "com.google.android.gms:play-services-location:$playServicesVersion"
+    compile "com.google.firebase:firebase-core:$playServicesVersion"
+    compile "com.google.firebase:firebase-messaging:$playServicesVersion"
+    compile "com.android.support:design:$compatLibVersion"
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
     /**Firebase analytics*/
@@ -67,6 +64,9 @@ dependencies {
 
     /**Kotlin extensions*/
     compile "com.greenspnd:kotlin-ext:$ktExtVersion"
+
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.12'
+
 
     /**Permissions*/
     compile 'com.karumi:dexter:2.3.1'
