@@ -10,9 +10,9 @@ import android.view.View
 import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
+import com.google.firebase.auth.FirebaseAuth
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
@@ -21,15 +21,18 @@ import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
+import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
-import java.util.*
-import kotlin.concurrent.timerTask
 
 class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
+    private var isLoggedIn = false
 
     var CAMERA_REQUEST = 93
+
+    private var mAuthListener: FirebaseAuth.AuthStateListener? = null
+
 
     //Animation properties
     val SCALE_UP = 1f
@@ -50,9 +53,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         return R.string.app_name
     }
 
-    override fun getRootLayout(): View {
-        return container_totem
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,22 +83,22 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             pager_menu_switch.currentItem = TAB_MAP
             disposables.add(scaleMapAnim())
             cont_pulse_compass.start()
-            if (!serviceIsRunning()) {
-                startService(intentFor<MQTTService>())
-            }
+//            if (!serviceIsRunning()) {
+//                startService(intentFor<MQTTService>())
+//            }
         }
 
         img_user.setOnClickListener {
             pager_menu_switch.currentItem = TAB_USER
             disposables.add(scaleUserAnim())
-            if (serviceIsRunning()) {
-                stopMQTTLocationService()
-            }
+//            if (serviceIsRunning()) {
+//                stopMQTTLocationService()
+//            }
 
         }
-
+        startActivity(Intent(this, UserLoginActivity::class.java))
         pager_menu_switch.currentItem = TAB_MAP
-        Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
+//        Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
     }
 
     //TODO USE IT!
