@@ -11,14 +11,14 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.greenspand.kotlin_ext.toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.runOnUiThread
+import org.jetbrains.anko.toast
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.proto.UserLocation
@@ -85,19 +85,21 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 //        options.isCleanSession = true
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
-
-        try {
-            mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
-            mqttClient.setCallback(this@MQTTService)
-            async(CommonPool) {
+        doAsync {
+            try {
+                mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
+                mqttClient.setCallback(this@MQTTService)
                 mqttClient.connect()
+                mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
+                runOnUiThread {
+                    toast("Client connected")
+                }
+            } catch(e: MqttException) {
+                Timber.e(e)
+                runOnUiThread {
+                    toast("Error" + e.message)
+                }
             }
-            mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
-            toast("Client connected")
-
-        } catch(e: MqttException) {
-            Timber.e(e)
-            toast("Error" + e.message)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -122,7 +124,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
             TOPIC_FRIEND -> {
                 //TODO FINALIZE PROTOBUF IMPLEMENTATION
                 val location = UserLocation.ADAPTER.decode(message.payload)
-                if (location.clientID != clientID) {
+                if (location.clientID != clientID){
                     rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
                 }
 
