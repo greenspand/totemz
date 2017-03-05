@@ -10,10 +10,10 @@ import io.reactivex.CompletableEmitter
 import io.reactivex.CompletableOnSubscribe
 import java.util.concurrent.atomic.AtomicInteger
 
-class ExpandViewsOnSubscribe(private val views: List<View>,
-                             private val scaleTo: Float,
-                             private val duration: Long,
-                             private val interpolator: Interpolator) : CompletableOnSubscribe {
+class FadeInOutOnSubscribe(private val views: List<View>,
+                           private val alpha: Float,
+                           private val duration: Long,
+                           private val interpolator: Interpolator) : CompletableOnSubscribe {
 
 
     lateinit private var numberOfAnimationsToRun: AtomicInteger
@@ -27,8 +27,7 @@ class ExpandViewsOnSubscribe(private val views: List<View>,
         // We need to run as much as animations as there are views.
         for (i in views.indices) {
             ViewCompat.animate(views[i])
-                    .scaleX(scaleTo)
-                    .scaleY(scaleTo)
+                    .alpha(alpha)
                     .setDuration(duration)
                     .setInterpolator(interpolator)
                     .withEndAction {
