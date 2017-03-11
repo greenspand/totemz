@@ -50,19 +50,23 @@ dependencies {
     compile "com.android.support:appcompat-v7:$supportlibVersion"
     compile "com.google.android.gms:play-services-maps:$playServicesVersion"
     compile "com.google.android.gms:play-services-location:$playServicesVersion"
-    compile "com.google.firebase:firebase-core:$playServicesVersion"
-    compile "com.google.firebase:firebase-messaging:$playServicesVersion"
     compile "com.android.support:design:$supportlibVersion"
+
+    /**Map Utils*/
     compile 'com.google.maps.android:android-maps-utils:0.4+'
+
     /**Constraint Layout*/
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
+
     /**Anko DSL*/
     compile "org.jetbrains.anko:anko-sdk15:${ankoVersion}"
     compile "org.jetbrains.anko:anko-support-v4:${ankoVersion}"
     compile "org.jetbrains.anko:anko-appcompat-v7:${ankoVersion}"
 
-    /**Firebase analytics*/
+    /**Firebase Core*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
+
+    /**Firebase crashlitics*/
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
 
     /**Firebase authentication*/
@@ -82,7 +86,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'jp.wasabeef:picasso-transformations:2.1.0'
 
-
     /**Protocol Buffers*/
     compile 'com.squareup.wire:wire-runtime:2.2.0'
 
@@ -98,8 +101,9 @@ dependencies {
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 
+
     /**Facebook SDK*/
-    compile 'com.facebook.android:facebook-android-sdk:4.16.1'
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 
     /**Kotlin Coroutines*/
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.12'
@@ -113,8 +117,6 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
-
-
 
     /Espresso UI Test framework*/
     androidTestCompile 'com.android.support:support-annotations:25.2.0'
