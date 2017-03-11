@@ -8,12 +8,20 @@ import io.realm.RealmObject;
 
 public class UserInfoRealm extends RealmObject {
     private String userID;
-    private String firstname;
-    private String lastname;
+    private String email;
+    private String providerID;
+    private String displayName;
     private String imageUrl;
     private String phoneNumber;
-    private String email;
     private String birthDate;
+
+    public String getProviderID() {
+        return providerID;
+    }
+
+    public void setProviderID(String providerID) {
+        this.providerID = providerID;
+    }
 
     public String getUserID() {
         return userID;
@@ -23,20 +31,12 @@ public class UserInfoRealm extends RealmObject {
         this.userID = userID;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getImageUrl() {
