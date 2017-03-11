@@ -8,17 +8,24 @@ import android.view.animation.AccelerateInterpolator
 import android.widget.Button
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserInfo
 import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_user_login.*
+import kotlinx.android.synthetic.main.frag_user_profile.*
+import org.jetbrains.anko.support.v4.intentFor
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.realm.UserInfoRealm
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.utils.fadeInOutAnimation
+import ro.cluj.totemz.utils.query
+import ro.cluj.totemz.utils.queryFirst
 import timber.log.Timber
 
 /**
@@ -33,8 +40,8 @@ class FragmentUser : BaseFragment(), ViewUser {
 
     private var isLoggedIn = false
     private val disposables = CompositeDisposable()
-    lateinit var presenter: CameraPresenter
-    private var mAuthListener: FirebaseAuth.AuthStateListener? = null
+    lateinit var presenter: PresenterUser
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
     val TAG = FragmentCamera::class.java.simpleName
 
     companion object {
@@ -54,31 +61,47 @@ class FragmentUser : BaseFragment(), ViewUser {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mAuthListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
+                Timber.i("User is logged in")
+                //USer signed in
+                isLoggedIn = true
+//                val realmUserInfo = UserInfoRealm().query { query -> query.equalTo("email", user.email) }.first()
+//                realmUserInfo.setupLoggedInFromRealm()
                 user.setupLoggedIn()
             } else {
-                isLoggedIn = false
                 // User is signed out
+                isLoggedIn = false
                 Timber.i("onAuthStateChanged:signed_out")
-                fadeInOutAnimation(mutableListOf(cont_logged_out), 1f, 500, AccelerateInterpolator())
-                        .mergeWith(fadeInOutAnimation(mutableListOf(btn_logout, cont_logged_in), 0f, 500, AccelerateInterpolator()))
-                        .subscribe {
-
-                        }
+                intentFor<UserLoginActivity>()
             }
         }
     }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_user_profile, container, false)
-        presenter = CameraPresenter()
         return view
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btn_logout.signOutListener()
+        presenter = PresenterUser()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        authStateListener?.let {
+            firebaseAuth.addAuthStateListener(it)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        authStateListener?.let {
+            firebaseAuth.removeAuthStateListener(it)
+        }
     }
 
     override fun onDetach() {
@@ -87,26 +110,36 @@ class FragmentUser : BaseFragment(), ViewUser {
     }
 
     fun FirebaseUser.setupLoggedIn() {
-        isLoggedIn = true
         // User is signed in
         Timber.i("onAuthStateChanged:signed_in:" + this.uid)
-        fadeInOutAnimation(mutableListOf(cont_logged_out), 0f, 500, AccelerateInterpolator())
-                .mergeWith(fadeInOutAnimation(mutableListOf(btn_logout, cont_logged_in), 1f, 500, AccelerateInterpolator()))
-                .subscribe {
-                    tv_login_email.text = this.email
-                    Picasso.with(activity)
-                            .load(this.photoUrl)
-                            .error(R.drawable.vector_profle)
-                            .transform(CropCircleTransformation())
-                            .into(img_user)
-                }
+        tv_email.text = this.email
+        tv_id.text = this.uid
+        tv_user_name.text = this.displayName
+        Picasso.with(activity)
+                .load(this.photoUrl)
+                .error(R.drawable.vector_profle)
+                .transform(CropCircleTransformation())
+                .into(img_logged_in)
     }
+
+    fun UserInfoRealm.setupLoggedInFromRealm() {
+        tv_email.text = this.email
+        tv_id.text = this.userID
+        tv_user_name.text = this.displayName
+        Picasso.with(activity)
+                .load(this.imageUrl)
+                .error(R.drawable.vector_profle)
+                .transform(CropCircleTransformation())
+                .into(img_logged_in)
+    }
+
+
     fun Button.signOutListener() {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
+                startActivity(intentFor<UserLoginActivity>())
             }
         }
     }
-
 }
