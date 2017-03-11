@@ -7,6 +7,8 @@ import com.github.salomonbrys.kodein.KodeinInjected
 import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
+import com.google.firebase.auth.FirebaseAuth
+import io.realm.Realm
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.screens.OnFragmentActionsListener
 import ro.cluj.totemz.utils.RxBus
@@ -23,6 +25,8 @@ abstract class BaseFragment : Fragment(), KodeinInjected, OnFragmentActionsListe
     abstract fun getFragType(): FragmentTypes
 
     val rxBus: RxBus by instance()
+    val realm: Realm by instance()
+    val firebaseAuth: FirebaseAuth by instance()
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
