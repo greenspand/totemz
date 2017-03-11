@@ -3,47 +3,55 @@ package ro.cluj.totemz.screens.user
 import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
-import android.view.animation.AccelerateInterpolator
-import android.widget.Button
 import android.widget.Toast
+import com.facebook.AccessToken
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.login.LoginManager
+import com.facebook.login.LoginResult
+import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.greenspand.kotlin_ext.snack
-import com.squareup.picasso.Picasso
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
-import jp.wasabeef.picasso.transformations.CropCircleTransformation
+import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
-import ro.cluj.totemz.utils.fadeInOutAnimation
+import ro.cluj.totemz.realm.UserInfoRealm
+import ro.cluj.totemz.utils.save
 import timber.log.Timber
+import java.util.*
 
 
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnectionFailedListener {
+class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
 
-    lateinit var presenter: PresenterUser
+    lateinit var callbackManager: CallbackManager
     lateinit var gApiClient: GoogleApiClient
     lateinit var gso: GoogleSignInOptions
-    lateinit var mAuth: FirebaseAuth
-    private var mAuthListener: FirebaseAuth.AuthStateListener? = null
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
     private var isLoggedIn = false
     val behavGoogleAccnt: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
     lateinit var dispGoogleAccnt: Disposable
-
+    lateinit var presenter: PresenterUser
     val RC_SIGN_IN = 78
 
+    val realm: Realm by instance()
+    val firebaseAuth: FirebaseAuth by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -54,7 +62,6 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_login)
-        mAuth = FirebaseAuth.getInstance()
 
         gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -69,19 +76,14 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
 
         presenter = PresenterUser()
 
-        mAuthListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
-                user.setupLoggedIn()
+                finish()
             } else {
                 isLoggedIn = false
                 // User is signed out
                 Timber.i("onAuthStateChanged:signed_out")
-                fadeInOutAnimation(mutableListOf(cont_logged_out), 1f, 500, AccelerateInterpolator())
-                        .mergeWith(fadeInOutAnimation(mutableListOf(btn_logout, cont_logged_in), 0f, 500, AccelerateInterpolator()))
-                        .subscribe {
-
-                        }
             }
         }
 
@@ -94,53 +96,49 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
 
+
+        /** Facebook login setup*/
+        callbackManager = CallbackManager.Factory.create()
+        LoginManager.getInstance().registerCallback(callbackManager, this@UserLoginActivity)
         btnFacebookLogin.setOnClickListener {
-        }
-
-        btn_logout.signOutListener()
-    }
-
-    fun FirebaseUser.setupLoggedIn() {
-        isLoggedIn = true
-        // User is signed in
-        Timber.i("onAuthStateChanged:signed_in:" + this.uid)
-        fadeInOutAnimation(mutableListOf(cont_logged_out), 0f, 500, AccelerateInterpolator())
-                .mergeWith(fadeInOutAnimation(mutableListOf(btn_logout, cont_logged_in), 1f, 500, AccelerateInterpolator()))
-                .subscribe {
-                    tv_login_email.text = this.email
-                    Picasso.with(this@UserLoginActivity)
-                            .load(this.photoUrl)
-                            .error(R.drawable.vector_profle)
-                            .transform(CropCircleTransformation())
-                            .into(img_user)
-                }
-    }
-
-    fun Button.signOutListener() {
-        this.setOnClickListener {
-            if (isLoggedIn) {
-                FirebaseAuth.getInstance().signOut()
-            }
+            LoginManager.getInstance().logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
         }
     }
 
-    public override fun onStart() {
+    override fun onCancel() {
+        snack(container_user_login, "Facebook login cancelled")
+    }
+
+    override fun onSuccess(result: LoginResult) {
+        firebaseAuthWithFacebook(result.accessToken)
+    }
+
+    override fun onError(error: FacebookException?) {
+        Timber.e(error)
+    }
+
+    override fun onStart() {
         super.onStart()
-        mAuthListener?.let {
-            mAuth.addAuthStateListener(it)
+        authStateListener?.let {
+            firebaseAuth.addAuthStateListener(it)
         }
     }
 
-    public override fun onStop() {
+    override fun onStop() {
         super.onStop()
-        mAuthListener?.let {
-            mAuth.removeAuthStateListener(it)
+        authStateListener?.let {
+            firebaseAuth.removeAuthStateListener(it)
         }
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        // Pass the activity result back to the Facebook SDK
+        if (callbackManager.onActivityResult(requestCode, resultCode, data)) {
+            return
+        }
+
         when (requestCode) {
             RC_SIGN_IN -> {
                 val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
@@ -149,32 +147,44 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
         }
     }
 
+
     private fun GoogleSignInResult.handleLoginResult() {
         if (this.isSuccess) {
             val signInAccount = this.signInAccount
+            val realmUserInfo = UserInfoRealm()
+            realmUserInfo.email = signInAccount?.email
+            realmUserInfo.displayName = signInAccount?.displayName
+            realmUserInfo.imageUrl = signInAccount?.photoUrl.toString()
+            realmUserInfo.userID = signInAccount?.id
+            realmUserInfo.save()
             behavGoogleAccnt.onNext(signInAccount)
         } else {
             snack(container_user_login, "User authentication failed !!!")
         }
     }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
 
+    private fun firebaseAuthWithFacebook(token: AccessToken) {
+        val credential = FacebookAuthProvider.getCredential(token.token)
+        firebaseSignIn(credential)
+    }
+
+
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
-        mAuth.signInWithCredential(credential)
+        firebaseSignIn(credential)
+    }
+
+    fun firebaseSignIn(credential: AuthCredential) {
+        firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this) { task ->
                     Timber.i("signInWithCredential:onComplete:" + task.isSuccessful)
-
-                    // If sign in fails, display a message to the user. If sign in succeeds
-                    // the auth state listener will be notified and logic to handle the
-                    // signed in user can be handled in the listener.
                     if (!task.isSuccessful) {
                         Timber.e("signInWithCredential", task.exception)
                         Toast.makeText(this@UserLoginActivity, "Authentication failed.", Toast.LENGTH_SHORT).show()
                     }
                 }
     }
-
 
     override fun onConnectionFailed(result: ConnectionResult) {
 
