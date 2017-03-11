@@ -4,10 +4,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/img_logged_in"
-        android:layout_width="@dimen/grid10"
-        android:layout_height="@dimen/grid10"
-        app:srcCompat="@drawable/vector_profle"/>
+    <LinearLayout
+        android:id="@+id/cont_logged_in"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/btn_logout"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="70dp">
+
+        <ImageView
+            android:id="@+id/img_logged_in"
+            android:layout_width="@dimen/grid10"
+            android:layout_height="@dimen/grid10"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/vector_profle"/>
+
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="@dimen/txt_size_ml"/>
+
+        <TextView
+            android:id="@+id/tv_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="@dimen/txt_size_ml"/>
+
+        <TextView
+            android:id="@+id/tv_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="@dimen/txt_size_ml"/>
+
+    </LinearLayout>
+<Button
+    android:layout_width="wrap_content"
+    android:id="@+id/btn_logout"
+    android:text="Logout"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="20dp"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginTop="19dp"/>
 
 </RelativeLayout>
