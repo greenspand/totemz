@@ -25,6 +25,7 @@ android {
         /** Keep language resources in libraries only for supported locales*/
         resConfigs "en", "de", "ro"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -100,7 +101,6 @@ dependencies {
     /**Memory leaks detector*/
     debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
     releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
-
 
     /**Facebook SDK*/
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
