@@ -46,11 +46,10 @@
     <dimen name="txt_size_xs">10dp</dimen>
     <dimen name="txt_size_s">12dp</dimen>
     <dimen name="txt_size_m">14dp</dimen>
-    <dimen name="txt_size_ml">18dp</dimen>
-    <dimen name="txt_size_mxl">22dp</dimen>
-    <dimen name="txt_size_l">26dp</dimen>
-    <dimen name="txt_size_xl">30dp</dimen>
-    <dimen name="txt_size_xxl">34dp</dimen>
+    <dimen name="txt_size_ml">16dp</dimen>
+    <dimen name="txt_size_l">18dp</dimen>
+    <dimen name="txt_size_xl">22dp</dimen>
+    <dimen name="txt_size_xxl">26dp</dimen>
 
     <!--Elevations-->
     <dimen name="toolbar_elevation">4dp</dimen>

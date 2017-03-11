@@ -14,23 +14,23 @@
 
 
     <style name="Totemz.Facebook">
-        <item name="android:layout_width">@dimen/grid40</item>
+        <item name="android:layout_width">@dimen/grid36</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:paddingLeft">@dimen/grid0.5</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
-        <item name="android:layout_height">@dimen/grid8</item>
+        <item name="android:layout_height">@dimen/grid7</item>
         <item name="android:background">@drawable/states_button_facebook</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="Totemz.Google">
-        <item name="android:layout_width">@dimen/grid40</item>
+        <item name="android:layout_width">@dimen/grid36</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="android:paddingLeft">@dimen/grid0.5</item>
         <item name="android:textSize">@dimen/txt_size_m</item>
         <item name="android:scaleType">fitStart</item>
-        <item name="android:layout_height">@dimen/grid8</item>
+        <item name="android:layout_height">@dimen/grid7</item>
         <item name="android:background">@drawable/states_button_google</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
