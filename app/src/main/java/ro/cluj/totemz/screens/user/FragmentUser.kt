@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.widget.Button
+import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserInfo
@@ -36,13 +37,15 @@ import timber.log.Timber
  * All rights reserved<br>
 <p></p>
  */
-class FragmentUser : BaseFragment(), ViewUser {
+class FragmentUser : BaseFragment(), ViewFragmentUser {
 
     private var isLoggedIn = false
     private val disposables = CompositeDisposable()
-    lateinit var presenter: PresenterUser
+    lateinit var presenterFrag: PresenterUserLogin
     private var authStateListener: FirebaseAuth.AuthStateListener? = null
     val TAG = FragmentCamera::class.java.simpleName
+
+    val presenter: PresenterFragmentUser by instance()
 
     companion object {
         fun newInstance(): FragmentUser {
@@ -56,7 +59,7 @@ class FragmentUser : BaseFragment(), ViewUser {
     }
 
     override fun getPresenter(): BasePresenter<*> {
-        return presenter
+        return presenterFrag
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +90,7 @@ class FragmentUser : BaseFragment(), ViewUser {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btn_logout.signOutListener()
-        presenter = PresenterUser()
+        presenterFrag = PresenterUserLogin()
     }
 
     override fun onStart() {

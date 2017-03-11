@@ -35,7 +35,7 @@ import java.util.*
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
+class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
 
     private lateinit var callbackManager: CallbackManager
@@ -47,11 +47,11 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
     private val RC_SIGN_IN = 78
 
     private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
-    lateinit var disposableGoogleAccount: Disposable
+    private lateinit var disposableGoogleAccount: Disposable
 
     val realm: Realm by instance()
     val firebaseAuth: FirebaseAuth by instance()
-    val presenter: PresenterUser by instance()
+    val presenterLogin: PresenterUserLogin by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -85,7 +85,7 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
         }
 
         disposableGoogleAccount = behaviourGoogleAccount.subscribe {
-            presenter.saveToUserRealm(it)
+            presenterLogin.saveToUserRealm(it)
             firebaseAuthWithGoogle(it)
         }
 

@@ -8,5 +8,6 @@ import com.github.salomonbrys.kodein.instance
  * Created by sorin on 11.03.17.
  */
 val userModule = Kodein.Module {
-    bind<PresenterUser>() with instance(PresenterUser())
+    bind<PresenterUserLogin>() with instance(PresenterUserLogin())
+    bind<PresenterFragmentUser>() with instance(PresenterFragmentUser())
 }
