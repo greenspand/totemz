@@ -28,8 +28,6 @@ import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
-import ro.cluj.totemz.realm.UserInfoRealm
-import ro.cluj.totemz.utils.save
 import timber.log.Timber
 import java.util.*
 
@@ -40,24 +38,25 @@ import java.util.*
 class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
 
-    lateinit var callbackManager: CallbackManager
-    lateinit var gApiClient: GoogleApiClient
-    lateinit var gso: GoogleSignInOptions
+    private lateinit var callbackManager: CallbackManager
+    private lateinit var gApiClient: GoogleApiClient
+    private lateinit var gso: GoogleSignInOptions
     private var authStateListener: FirebaseAuth.AuthStateListener? = null
+
     private var isLoggedIn = false
-    val behavGoogleAccnt: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
-    lateinit var dispGoogleAccnt: Disposable
-    lateinit var presenter: PresenterUser
-    val RC_SIGN_IN = 78
+    private val RC_SIGN_IN = 78
+
+    private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
+    lateinit var disposableGoogleAccount: Disposable
 
     val realm: Realm by instance()
     val firebaseAuth: FirebaseAuth by instance()
+    val presenter: PresenterUser by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
         return 0
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +73,6 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build()
 
-        presenter = PresenterUser()
-
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
@@ -87,7 +84,8 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
             }
         }
 
-        dispGoogleAccnt = behavGoogleAccnt.subscribe {
+        disposableGoogleAccount = behaviourGoogleAccount.subscribe {
+            presenter.saveToUserRealm(it)
             firebaseAuthWithGoogle(it)
         }
 
@@ -151,13 +149,7 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
     private fun GoogleSignInResult.handleLoginResult() {
         if (this.isSuccess) {
             val signInAccount = this.signInAccount
-            val realmUserInfo = UserInfoRealm()
-            realmUserInfo.email = signInAccount?.email
-            realmUserInfo.displayName = signInAccount?.displayName
-            realmUserInfo.imageUrl = signInAccount?.photoUrl.toString()
-            realmUserInfo.userID = signInAccount?.id
-            realmUserInfo.save()
-            behavGoogleAccnt.onNext(signInAccount)
+            behaviourGoogleAccount.onNext(signInAccount)
         } else {
             snack(container_user_login, "User authentication failed !!!")
         }
@@ -190,8 +182,13 @@ class UserLoginActivity : BaseActivity(), ViewUser, GoogleApiClient.OnConnection
 
     }
 
+    override fun showUserSavedToRealm() {
+        Timber.i("USER WAS SAVED TO REALM")
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
-        dispGoogleAccnt.dispose()
+        disposableGoogleAccount.dispose()
     }
 }
