@@ -10,7 +10,7 @@ import ro.cluj.totemz.utils.save
  */
 class PresenterUserLogin : BasePresenter<ViewUserLogin>() {
 
-    fun saveToUserRealm(signInAccount: GoogleSignInAccount?) {
+    fun saveUserInfoToRealm(signInAccount: GoogleSignInAccount?) {
         val realmUserInfo = UserInfoRealm()
         realmUserInfo.email = signInAccount?.email
         realmUserInfo.displayName = signInAccount?.displayName
