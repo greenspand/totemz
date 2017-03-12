@@ -12,6 +12,7 @@
         android:layout_marginTop="145dp"
         android:orientation="vertical">
 
+
         <include
             android:id="@+id/btnFacebookLogin"
             layout="@layout/view_facebook_button"/>
@@ -19,6 +20,15 @@
         <include
             android:id="@+id/btnGoogleLogin"
             layout="@layout/view_google_button"/>
+
+
+        <com.twitter.sdk.android.core.identity.TwitterLoginButton
+            android:id="@+id/btnTwitterLogin"
+            android:layout_marginTop="@dimen/grid2"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"/>
+
     </LinearLayout>
 
 </RelativeLayout>

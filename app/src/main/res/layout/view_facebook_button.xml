@@ -2,8 +2,7 @@
 <Button
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Totemz.Facebook"
-    android:layout_marginBottom="10dp"
-    android:layout_marginTop="20dp"
+    android:layout_marginTop="@dimen/grid2"
     android:drawableLeft="@drawable/vector_facebook_logo"
     android:drawableStart="@drawable/vector_facebook_logo"
     android:text="@string/login"/>
