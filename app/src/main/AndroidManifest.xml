@@ -35,7 +35,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent"/>
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="b15b0f29a487c86f6288ff3dc763bd0ccda184d1"
+            />
 
         <activity
             android:name=".screens.TotemzBaseActivity"
