@@ -15,7 +15,7 @@ inline fun realmConfiguration(func: RealmConfiguration.Builder.() -> Unit): Real
 }
 
 fun Realm.saveToRealmAsync(realmObject: RealmObject) {
-    this.executeTransactionAsync { }
+    this.executeTransactionAsync { realmObject.save() }
 }
 
 /**
@@ -25,8 +25,8 @@ fun Realm.saveToRealmAsync(realmObject: RealmObject) {
 val <T : RealmObject> T.firstItem: T?
     get() {
         Realm.getDefaultInstance().use {
-            val item : T? = it.forEntity(this).findFirst()
-            return if(item != null && item.isValid) it.copyFromRealm(item) else null
+            val item: T? = it.forEntity(this).findFirst()
+            return if (item != null && item.isValid) it.copyFromRealm(item) else null
         }
     }
 
@@ -36,7 +36,7 @@ val <T : RealmObject> T.firstItem: T?
 @Deprecated("Deprecated in 1.0.6, use queryLast() method instead", ReplaceWith("this.queryLast()"))
 val <T : RealmObject> T.lastItem: T?
     get() {
-        return if(queryAll().isNotEmpty() && queryAll().last().isValid) queryAll().last() else null
+        return if (queryAll().isNotEmpty() && queryAll().last().isValid) queryAll().last() else null
     }
 
 
@@ -64,7 +64,6 @@ fun <T : RealmObject> T.query(query: (RealmQuery<T>) -> Unit): List<T> {
 }
 
 
-
 /**
  * Query to the database with RealmQuery instance as argument and returns all items founded
  */
@@ -81,8 +80,8 @@ fun <T : RealmObject> T.queryAll(): List<T> {
  */
 fun <T : RealmObject> T.queryFirst(): T? {
     Realm.getDefaultInstance().use {
-        val item : T? = it.forEntity(this).findFirst()
-        return if(item != null && item.isValid) it.copyFromRealm(item) else null
+        val item: T? = it.forEntity(this).findFirst()
+        return if (item != null && item.isValid) it.copyFromRealm(item) else null
     }
 }
 
@@ -91,8 +90,8 @@ fun <T : RealmObject> T.queryFirst(): T? {
  */
 fun <T : RealmObject> T.queryFirst(query: (RealmQuery<T>) -> Unit): T? {
     Realm.getDefaultInstance().use {
-        val item : T? = it.forEntity(this).withQuery(query).findFirst()
-        return if(item != null && item.isValid) it.copyFromRealm(item) else null
+        val item: T? = it.forEntity(this).withQuery(query).findFirst()
+        return if (item != null && item.isValid) it.copyFromRealm(item) else null
     }
 }
 
@@ -102,7 +101,7 @@ fun <T : RealmObject> T.queryFirst(query: (RealmQuery<T>) -> Unit): T? {
 fun <T : RealmObject> T.queryLast(): T? {
     Realm.getDefaultInstance().use {
         val result = it.forEntity(this).findAll()
-        return if(result != null && result.isNotEmpty()) it.copyFromRealm(result.last()) else null
+        return if (result != null && result.isNotEmpty()) it.copyFromRealm(result.last()) else null
     }
 }
 
@@ -112,14 +111,14 @@ fun <T : RealmObject> T.queryLast(): T? {
 fun <T : RealmObject> T.queryLast(query: (RealmQuery<T>) -> Unit): T? {
     Realm.getDefaultInstance().use {
         val result = it.forEntity(this).withQuery(query).findAll()
-        return if(result != null && result.isNotEmpty()) it.copyFromRealm(result.last()) else null
+        return if (result != null && result.isNotEmpty()) it.copyFromRealm(result.last()) else null
     }
 }
 
 /**
  * Query to the database with RealmQuery instance as argument
  */
-fun <T : RealmObject> T.querySorted(fieldName : String, order : Sort, query: (RealmQuery<T>) -> Unit): List<T> {
+fun <T : RealmObject> T.querySorted(fieldName: String, order: Sort, query: (RealmQuery<T>) -> Unit): List<T> {
 
     Realm.getDefaultInstance().use { realm ->
         val result = realm.forEntity(this).withQuery(query).findAll().sort(fieldName, order)
@@ -130,7 +129,7 @@ fun <T : RealmObject> T.querySorted(fieldName : String, order : Sort, query: (Re
 /**
  * Query to the database with a specific order and a RealmQuery instance as argument
  */
-fun <T : RealmObject> T.querySorted(fieldName : List<String>, order : List<Sort>, query: (RealmQuery<T>) -> Unit): List<T> {
+fun <T : RealmObject> T.querySorted(fieldName: List<String>, order: List<Sort>, query: (RealmQuery<T>) -> Unit): List<T> {
 
     Realm.getDefaultInstance().use { realm ->
         val result = realm.forEntity(this).withQuery(query).findAll().sort(fieldName.toTypedArray(), order.toTypedArray())
@@ -141,7 +140,7 @@ fun <T : RealmObject> T.querySorted(fieldName : List<String>, order : List<Sort>
 /**
  * Query to the database with a specific order
  */
-fun <T : RealmObject> T.querySorted(fieldName : String, order : Sort): List<T> {
+fun <T : RealmObject> T.querySorted(fieldName: String, order: Sort): List<T> {
 
     Realm.getDefaultInstance().use { realm ->
         val result = realm.forEntity(this).findAll().sort(fieldName, order)
@@ -152,7 +151,7 @@ fun <T : RealmObject> T.querySorted(fieldName : String, order : Sort): List<T> {
 /**
  * Query to the database with a specific order
  */
-fun <T : RealmObject> T.querySorted(fieldName : List<String>, order : List<Sort>): List<T> {
+fun <T : RealmObject> T.querySorted(fieldName: List<String>, order: List<Sort>): List<T> {
 
     Realm.getDefaultInstance().use { realm ->
         val result = realm.forEntity(this).findAll().sort(fieldName.toTypedArray(), order.toTypedArray())
@@ -210,7 +209,7 @@ fun <T : RealmObject> T.createOrUpdateManaged(realm: Realm): T {
  */
 fun <T : RealmObject> T.save() {
     Realm.getDefaultInstance().transaction {
-        if(this.hasPrimaryKey(it)) it.copyToRealmOrUpdate(this) else it.copyToRealm(this)
+        if (this.hasPrimaryKey(it)) it.copyToRealmOrUpdate(this) else it.copyToRealm(this)
     }
 }
 
@@ -222,7 +221,7 @@ fun <T : RealmObject> T.save() {
 fun <T : RealmObject> T.saveManaged(realm: Realm): T {
     var result: T? = null
     realm.executeTransaction {
-        result = if(this.hasPrimaryKey(it)) it.copyToRealmOrUpdate(this) else it.copyToRealm(this)
+        result = if (this.hasPrimaryKey(it)) it.copyToRealmOrUpdate(this) else it.copyToRealm(this)
     }
     return result!!
 }
@@ -230,29 +229,29 @@ fun <T : RealmObject> T.saveManaged(realm: Realm): T {
 fun <T : Collection<RealmObject>> T.saveAll() {
     val realm = Realm.getDefaultInstance()
     realm.transaction {
-        forEach { if(it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
+        forEach { if (it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
     }
 }
 
 fun <T : RealmObject> Collection<T>.saveAllManaged(realm: Realm): List<T> {
     val results = mutableListOf<T>()
     realm.executeTransaction {
-        forEach { results += if(it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
+        forEach { results += if (it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
     }
     return results
 }
 
-fun  Array<out RealmObject>.saveAll() {
+fun Array<out RealmObject>.saveAll() {
     val realm = Realm.getDefaultInstance()
     realm.transaction {
-        forEach { if(it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
+        forEach { if (it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
     }
 }
 
 fun <T : RealmObject> Array<T>.saveAllManaged(realm: Realm): List<T> {
     val results = mutableListOf<T>()
     realm.executeTransaction {
-        forEach { results += if(it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
+        forEach { results += if (it.hasPrimaryKey(realm)) realm.copyToRealmOrUpdate(it) else realm.copyToRealm(it) }
     }
     return results
 }
@@ -277,13 +276,15 @@ fun <T : RealmObject> T.delete(myQuery: (RealmQuery<T>) -> Unit) {
 /**
  * UTILITY METHODS
  */
-private fun <T : RealmObject> Realm.forEntity(instance : T) : RealmQuery<T> {
+private fun <T : RealmObject> Realm.forEntity(instance: T): RealmQuery<T> {
     return RealmQuery.createQuery(this, instance.javaClass)
 }
 
-private fun <T> T.withQuery(block: (T) -> Unit): T { block(this); return this }
+private fun <T> T.withQuery(block: (T) -> Unit): T {
+    block(this); return this
+}
 
-private fun <T : RealmObject> T.hasPrimaryKey(realm : Realm) = realm.schema.get(this.javaClass.simpleName).hasPrimaryKey()
+private fun <T : RealmObject> T.hasPrimaryKey(realm: Realm) = realm.schema.get(this.javaClass.simpleName).hasPrimaryKey()
 
 
 
