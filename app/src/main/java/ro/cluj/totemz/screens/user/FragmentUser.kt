@@ -41,7 +41,6 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
 
     private var isLoggedIn = false
     private val disposables = CompositeDisposable()
-    lateinit var presenterFrag: PresenterUserLogin
     private var authStateListener: FirebaseAuth.AuthStateListener? = null
     val TAG = FragmentCamera::class.java.simpleName
 
@@ -59,7 +58,7 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
     }
 
     override fun getPresenter(): BasePresenter<*> {
-        return presenterFrag
+        return presenter
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,8 +69,6 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
                 Timber.i("User is logged in")
                 //USer signed in
                 isLoggedIn = true
-//                val realmUserInfo = UserInfoRealm().query { query -> query.equalTo("email", user.email) }.first()
-//                realmUserInfo.setupLoggedInFromRealm()
                 user.setupLoggedIn()
             } else {
                 // User is signed out
@@ -90,7 +87,6 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btn_logout.signOutListener()
-        presenterFrag = PresenterUserLogin()
     }
 
     override fun onStart() {
@@ -124,18 +120,6 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
                 .transform(CropCircleTransformation())
                 .into(img_logged_in)
     }
-
-    fun UserInfoRealm.setupLoggedInFromRealm() {
-        tv_email.text = this.email
-        tv_id.text = this.userID
-        tv_user_name.text = this.displayName
-        Picasso.with(activity)
-                .load(this.imageUrl)
-                .error(R.drawable.vector_profle)
-                .transform(CropCircleTransformation())
-                .into(img_logged_in)
-    }
-
 
     fun Button.signOutListener() {
         this.setOnClickListener {
