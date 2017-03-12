@@ -11,18 +11,23 @@ import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
+import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.frag_user_profile.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.realm.UserInfoRealm
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
 import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
+import timber.log.Timber
 
 class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
 
@@ -31,7 +36,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     var CAMERA_REQUEST = 93
 
-    private var mAuthListener: FirebaseAuth.AuthStateListener? = null
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+    val firebaseAuth: FirebaseAuth by instance()
 
 
     //Animation properties
@@ -99,6 +105,30 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         startActivity(Intent(this, UserLoginActivity::class.java))
         pager_menu_switch.currentItem = TAB_MAP
 //        Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
+
+
+        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+            } else {
+                isLoggedIn = false
+                // User is signed out
+                Timber.i("onAuthStateChanged:signed_out")
+            }
+        }
+
+    }
+
+
+    fun UserInfoRealm.setupLoggedInFromRealm() {
+        tv_email.text = this.email
+        tv_id.text = this.userID
+        tv_user_name.text = this.displayName
+        Picasso.with(this@TotemzBaseActivity)
+                .load(this.imageUrl)
+                .error(R.drawable.vector_profle)
+                .transform(CropCircleTransformation())
+                .into(img_logged_in)
     }
 
     //TODO USE IT!
@@ -137,6 +167,18 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 //            val photo = data?.extras?.get("data") as Bitmap
         }
     }
+
+
+    override fun onStart() {
+        super.onStart()
+        firebaseAuth.addAuthStateListener(authStateListener)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        firebaseAuth.removeAuthStateListener(authStateListener)
+    }
+
 
     override fun onDestroy() {
         presenter.detachView()
