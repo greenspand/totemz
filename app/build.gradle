@@ -67,6 +67,9 @@ dependencies {
     /**Firebase Core*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
 
+    /**Firebase Push Notifications*/
+    compile "com.google.firebase:firebase-messaging:$playServicesVersion"
+
     /**Firebase crashlitics*/
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
 
@@ -115,6 +118,19 @@ dependencies {
 
     /**Fabric IO crashlytics*/
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+        transitive = true;
+    }
+
+    /**Twitter authentication*/
+    compile('com.twitter.sdk.android:twitter-core:2.3.0@aar') {
+        transitive = true;
+    }
+
+    compile('com.twitter.sdk.android:tweet-ui:2.3.1@aar') {
+        transitive = true;
+    }
+
+    compile('com.twitter.sdk.android:tweet-composer:2.3.1@aar') {
         transitive = true;
     }
 
