@@ -17,11 +17,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FacebookAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.*
 import com.greenspand.kotlin_ext.snack
+import com.twitter.sdk.android.core.Callback
+import com.twitter.sdk.android.core.Result
+import com.twitter.sdk.android.core.TwitterException
+import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
 import io.realm.Realm
@@ -37,11 +38,10 @@ import java.util.*
  */
 class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
-
     private lateinit var callbackManager: CallbackManager
     private lateinit var gApiClient: GoogleApiClient
     private lateinit var gso: GoogleSignInOptions
-    private var authStateListener: FirebaseAuth.AuthStateListener? = null
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
 
     private var isLoggedIn = false
     private val RC_SIGN_IN = 78
@@ -51,7 +51,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
 
     val realm: Realm by instance()
     val firebaseAuth: FirebaseAuth by instance()
-    val presenterLogin: PresenterUserLogin by instance()
+    val presenter: PresenterUserLogin by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -61,7 +61,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_login)
-
+        presenter.attachView(this)
         gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestProfile()
@@ -85,7 +85,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         }
 
         disposableGoogleAccount = behaviourGoogleAccount.subscribe {
-            presenterLogin.saveToUserRealm(it)
+            presenter.saveUserInfoToRealm(it)
             firebaseAuthWithGoogle(it)
         }
 
@@ -100,6 +100,18 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         LoginManager.getInstance().registerCallback(callbackManager, this@UserLoginActivity)
         btnFacebookLogin.setOnClickListener {
             LoginManager.getInstance().logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
+        }
+
+        /**Twitter login Setup*/
+        btnTwitterLogin.callback = object : Callback<TwitterSession>() {
+
+            override fun failure(exception: TwitterException) {
+                Timber.e(exception)
+            }
+
+            override fun success(result: Result<TwitterSession>) {
+                firebaseAuthWithTwitter(result.data)
+            }
         }
     }
 
@@ -117,31 +129,33 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
 
     override fun onStart() {
         super.onStart()
-        authStateListener?.let {
-            firebaseAuth.addAuthStateListener(it)
-        }
+        firebaseAuth.addAuthStateListener(authStateListener)
+
     }
 
     override fun onStop() {
         super.onStop()
-        authStateListener?.let {
-            firebaseAuth.removeAuthStateListener(it)
-        }
+        firebaseAuth.removeAuthStateListener(authStateListener)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposableGoogleAccount.dispose()
+        presenter.detachView()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // Pass the activity result back to the Facebook SDK
-        if (callbackManager.onActivityResult(requestCode, resultCode, data)) {
-            return
-        }
 
+        //Twitter login callback
+        btnTwitterLogin.onActivityResult(requestCode, resultCode, data)
+
+        // Facebook Login callback
+        if (callbackManager.onActivityResult(requestCode, resultCode, data)) return
+
+        //Google login callback
         when (requestCode) {
-            RC_SIGN_IN -> {
-                val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-                result.handleLoginResult()
-            }
+            RC_SIGN_IN -> Auth.GoogleSignInApi.getSignInResultFromIntent(data).handleLoginResult()
         }
     }
 
@@ -161,6 +175,13 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         firebaseSignIn(credential)
     }
 
+    private fun firebaseAuthWithTwitter(session: TwitterSession) {
+        val credential = TwitterAuthProvider.getCredential(
+                session.authToken.token,
+                session.authToken.secret)
+        firebaseSignIn(credential)
+    }
+
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
@@ -169,7 +190,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
 
     fun firebaseSignIn(credential: AuthCredential) {
         firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this) { task ->
+                .addOnCompleteListener(this@UserLoginActivity) { task ->
                     Timber.i("signInWithCredential:onComplete:" + task.isSuccessful)
                     if (!task.isSuccessful) {
                         Timber.e("signInWithCredential", task.exception)
@@ -179,16 +200,11 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     }
 
     override fun onConnectionFailed(result: ConnectionResult) {
-
+        Timber.e(result.errorMessage)
     }
 
     override fun showUserSavedToRealm() {
         Timber.i("USER WAS SAVED TO REALM")
     }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposableGoogleAccount.dispose()
-    }
 }
