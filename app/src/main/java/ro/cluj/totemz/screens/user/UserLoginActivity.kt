@@ -19,10 +19,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.*
 import com.greenspand.kotlin_ext.snack
-import com.twitter.sdk.android.core.Callback
-import com.twitter.sdk.android.core.Result
-import com.twitter.sdk.android.core.TwitterException
-import com.twitter.sdk.android.core.TwitterSession
+import com.twitter.sdk.android.core.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
 import io.realm.Realm
@@ -102,15 +99,16 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
             LoginManager.getInstance().logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
         }
 
+
         /**Twitter login Setup*/
         btnTwitterLogin.callback = object : Callback<TwitterSession>() {
 
-            override fun failure(exception: TwitterException) {
-                Timber.e(exception)
-            }
-
             override fun success(result: Result<TwitterSession>) {
                 firebaseAuthWithTwitter(result.data)
+            }
+
+            override fun failure(exception: TwitterException) {
+                Timber.e(exception)
             }
         }
     }
