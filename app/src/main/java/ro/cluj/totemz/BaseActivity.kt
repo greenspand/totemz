@@ -12,7 +12,7 @@ import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 
 /**
- * Created by sorin on 8/21/16.
+ * Created by Sorin Albu-Irimies on 8/27/2016.
  */
 abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
 

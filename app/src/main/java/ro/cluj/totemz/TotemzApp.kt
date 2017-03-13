@@ -3,30 +3,25 @@ package ro.cluj.totemz
 import android.app.Application
 import android.content.Context
 import com.crashlytics.android.Crashlytics
-import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
 import com.google.firebase.auth.FirebaseAuth
 import com.karumi.dexter.Dexter
+import com.twitter.sdk.android.Twitter
+import com.twitter.sdk.android.core.TwitterAuthConfig
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
 import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.screens.user.userModule
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.realmConfiguration
-import com.twitter.sdk.android.core.TwitterAuthConfig
-import com.twitter.sdk.android.core.TwitterCore
-import com.twitter.sdk.android.core.TwitterSession
-import com.twitter.sdk.android.tweetcomposer.TweetComposer
-import com.twitter.sdk.android.tweetui.TweetUi
 
 
 /**
- * Created by mihai on 8/27/2016.
- */
+* Created by Sorin Albu-Irimies on 8/27/2016.
+*/
 open class TotemzApp : Application(), KodeinAware {
-
 
     override val kodein by Kodein.lazy {
         import(mapModule)
@@ -43,7 +38,7 @@ open class TotemzApp : Application(), KodeinAware {
 
         /*Twitter config.*/
         val authConfig = TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret))
-        Fabric.with(this, TwitterCore(authConfig),TweetUi(), TweetComposer())
+        Fabric.with(this, Twitter(authConfig))
         Fabric.with(this@TotemzApp, Crashlytics())
 
         /*Runtime permissions*/
