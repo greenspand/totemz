@@ -6,8 +6,8 @@ apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'realm-android'
 
 def versionMajor = 0
-def versionMinor = 0
-def versionPatch = 9
+def versionMinor = 1
+def versionPatch = 0
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
