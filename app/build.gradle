@@ -14,6 +14,10 @@ version "${versionMajor}.${versionMinor}.${versionPatch}"
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+    dexOptions {
+        maxProcessCount 4
+        javaMaxHeapSize "4g"
+    }
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
