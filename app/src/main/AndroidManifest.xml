@@ -18,6 +18,10 @@
         tools:replace="android:supportsRtl">
 
         <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="279bb68bcb0c7c8513677fdc4e88e0719f9e0556"/>
+
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
 
@@ -84,9 +88,11 @@
 
         <service android:name=".mqtt.MQTTService"/>
 
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="279bb68bcb0c7c8513677fdc4e88e0719f9e0556"/>
+
+        <provider
+            android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider1234"
+            android:exported="true"/>
 
     </application>
 
