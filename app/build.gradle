@@ -18,6 +18,13 @@ android {
         maxProcessCount 4
         javaMaxHeapSize "4g"
     }
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'mips', 'x86', 'x86_64'
+        }
+    }
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
@@ -31,15 +38,25 @@ android {
     }
 
     buildTypes {
+        def localHost = InetAddress.getLocalHost().getCanonicalHostName()
+        def globalHost = "totemz.ddns.net"
+        debug {
+            // This will automatically detect the IP address of the machine building RealmTasks.
+            // It is assumed that this machine is also running the Object Server.
+            // If not, replace 'host' with the IP of the machine hosting the server.
+            buildConfigField "String", "OBJECT_SERVER_IP", "\"${globalHost}\""
+            minifyEnabled false
+            multiDexEnabled true
+        }
         release {
             minifyEnabled false
             shrinkResources false
             multiDexEnabled true
+            // This will automatically detect the IP address of the machine building RealmTasks.
+            // It is assumed that this machine is also running the Object Server.
+            // If not, replace 'host' with the IP of the machine hosting the server.
+            buildConfigField "String", "OBJECT_SERVER_IP", "\"${globalHost}\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            minifyEnabled false
-            multiDexEnabled true
         }
     }
     sourceSets {
@@ -48,6 +65,11 @@ android {
     productFlavors {
     }
 }
+
+realm {
+    syncEnabled = true
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'

@@ -10,6 +10,7 @@ import com.github.salomonbrys.kodein.KodeinInjector
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
+import io.realm.Realm
 
 /**
  * Created by Sorin Albu-Irimies on 8/27/2016.
@@ -24,7 +25,7 @@ abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
     //Inject components
     val notificationManager: NotificationManager by withContext(this).instance()
     val sharedPrefs: SharedPreferences by withContext(this).instance()
-
+    val realm: Realm by instance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         inject(appKodein())

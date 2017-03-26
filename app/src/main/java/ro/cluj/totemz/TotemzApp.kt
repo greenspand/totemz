@@ -19,9 +19,15 @@ import ro.cluj.totemz.utils.realmConfiguration
 
 
 /**
-* Created by Sorin Albu-Irimies on 8/27/2016.
-*/
+ * Created by Sorin Albu-Irimies on 8/27/2016.
+ */
 open class TotemzApp : Application(), KodeinAware {
+
+    companion object {
+        const val AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth"
+        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/userlocation"
+
+    }
 
     override val kodein by Kodein.lazy {
         import(mapModule)
@@ -49,12 +55,6 @@ open class TotemzApp : Application(), KodeinAware {
 
         /*Realm database init.*/
         Realm.init(this)
-        val config = realmConfiguration {
-            val SCHEMA_VERSION: Long = 0
-            schemaVersion(SCHEMA_VERSION)
-            deleteRealmIfMigrationNeeded()
-        }
 
-        Realm.setDefaultConfiguration(config)
     }
 }
