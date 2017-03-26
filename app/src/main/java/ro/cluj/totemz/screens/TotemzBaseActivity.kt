@@ -1,8 +1,10 @@
 package ro.cluj.totemz.screens
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.Intent
 import android.os.Bundle
+import android.os.UserManager
 import android.support.annotation.StringRes
 import android.support.v4.view.ViewPager
 import android.util.Log
@@ -11,14 +13,19 @@ import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
+import com.greenspand.kotlin_ext.snack
 import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
+import io.realm.*
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.frag_user_profile.*
+import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
+import ro.cluj.totemz.R.id.*
+import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.realm.UserInfoRealm
@@ -26,15 +33,16 @@ import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
 import ro.cluj.totemz.screens.user.UserLoginActivity
-import ro.cluj.totemz.utils.FadePageTransformer
+import ro.cluj.totemz.utils.*
 import timber.log.Timber
+import java.util.*
+import kotlin.concurrent.timerTask
 
 class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
 
+
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
-
-    var CAMERA_REQUEST = 93
 
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
     val firebaseAuth: FirebaseAuth by instance()
@@ -59,6 +67,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         return R.string.app_name
     }
 
+
+    val RC_LOGIN = 145
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,28 +99,24 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             pager_menu_switch.currentItem = TAB_MAP
             disposables.add(scaleMapAnim())
             cont_pulse_compass.start()
-//            if (!serviceIsRunning()) {
-//                startService(intentFor<MQTTService>())
-//            }
+
         }
 
         img_user.setOnClickListener {
             pager_menu_switch.currentItem = TAB_USER
             disposables.add(scaleUserAnim())
-//            if (serviceIsRunning()) {
-//                stopMQTTLocationService()
-//            }
-
         }
-        startActivity(Intent(this, UserLoginActivity::class.java))
-        pager_menu_switch.currentItem = TAB_MAP
-//        Timer().schedule(timerTask { startService(intentFor<MQTTService>()) }, 2000)
 
+        pager_menu_switch.currentItem = TAB_MAP
 
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
+                if (!serviceIsRunning()) {
+                    startService(intentFor<MQTTService>())
+                }
             } else {
+                startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
                 isLoggedIn = false
                 // User is signed out
                 Timber.i("onAuthStateChanged:signed_out")
@@ -119,17 +125,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     }
 
-
-    fun UserInfoRealm.setupLoggedInFromRealm() {
-        tv_email.text = this.email
-        tv_id.text = this.userID
-        tv_user_name.text = this.displayName
-        Picasso.with(this@TotemzBaseActivity)
-                .load(this.imageUrl)
-                .error(R.drawable.vector_profle)
-                .transform(CropCircleTransformation())
-                .into(img_logged_in)
-    }
 
     //TODO USE IT!
     override fun onNextFragment(fragType: FragmentTypes) {
@@ -163,11 +158,13 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-//            val photo = data?.extras?.get("data") as Bitmap
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == RC_LOGIN) {
+            if (!serviceIsRunning()) {
+                startService(intentFor<MQTTService>())
+            }
         }
     }
-
 
     override fun onStart() {
         super.onStart()
@@ -183,6 +180,9 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onDestroy() {
         presenter.detachView()
         disposables.dispose()
+        if (serviceIsRunning()) {
+            stopMQTTLocationService()
+        }
         super.onDestroy()
     }
 
@@ -220,11 +220,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             BounceInterpolator()).mergeWith(
             presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
                     DURATION, BounceInterpolator()))
-
-            .subscribe({
-                //                                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                                startActivityForResult(cameraIntent, CAMERA_REQUEST)
-            })
+            .subscribe()
 
     fun scaleMapAnim() = presenter.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
             BounceInterpolator())

@@ -1,5 +1,6 @@
 package ro.cluj.totemz.screens.user
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
@@ -19,13 +20,21 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.*
 import com.greenspand.kotlin_ext.snack
-import com.twitter.sdk.android.core.*
+import com.twitter.sdk.android.core.Callback
+import com.twitter.sdk.android.core.Result
+import com.twitter.sdk.android.core.TwitterException
+import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
+import io.realm.ObjectServerError
 import io.realm.Realm
+import io.realm.SyncCredentials
+import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
+import ro.cluj.totemz.TotemzApp
+import ro.cluj.totemz.utils.getRealmSyncConfiguration
 import timber.log.Timber
 import java.util.*
 
@@ -33,7 +42,7 @@ import java.util.*
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
+class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult>, SyncUser.Callback {
 
     private lateinit var callbackManager: CallbackManager
     private lateinit var gApiClient: GoogleApiClient
@@ -46,7 +55,6 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
     private lateinit var disposableGoogleAccount: Disposable
 
-    val realm: Realm by instance()
     val firebaseAuth: FirebaseAuth by instance()
     val presenter: PresenterUserLogin by instance()
 
@@ -73,6 +81,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
+                setResult(Activity.RESULT_OK)
                 finish()
             } else {
                 isLoggedIn = false
@@ -112,6 +121,16 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
             }
         }
     }
+
+    /**Realm database init and sync*/
+    override fun onSuccess(user: SyncUser) {
+        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
+    }
+
+    override fun onError(error: ObjectServerError?) {
+        snack(container_user_login, "Location sync not active!")
+    }
+
 
     override fun onCancel() {
         snack(container_user_login, "Facebook login cancelled")
@@ -171,6 +190,9 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private fun firebaseAuthWithFacebook(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         firebaseSignIn(credential)
+        val credentials = SyncCredentials.facebook(token.token)
+        SyncUser.loginAsync(credentials, TotemzApp.AUTH_URL, this)
+
     }
 
     private fun firebaseAuthWithTwitter(session: TwitterSession) {

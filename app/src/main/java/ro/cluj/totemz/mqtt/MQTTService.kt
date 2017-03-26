@@ -11,22 +11,30 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.greenspand.kotlin_ext.snack
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.realm.ObjectServerError
+import io.realm.Realm
+import io.realm.SyncUser
+import kotlinx.android.synthetic.main.activity_main.*
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
+import ro.cluj.totemz.R.id.container_totem
+import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.proto.UserLocation
 import ro.cluj.totemz.utils.RxBus
+import ro.cluj.totemz.utils.getRealmSyncConfiguration
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected {
+class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected, SyncUser.Callback {
 
     override val injector = KodeinInjector()
     val rxBus: RxBus by instance()
@@ -57,11 +65,11 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
                 .subscribe { o ->
                     when (o) {
                         is MyLocation -> {
-//                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
+                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
                             //TODO FINALIZE PROTOBUF IMPLEMENTATION
-                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
-                            val payload = UserLocation.ADAPTER.encode(userLocation)
-                            publishMsg(TOPIC_USER, payload)
+//                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
+//                            val payload = UserLocation.ADAPTER.encode(userLocation)
+//                            publishMsg(TOPIC_USER, payload)
                         }
                     }
                 })
@@ -80,7 +88,6 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val clientID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) + "-android"
 //        val options = MqttConnectOptions()
 //        options.isCleanSession = true
 //        options.connectionTimeout = 3000
@@ -123,20 +130,20 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
         when (topic) {
             TOPIC_FRIEND -> {
                 //TODO FINALIZE PROTOBUF IMPLEMENTATION
-                val location = UserLocation.ADAPTER.decode(message.payload)
-                if (location.clientID != clientID){
-                    rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
-                }
-
-//                val msg = String(message.payload)
-//                if (msg.isNotEmpty()) {
-//                    val data = msg.split(":")
-//                    if (data[0] != clientID) {
-//                        val lat = data[1].toDouble()
-//                        val lng = data[2].toDouble()
-//                        rxBus.send(FriendLocation(LatLng(lat, lng)))
-//                    }
+//                val location = UserLocation.ADAPTER.decode(message.payload)
+//                if (location.clientID != clientID) {
+//                    rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
 //                }
+
+                val msg = String(message.payload)
+                if (msg.isNotEmpty()) {
+                    val data = msg.split(":")
+                    if (data[0] != clientID) {
+                        val lat = data[1].toDouble()
+                        val lng = data[2].toDouble()
+                        rxBus.send(FriendLocation(LatLng(lat, lng)))
+                    }
+                }
             }
         }
     }
@@ -156,4 +163,15 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
             e.printStackTrace()
         }
     }
+
+
+    /**Realm database sync*/
+    override fun onSuccess(user: SyncUser) {
+        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
+    }
+
+    override fun onError(error: ObjectServerError?) {
+        Timber.e(error)
+    }
+
 }

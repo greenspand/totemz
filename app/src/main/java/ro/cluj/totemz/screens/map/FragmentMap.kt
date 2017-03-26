@@ -192,6 +192,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     override fun onConnected(connectionHint: Bundle?) {
         getLocationAndAnimateMarker()
+        Timber.d("API CONNECTED")
     }
 
 
@@ -212,7 +213,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
             rxBus.send(MyLocation(LatLng(lat, lng)))
             googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
-            val subInterval = Observable.interval(6000, TimeUnit.MILLISECONDS)
+            val subInterval = Observable.interval(6, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
                 rxBus.send(MyLocation(LatLng(lat, lng)))
