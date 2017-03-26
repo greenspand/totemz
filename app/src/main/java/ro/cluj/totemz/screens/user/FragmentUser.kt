@@ -21,6 +21,7 @@ import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.realm.UserInfoRealm
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.FragmentCamera
@@ -125,6 +126,7 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
+                activity.stopService(intentFor<MQTTService>())
                 startActivity(intentFor<UserLoginActivity>())
             }
         }
