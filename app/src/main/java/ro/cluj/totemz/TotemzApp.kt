@@ -2,6 +2,7 @@ package ro.cluj.totemz
 
 import android.app.Application
 import android.content.Context
+import android.support.v7.app.AppCompatDelegate
 import com.crashlytics.android.Crashlytics
 import com.facebook.appevents.AppEventsLogger
 import com.github.salomonbrys.kodein.*
@@ -23,6 +24,7 @@ import ro.cluj.totemz.utils.RxBus
 open class TotemzApp : Application(), KodeinAware {
 
     companion object {
+        val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         const val AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth"
         const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/userlocation"
 
