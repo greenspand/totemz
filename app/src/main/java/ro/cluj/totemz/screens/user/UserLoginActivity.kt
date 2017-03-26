@@ -26,15 +26,14 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
-import io.realm.ObjectServerError
-import io.realm.Realm
 import io.realm.SyncCredentials
 import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_user_login.*
+import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
 import ro.cluj.totemz.TotemzApp
-import ro.cluj.totemz.utils.getRealmSyncConfiguration
+import ro.cluj.totemz.mqtt.MQTTService
 import timber.log.Timber
 import java.util.*
 
@@ -42,7 +41,7 @@ import java.util.*
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult>, SyncUser.Callback {
+class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
 
     private lateinit var callbackManager: CallbackManager
     private lateinit var gApiClient: GoogleApiClient
@@ -122,16 +121,6 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         }
     }
 
-    /**Realm database init and sync*/
-    override fun onSuccess(user: SyncUser) {
-        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
-    }
-
-    override fun onError(error: ObjectServerError?) {
-        snack(container_user_login, "Location sync not active!")
-    }
-
-
     override fun onCancel() {
         snack(container_user_login, "Facebook login cancelled")
     }
@@ -190,9 +179,10 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private fun firebaseAuthWithFacebook(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         firebaseSignIn(credential)
-        val credentials = SyncCredentials.facebook(token.token)
-        SyncUser.loginAsync(credentials, TotemzApp.AUTH_URL, this)
-
+        //TODO move this inside a realm sync service, we should start the service when user logged in
+//        val credentials = SyncCredentials.facebook(token.token)
+//        SyncUser.loginAsync(credentials, TotemzApp.AUTH_URL, this)
+//        startService(intentFor<MQTTService>("facebookToken" to token.token))
     }
 
     private fun firebaseAuthWithTwitter(session: TwitterSession) {

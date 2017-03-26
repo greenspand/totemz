@@ -19,12 +19,14 @@ import io.realm.ObjectServerError
 import io.realm.Realm
 import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_user_login.*
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.runOnUiThread
 import org.jetbrains.anko.toast
 import ro.cluj.totemz.R.id.container_totem
+import ro.cluj.totemz.R.id.container_user_login
 import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
