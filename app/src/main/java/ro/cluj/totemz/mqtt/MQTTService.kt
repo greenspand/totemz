@@ -11,26 +11,23 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.greenspand.kotlin_ext.snack
+import com.greenspand.kotlin_ext.toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.realm.ObjectServerError
 import io.realm.Realm
 import io.realm.SyncUser
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_user_login.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.runOnUiThread
-import org.jetbrains.anko.toast
-import ro.cluj.totemz.R.id.container_totem
-import ro.cluj.totemz.R.id.container_user_login
 import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
-import ro.cluj.totemz.proto.UserLocation
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.getRealmSyncConfiguration
 import timber.log.Timber
@@ -94,22 +91,23 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 //        options.isCleanSession = true
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
-        doAsync {
+        mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
+        mqttClient.setCallback(this@MQTTService)
+        val startMqtt = launch(CommonPool) {
             try {
-                mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
-                mqttClient.setCallback(this@MQTTService)
                 mqttClient.connect()
                 mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
-                runOnUiThread {
-                    toast("Client connected")
+                launch(UI) {
+                    toast("Connected")
                 }
-            } catch(e: MqttException) {
-                Timber.e(e)
-                runOnUiThread {
-                    toast("Error" + e.message)
+            } catch (e: Exception) {
+                launch(UI) {
+                    toast(e.localizedMessage)
                 }
             }
         }
+        startMqtt.start()
+
         return super.onStartCommand(intent, flags, startId)
     }
 
