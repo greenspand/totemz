@@ -4,39 +4,26 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.content.Intent
 import android.os.Bundle
-import android.os.UserManager
 import android.support.annotation.StringRes
 import android.support.v4.view.ViewPager
 import android.util.Log
-import android.view.View
 import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
-import com.greenspand.kotlin_ext.snack
-import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
-import io.realm.*
-import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.frag_user_profile.*
-import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.R.id.*
-import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
-import ro.cluj.totemz.realm.UserInfoRealm
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
 import ro.cluj.totemz.screens.user.UserLoginActivity
-import ro.cluj.totemz.utils.*
+import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
-import java.util.*
-import kotlin.concurrent.timerTask
 
 class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
 
@@ -113,7 +100,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             val user = firebaseAuth.currentUser
             if (user != null) {
                 if (!serviceIsRunning()) {
-                    startService(intentFor<MQTTService>())
+                    startService(Intent(this, MQTTService::class.java))
                 }
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
@@ -142,8 +129,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
 
     private fun stopMQTTLocationService() {
-        val intent = Intent(this, MQTTService::class.java)
-        stopService(intent)
+        stopService(Intent(this, MQTTService::class.java))
     }
 
     private fun serviceIsRunning(): Boolean {
@@ -161,7 +147,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == RC_LOGIN) {
             if (!serviceIsRunning()) {
-                startService(intentFor<MQTTService>())
+                startService(Intent(this, MQTTService::class.java))
             }
         }
     }

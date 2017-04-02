@@ -1,33 +1,24 @@
 package ro.cluj.totemz.screens.user
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
 import android.widget.Button
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserInfo
 import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_user_login.*
 import kotlinx.android.synthetic.main.frag_user_profile.*
-import org.jetbrains.anko.support.v4.intentFor
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
-import ro.cluj.totemz.realm.UserInfoRealm
-import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.FragmentCamera
-import ro.cluj.totemz.utils.fadeInOutAnimation
-import ro.cluj.totemz.utils.query
-import ro.cluj.totemz.utils.queryFirst
 import timber.log.Timber
 
 /**
@@ -75,7 +66,7 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
                 // User is signed out
                 isLoggedIn = false
                 Timber.i("onAuthStateChanged:signed_out")
-                intentFor<UserLoginActivity>()
+                startActivity(Intent(activity, UserLoginActivity::class.java))
             }
         }
     }
@@ -126,8 +117,8 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
-                activity.stopService(intentFor<MQTTService>())
-                startActivity(intentFor<UserLoginActivity>())
+                activity.stopService(Intent(activity, MQTTService::class.java))
+                startActivity(Intent(activity, UserLoginActivity::class.java))
             }
         }
     }

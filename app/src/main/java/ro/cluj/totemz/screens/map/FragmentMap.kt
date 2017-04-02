@@ -121,12 +121,6 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
-
-
     // Permission request callback
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
         response?.let {
@@ -134,7 +128,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                 googleMap?.let {
                     it.isMyLocationEnabled = true
                     it.uiSettings.isMyLocationButtonEnabled = true
-                    getLocationAndAnimateMarker()
+                    getLocationAndAnimateMarker(LocationServices.FusedLocationApi.getLastLocation(googleApiClient))
                 }
             }
         }
@@ -146,6 +140,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
             Timber.i("Map Ready")
             it.loadMapStyle(activity, R.raw.google_map_style)
             this.googleMap = googleMap
+            getLocationAndAnimateMarker(LocationServices.FusedLocationApi.getLastLocation(googleApiClient))
         }
     }
 
@@ -191,7 +186,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     }
 
     override fun onConnected(connectionHint: Bundle?) {
-        getLocationAndAnimateMarker()
+        getLocationAndAnimateMarker(LocationServices.FusedLocationApi.getLastLocation(googleApiClient))
         Timber.d("API CONNECTED")
     }
 
@@ -205,8 +200,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun onConnectionFailed(p0: ConnectionResult) {
     }
 
-    private fun getLocationAndAnimateMarker() {
-        val location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
+    private fun getLocationAndAnimateMarker(location: Location?) {
         location?.let {
             val lat = location.latitude
             val lng = location.longitude

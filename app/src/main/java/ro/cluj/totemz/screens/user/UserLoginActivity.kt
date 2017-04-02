@@ -26,14 +26,9 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
-import io.realm.SyncCredentials
-import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_user_login.*
-import org.jetbrains.anko.intentFor
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
-import ro.cluj.totemz.TotemzApp
-import ro.cluj.totemz.mqtt.MQTTService
 import timber.log.Timber
 import java.util.*
 
