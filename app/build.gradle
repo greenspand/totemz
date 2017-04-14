@@ -64,6 +64,10 @@ android {
     }
     productFlavors {
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 realm {
@@ -85,7 +89,7 @@ kapt {
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
+
     compile "com.android.support:appcompat-v7:$supportlibVersion"
     compile "com.android.support:animated-vector-drawable:$supportlibVersion"
     compile "com.android.support:cardview-v7:$supportlibVersion"
