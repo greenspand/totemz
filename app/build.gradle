@@ -94,7 +94,8 @@ dependencies {
     compile "com.android.support:customtabs:$supportlibVersion"
     compile "com.android.support:recyclerview-v7:$supportlibVersion"
     compile "com.android.support:design:$supportlibVersion"
-
+    /**MultiDex*/
+    compile 'com.android.support:multidex:1.0.1'
 
     compile "com.google.android.gms:play-services-maps:$playServicesVersion"
     compile "com.google.android.gms:play-services-ads:$playServicesVersion"

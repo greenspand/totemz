@@ -2,6 +2,7 @@ package ro.cluj.totemz
 
 import android.app.Application
 import android.content.Context
+import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
 import com.crashlytics.android.Crashlytics
 import com.facebook.appevents.AppEventsLogger
@@ -21,7 +22,7 @@ import ro.cluj.totemz.utils.RxBus
 /**
  * Created by Sorin Albu-Irimies on 8/27/2016.
  */
-open class TotemzApp : Application(), KodeinAware {
+open class TotemzApp : MultiDexApplication(), KodeinAware {
 
     companion object {
         val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
