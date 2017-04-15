@@ -71,28 +71,7 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".firebase.TotemzFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".firebase.TotemzFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-
         <service android:name=".mqtt.MQTTService"/>
-
-
-        <provider
-            android:name="com.facebook.FacebookContentProvider"
-            android:authorities="com.facebook.app.FacebookContentProvider1234"
-            android:exported="true"/>
 
     </application>
 

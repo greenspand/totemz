@@ -65,6 +65,9 @@ android {
     productFlavors {
     }
 
+    lintOptions {
+        abortOnError false
+    }
 }
 
 realm {
@@ -94,6 +97,7 @@ dependencies {
     compile "com.android.support:customtabs:$supportlibVersion"
     compile "com.android.support:recyclerview-v7:$supportlibVersion"
     compile "com.android.support:design:$supportlibVersion"
+
     /**MultiDex*/
     compile 'com.android.support:multidex:1.0.1'
 

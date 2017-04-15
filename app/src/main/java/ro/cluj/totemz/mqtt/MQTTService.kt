@@ -167,7 +167,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 
     /**Realm database sync*/
     override fun onSuccess(user: SyncUser) {
-        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
+//        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
     }
 
     override fun onError(error: ObjectServerError?) {
