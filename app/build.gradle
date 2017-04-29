@@ -44,7 +44,7 @@ android {
             // This will automatically detect the IP address of the machine building RealmTasks.
             // It is assumed that this machine is also running the Object Server.
             // If not, replace 'host' with the IP of the machine hosting the server.
-            buildConfigField "String", "OBJECT_SERVER_IP", "\"${globalHost}\""
+            buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             minifyEnabled false
             multiDexEnabled true
         }
@@ -55,7 +55,7 @@ android {
             // This will automatically detect the IP address of the machine building RealmTasks.
             // It is assumed that this machine is also running the Object Server.
             // If not, replace 'host' with the IP of the machine hosting the server.
-            buildConfigField "String", "OBJECT_SERVER_IP", "\"${globalHost}\""
+            buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -74,19 +74,6 @@ realm {
     syncEnabled = true
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
-kapt {
-    generateStubs = true
-}
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
@@ -165,7 +152,7 @@ dependencies {
     /**Rx Java*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
     compile "io.reactivex.rxjava2:rxjava:$rxVersion"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     /**Fabric IO crashlytics*/
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
