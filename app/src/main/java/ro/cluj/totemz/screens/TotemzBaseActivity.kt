@@ -11,11 +11,17 @@ import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
+import com.greenspand.kotlin_ext.snack
 import io.reactivex.disposables.CompositeDisposable
+import io.realm.ObjectServerError
+import io.realm.SyncCredentials
+import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_main.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
+import ro.cluj.totemz.TotemzApp.Companion.AUTH_URL
+import ro.cluj.totemz.UserManager
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.FragmentCamera
@@ -25,8 +31,7 @@ import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
-
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView, SyncUser.Callback {
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
@@ -99,6 +104,25 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
+                val syncUser: SyncUser? = SyncUser.currentUser()
+                if (syncUser != null) {
+                    UserManager.setActiveUser(syncUser)
+                } else {
+                    for (userInfo in user.providerData) {
+                        when (userInfo.providerId) {
+                            "google.com" -> {
+                                val token = sharedPrefs.invoke().getString("GOOGLE_TOKEN", user.getToken(true).toString())
+                                SyncUser.loginAsync(SyncCredentials.google(token), AUTH_URL, this@TotemzBaseActivity)
+                            }
+                            "facebook.com" -> {
+                                val token = sharedPrefs.invoke().getString("FACEBOOK_TOKEN", user.getToken(true).toString())
+                                SyncUser.loginAsync(SyncCredentials.facebook(token), AUTH_URL, this@TotemzBaseActivity)
+                            }
+                        }
+
+                    }
+                }
+
                 if (!serviceIsRunning()) {
                     startService(Intent(this, MQTTService::class.java))
                 }
@@ -112,6 +136,14 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     }
 
+    override fun onSuccess(user: SyncUser?) {
+        UserManager.setActiveUser(user)
+    }
+
+    override fun onError(error: ObjectServerError?) {
+        Timber.e(error)
+        snack(container_totem, "Realm User Sync failed")
+    }
 
     //TODO USE IT!
     override fun onNextFragment(fragType: FragmentTypes) {

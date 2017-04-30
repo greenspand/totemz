@@ -12,7 +12,6 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -78,7 +77,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         super.onAttach(context)
         context?.let {
             if (context is Activity) {
-                disposables.add(rxBus.toObservable()
+                disposables.add(rxBus.invoke().toObservable()
                         .subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe { o ->
@@ -204,13 +203,13 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         location?.let {
             val lat = location.latitude
             val lng = location.longitude
-            rxBus.send(MyLocation(LatLng(lat, lng)))
+            rxBus.invoke().send(MyLocation(LatLng(lat, lng)))
             googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
             val subInterval = Observable.interval(6, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
-                rxBus.send(MyLocation(LatLng(lat, lng)))
+                rxBus.invoke().send(MyLocation(LatLng(lat, lng)))
             }
             disposables.add(subInterval)
         }

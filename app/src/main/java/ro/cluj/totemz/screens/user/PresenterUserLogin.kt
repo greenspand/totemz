@@ -16,6 +16,7 @@ class PresenterUserLogin : BasePresenter<ViewUserLogin>() {
         realmUserInfo.displayName = signInAccount?.displayName
         realmUserInfo.imageUrl = signInAccount?.photoUrl.toString()
         realmUserInfo.userID = signInAccount?.id
+        realmUserInfo.token = signInAccount?.idToken
         realmUserInfo.save()
         view.showUserSavedToRealm()
     }

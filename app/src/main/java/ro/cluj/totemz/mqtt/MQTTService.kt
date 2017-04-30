@@ -5,10 +5,8 @@ import android.content.Intent
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
-import com.github.salomonbrys.kodein.KodeinInjected
-import com.github.salomonbrys.kodein.KodeinInjector
+import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.appKodein
-import com.github.salomonbrys.kodein.instance
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.greenspand.kotlin_ext.toast
@@ -28,15 +26,18 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
+import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.getRealmSyncConfiguration
+import ro.cluj.totemz.utils.save
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, KodeinInjected, SyncUser.Callback {
+class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware, SyncUser.Callback {
 
-    override val injector = KodeinInjector()
-    val rxBus: RxBus by instance()
+    override val kodein = LazyKodein(appKodein)
+    val rxBus: () -> RxBus by provider()
+    val realm: () -> Realm by provider()
     val TAG = MQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
@@ -53,17 +54,21 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
 
     override fun onCreate() {
         super.onCreate()
-        inject(appKodein())
 
         clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
         FirebaseAnalytics.getInstance(this).setUserId(clientID)
 
-        disposables.add(rxBus.toObservable()
+        disposables.add(rxBus.invoke().toObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o ->
                     when (o) {
                         is MyLocation -> {
+                            val realmLocation = LocationRealm()
+                            realmLocation.clientID = clientID
+                            realmLocation.lat = o.location.latitude
+                            realmLocation.lon = o.location.longitude
+                            realmLocation.save()
                             publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
                             //TODO FINALIZE PROTOBUF IMPLEMENTATION
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
@@ -141,7 +146,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Kode
                     if (data[0] != clientID) {
                         val lat = data[1].toDouble()
                         val lng = data[2].toDouble()
-                        rxBus.send(FriendLocation(LatLng(lat, lng)))
+                        rxBus.invoke().send(FriendLocation(LatLng(lat, lng)))
                     }
                 }
             }

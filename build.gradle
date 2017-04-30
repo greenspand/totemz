@@ -23,17 +23,18 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
-        jcenter()
-        /*MQTT*/
+        // check local
+        mavenLocal()
+        /*Artifactory*/
+        // then snapshot
         maven {
-            url "https://repo.eclipse.org/content/repositories/paho-releases/"
+            url "http://colosus-de-linux.ejykhx3vyg2trryh.myfritz.net:8081/artifactory/libs-snapshot-local"
+            credentials {
+                username = project.hasProperty('artifactoryPrivateUser') ? project.artifactoryPrivateUser : System.getenv('ARTIFACTORY_USER')
+                password = project.hasProperty('artifactoryPrivatePass') ? project.artifactoryPrivatePass : System.getenv('ARTIFACTORY_PASSWORD')
+            }
         }
-        /*Coroutines*/
-        maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
-        }
-        /*BINTRAY*/
+        /*Bintray*/
         maven { url "http://dl.bintray.com/populov/maven" }
         maven {
             url "https://dl.bintray.com/greenlibs/greenspand-libs"
@@ -41,6 +42,15 @@ allprojects {
                 username project.hasProperty('bintrayPrivateUser') ? project.bintrayPrivateUser : System.getenv('BINTRAY_USER')
                 password project.hasProperty('bintrayPrivateKey') ? project.bintrayPrivateKey : System.getenv('BINTRAY_PASSWORD')
             }
+        }
+        mavenCentral()
+        /*MQTT*/
+        maven {
+            url "https://repo.eclipse.org/content/repositories/paho-releases/"
+        }
+        /*Coroutines*/
+        maven {
+            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
         }
         jcenter()
         maven { url 'https://maven.fabric.io/public' }

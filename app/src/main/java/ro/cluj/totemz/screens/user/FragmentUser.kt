@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.picasso.Picasso
 import io.reactivex.disposables.CompositeDisposable
+import io.realm.SyncUser
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.frag_user_profile.*
 import ro.cluj.totemz.BaseFragment
@@ -84,14 +85,14 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
     override fun onStart() {
         super.onStart()
         authStateListener?.let {
-            firebaseAuth.addAuthStateListener(it)
+            firebaseAuth.invoke().addAuthStateListener(it)
         }
     }
 
     override fun onStop() {
         super.onStop()
         authStateListener?.let {
-            firebaseAuth.removeAuthStateListener(it)
+            firebaseAuth.invoke().removeAuthStateListener(it)
         }
     }
 
@@ -117,6 +118,7 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
+                SyncUser.currentUser().logout()
                 activity.stopService(Intent(activity, MQTTService::class.java))
                 startActivity(Intent(activity, UserLoginActivity::class.java))
             }

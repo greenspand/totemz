@@ -19,6 +19,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.firebase.auth.*
+import com.greenspand.kotlin_ext.editPrefs
+import com.greenspand.kotlin_ext.setString
 import com.greenspand.kotlin_ext.snack
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
@@ -26,6 +28,7 @@ import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
+import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
@@ -85,7 +88,7 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
         }
 
         disposableGoogleAccount = behaviourGoogleAccount.subscribe {
-            presenter.saveUserInfoToRealm(it)
+            //            presenter.saveUserInfoToRealm(it)
             firebaseAuthWithGoogle(it)
         }
 
@@ -174,10 +177,9 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private fun firebaseAuthWithFacebook(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
         firebaseSignIn(credential)
-        //TODO move this inside a realm sync service, we should start the service when user logged in
-//        val credentials = SyncCredentials.facebook(token.token)
-//        SyncUser.loginAsync(credentials, TotemzApp.AUTH_URL, this)
-//        startService(intentFor<MQTTService>("facebookToken" to token.token))
+        sharedPrefs.invoke().editPrefs {
+            setString("FACEBOOK_TOKEN" to token.token)
+        }
     }
 
     private fun firebaseAuthWithTwitter(session: TwitterSession) {
@@ -191,6 +193,9 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
         firebaseSignIn(credential)
+        sharedPrefs.invoke().editPrefs {
+            setString("GOOGLE_TOKEN" to acct?.idToken as String)
+        }
     }
 
     fun firebaseSignIn(credential: AuthCredential) {

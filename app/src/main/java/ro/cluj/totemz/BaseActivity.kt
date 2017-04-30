@@ -5,30 +5,26 @@ import android.app.NotificationManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.github.salomonbrys.kodein.KodeinInjected
-import com.github.salomonbrys.kodein.KodeinInjector
+import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
-import com.github.salomonbrys.kodein.instance
 import io.realm.Realm
 
 /**
  * Created by Sorin Albu-Irimies on 8/27/2016.
  */
-abstract class BaseActivity : AppCompatActivity(), KodeinInjected {
+abstract class BaseActivity : AppCompatActivity(), LazyKodeinAware {
 
     abstract fun getActivityTitle(): Int
 
+    override val kodein = LazyKodein(appKodein)
 
-    override val injector = KodeinInjector()
+    val notificationManager: () -> NotificationManager by withContext(this).provider()
+    val sharedPrefs: () -> SharedPreferences by withContext(this).provider()
+    val realm: () -> Realm by provider()
 
-    //Inject components
-    val notificationManager: NotificationManager by withContext(this).instance()
-    val sharedPrefs: SharedPreferences by withContext(this).instance()
-    val realm: Realm by instance()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        inject(appKodein())
     }
 
     override fun setTitle(title: CharSequence) {

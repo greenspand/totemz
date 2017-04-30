@@ -13,7 +13,16 @@ public class UserInfoRealm extends RealmObject {
     private String displayName;
     private String imageUrl;
     private String phoneNumber;
+    private String token;
     private String birthDate;
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public String getProviderID() {
         return providerID;

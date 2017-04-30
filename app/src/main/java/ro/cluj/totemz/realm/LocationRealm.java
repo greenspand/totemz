@@ -10,8 +10,8 @@ import io.realm.annotations.PrimaryKey;
 public class LocationRealm extends RealmObject {
     @PrimaryKey
     private String clientID;
-    private Double lat;
-    private Double lon;
+    private double lat;
+    private double lon;
 
 
     public String getClientID() {

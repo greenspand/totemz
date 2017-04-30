@@ -13,10 +13,7 @@ version "${versionMajor}.${versionMinor}.${versionPatch}"
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
-    dexOptions {
-        maxProcessCount 4
-        javaMaxHeapSize "4g"
-    }
+
     splits {
         abi {
             enable true
@@ -117,7 +114,7 @@ dependencies {
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     /**Kotlin extensions*/
-    compile "com.greenspnd:kotlin-ext:$ktExtVersion"
+    compile "com.greenspand:kotlin-ext:$ktExtSnapshotVersion"
 
     /**Permissions*/
     compile 'com.karumi:dexter:2.3.1'

@@ -14,6 +14,8 @@ import com.twitter.sdk.android.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
+import io.realm.log.LogLevel
+import io.realm.log.RealmLog
 import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.screens.user.userModule
 import ro.cluj.totemz.utils.RxBus
@@ -27,7 +29,8 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
     companion object {
         val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         const val AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth"
-        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/userlocation"
+        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/realmtasks"
+        const val DEFAULT_LIST_ID = "80EB1620-165B-4600-A1B1-D97032FDD9A0"
 
     }
 
@@ -43,7 +46,6 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
 
     override fun onCreate() {
         super.onCreate()
-
         /*Twitter config.*/
         val authConfig = TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret))
         Fabric.with(this, Twitter(authConfig))
