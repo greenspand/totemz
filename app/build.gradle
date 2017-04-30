@@ -44,7 +44,7 @@ android {
             buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             multiDexEnabled true
             minifyEnabled false
-        }
+            shrinkResources false        }
         release {
             minifyEnabled true
             shrinkResources true
