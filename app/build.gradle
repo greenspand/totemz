@@ -42,12 +42,12 @@ android {
             // It is assumed that this machine is also running the Object Server.
             // If not, replace 'host' with the IP of the machine hosting the server.
             buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
-            minifyEnabled false
+            minifyEnabled true
             multiDexEnabled true
         }
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             multiDexEnabled true
             // This will automatically detect the IP address of the machine building RealmTasks.
             // It is assumed that this machine is also running the Object Server.
