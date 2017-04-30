@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
-import com.github.salomonbrys.kodein.*
+import com.github.salomonbrys.kodein.LazyKodein
+import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.provider
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.greenspand.kotlin_ext.toast
@@ -18,17 +20,13 @@ import io.realm.Realm
 import io.realm.SyncUser
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import ro.cluj.totemz.TotemzApp
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
-import ro.cluj.totemz.utils.getRealmSyncConfiguration
 import ro.cluj.totemz.utils.save
 import timber.log.Timber
 

@@ -1,6 +1,5 @@
 package ro.cluj.totemz
 
-import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
@@ -14,8 +13,6 @@ import com.twitter.sdk.android.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
 import io.fabric.sdk.android.Fabric
 import io.realm.Realm
-import io.realm.log.LogLevel
-import io.realm.log.RealmLog
 import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.screens.user.userModule
 import ro.cluj.totemz.utils.RxBus
