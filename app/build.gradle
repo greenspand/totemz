@@ -43,6 +43,7 @@ android {
             // If not, replace 'host' with the IP of the machine hosting the server.
             buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             multiDexEnabled true
+            minifyEnabled false
         }
         release {
             minifyEnabled true
