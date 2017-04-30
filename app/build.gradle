@@ -97,7 +97,6 @@ dependencies {
      *
      */
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-nio:0.14'
     compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.14'
 
     /**Firebase Core*/
