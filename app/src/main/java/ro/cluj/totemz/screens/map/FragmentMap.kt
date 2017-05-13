@@ -99,7 +99,10 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         mapView = view.findViewById(R.id.map_totemz) as MapView
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
-        Dexter.checkPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        Dexter.withActivity(activity)
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(this)
+                .check()
 
         //init google API client
         googleApiClient = GoogleApiClient.Builder(activity)

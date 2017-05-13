@@ -118,7 +118,7 @@ class FragmentUser : BaseFragment(), ViewFragmentUser {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
-                SyncUser.currentUser().logout()
+                SyncUser.currentUser()?.logout()
                 activity.stopService(Intent(activity, MQTTService::class.java))
                 startActivity(Intent(activity, UserLoginActivity::class.java))
             }
