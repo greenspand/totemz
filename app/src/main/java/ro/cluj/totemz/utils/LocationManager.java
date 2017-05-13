@@ -1,9 +1,9 @@
-package com.moovel.injection;
+package ro.cluj.totemz.utils;
 
 import android.location.Location;
 
-import rx.Observable;
-import rx.Single;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public interface LocationManager {
     /**
@@ -39,6 +39,7 @@ public interface LocationManager {
 
     /**
      * Fetches a single item location provider
+     *
      * @return a single containing the name of the provider
      */
     Single<String> getLocationProvider();
