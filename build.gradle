@@ -8,7 +8,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:2.3.2'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.2'
         classpath 'com.google.gms:google-services:3.0.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
@@ -16,7 +16,7 @@ buildscript {
         // Crashlytics
         classpath 'io.fabric.tools:gradle:1.+'
         //Realm Mobile Database Support
-        classpath "io.realm:realm-gradle-plugin:3.1.3"
+        classpath "io.realm:realm-gradle-plugin:3.1.4"
     }
 }
 
@@ -46,9 +46,13 @@ allprojects {
         mavenCentral()
         /*MQTT*/
         maven {
+            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
+        }
+        maven {
             url "https://repo.eclipse.org/content/repositories/paho-releases/"
         }
-        /*Coroutines*/
+
+        /*Corutines*/
         maven {
             url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
         }
