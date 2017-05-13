@@ -10,24 +10,52 @@ def versionPatch = 2
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
+def buildNumberProduction = 4
+def buildNumberDebugging = 999999
+
+def buildVersionCode = { ->
+    if (gradle.startParameter.taskNames.contains(":app:assembleProductionRelease")) {
+        return buildNumberProduction
+    } else {
+        return buildNumberDebugging
+    }
+}
+
+
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
 
+    /**CONFIGURE SPLITS*/
     splits {
         abi {
-            enable true
+            /*Enable splits only if we perform the build production release task*/
+            enable gradle.startParameter.taskNames.contains(":app:assembleProductionRelease")
             reset()
-            include 'armeabi-v7a', 'arm64-v8a'
-            universalApk true
+            include 'armeabi', 'armeabi-v7a', 'arm64-v8a', "x86", 'x86_64', "mips", 'mips64'
+            /*No need for universal apk*/
+            universalApk false
         }
     }
+
+    // map for the version code
+    project.ext.versionCodes = ['armeabi': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3, 'mips': 4, 'x86': 5, 'x86_64': 6, 'mips64': 7]
+
+    android.applicationVariants.all { variant ->
+        // assign different version code for each output
+        variant.outputs.each { output ->
+            output.versionCodeOverride =
+                    project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) + buildNumberProduction
+        }
+    }
+
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 1
+        versionCode buildVersionCode()
+
         versionName "${version}"
         vectorDrawables.useSupportLibrary = true
         /** Keep language resources in libraries only for supported locales*/
@@ -44,7 +72,8 @@ android {
             buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             multiDexEnabled true
             minifyEnabled false
-            shrinkResources false        }
+            shrinkResources false
+        }
         release {
             minifyEnabled true
             shrinkResources true
@@ -77,7 +106,6 @@ dependencies {
     compile "com.android.support:appcompat-v7:$supportlibVersion"
     compile "com.android.support:animated-vector-drawable:$supportlibVersion"
     compile "com.android.support:cardview-v7:$supportlibVersion"
-    compile "com.android.support:cardview-v7:$supportlibVersion"
     compile "com.android.support:customtabs:$supportlibVersion"
     compile "com.android.support:recyclerview-v7:$supportlibVersion"
     compile "com.android.support:design:$supportlibVersion"
@@ -93,11 +121,12 @@ dependencies {
     /**Map Utils*/
     compile 'com.google.maps.android:android-maps-utils:0.4+'
 
-    /**Coroutines
-     *
-     */
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.14'
+    /**Kotlin*/
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+
+    /**Coroutines**/
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.15'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.15'
 
     /**Firebase Core*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
@@ -116,14 +145,14 @@ dependencies {
     compile "com.greenspand:kotlin-ext:$ktExtSnapshotVersion"
 
     /**Permissions*/
-    compile 'com.karumi:dexter:2.3.1'
+    compile 'com.karumi:dexter:4.1.0'
 
     /**Logger*/
     compile 'com.jakewharton.timber:timber:4.5.1'
 
     /**Img loader*/
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'jp.wasabeef:picasso-transformations:2.1.0'
+    compile 'jp.wasabeef:picasso-transformations:2.1.2'
 
     /**Protocol Buffers*/
     compile 'com.squareup.wire:wire-runtime:2.2.0'
@@ -148,7 +177,6 @@ dependencies {
     /**Rx Java*/
     compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
     compile "io.reactivex.rxjava2:rxjava:$rxVersion"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     /**Fabric IO crashlytics*/
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {

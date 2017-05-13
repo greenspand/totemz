@@ -26,7 +26,7 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
     companion object {
         val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         const val AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth"
-        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/realmtasks"
+        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/userlocation"
         const val DEFAULT_LIST_ID = "80EB1620-165B-4600-A1B1-D97032FDD9A0"
 
     }
@@ -47,9 +47,6 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
         val authConfig = TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret))
         Fabric.with(this, Twitter(authConfig))
         Fabric.with(this@TotemzApp, Crashlytics())
-
-        /*Runtime permissions*/
-        Dexter.initialize(this)
 
         /*Facebook event logger*/
         AppEventsLogger.activateApp(this)
