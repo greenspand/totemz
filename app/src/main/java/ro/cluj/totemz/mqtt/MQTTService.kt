@@ -21,6 +21,7 @@ import io.realm.SyncUser
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import ro.cluj.totemz.model.FriendLocation
@@ -42,7 +43,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
     val ANDROID_OS = "-android"
     lateinit var presenter: PresenterMQTT
-    lateinit var mqttClient: MqttClient
+    lateinit var mqttClient: MqttAsyncClient
     var clientID: String? = null
     private val disposables = CompositeDisposable()
 
@@ -94,12 +95,12 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 //        options.isCleanSession = true
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
-        mqttClient = MqttClient(BROKER_URL, clientID, MemoryPersistence())
+        mqttClient = MqttAsyncClient(BROKER_URL, clientID, MemoryPersistence())
         mqttClient.setCallback(this@MQTTService)
         val startMqtt = launch(CommonPool) {
             try {
                 mqttClient.connect()
-                mqttClient.subscribe(arrayOf(TOPIC_FRIEND))
+                mqttClient.subscribe(TOPIC_FRIEND, 2)
                 launch(UI) {
                     toast("Connected")
                 }
