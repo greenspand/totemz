@@ -30,6 +30,7 @@ import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.save
 import timber.log.Timber
+import org.eclipse.paho.client.mqttv3.IMqttToken
 
 
 class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware, SyncUser.Callback {
@@ -43,7 +44,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
     val ANDROID_OS = "-android"
     lateinit var presenter: PresenterMQTT
-    lateinit var mqttClient: MqttAsyncClient
+    lateinit var mqttClient: IMqttAsyncClient
     var clientID: String? = null
     private val disposables = CompositeDisposable()
 
@@ -95,12 +96,16 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 //        options.isCleanSession = true
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
+
+
         mqttClient = MqttAsyncClient(BROKER_URL, clientID, MemoryPersistence())
-        mqttClient.setCallback(this@MQTTService)
         val startMqtt = launch(CommonPool) {
             try {
-                mqttClient.connect()
+                val token = mqttClient.connect()
+                token.waitForCompletion(3500)
+                mqttClient.setCallback(this@MQTTService)
                 mqttClient.subscribe(TOPIC_FRIEND, 2)
+                token.waitForCompletion(4000)
                 launch(UI) {
                     toast("Connected")
                 }
