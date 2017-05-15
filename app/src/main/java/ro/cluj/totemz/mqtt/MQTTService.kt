@@ -21,7 +21,6 @@ import io.realm.SyncUser
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import ro.cluj.totemz.model.FriendLocation
@@ -30,7 +29,6 @@ import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.save
 import timber.log.Timber
-import org.eclipse.paho.client.mqttv3.IMqttToken
 
 
 class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware, SyncUser.Callback {
