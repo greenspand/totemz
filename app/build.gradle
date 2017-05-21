@@ -142,7 +142,7 @@ dependencies {
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     /**Kotlin extensions*/
-    compile "com.greenspand:kotlin-ext:$ktExtSnapshotVersion"
+    compile "com.greenspand:kotlin-ext:$ktExtVersion"
 
     /**Permissions*/
     compile 'com.karumi:dexter:4.1.0'
