@@ -1,7 +1,6 @@
 package ro.cluj.totemz.utils
 
 import io.realm.*
-import ro.cluj.totemz.realm.LocationRealm
 
 /**
  * Realm related extension function expressions
