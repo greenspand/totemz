@@ -159,7 +159,10 @@ dependencies {
 
     /**MQTT*/
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqttVersion"
-    compile "org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersion"
+    compile ("org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersionSnapshot@aar"){
+        exclude module: 'support-v4'
+    }
+
 
     /**DI Framework*/
     compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
