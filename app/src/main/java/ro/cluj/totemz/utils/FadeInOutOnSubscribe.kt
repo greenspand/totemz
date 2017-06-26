@@ -13,7 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class FadeInOutOnSubscribe(private val views: List<View>,
                            private val alpha: Float,
                            private val duration: Long,
-                           private val interpolator: Interpolator) : CompletableOnSubscribe {
+                           private val interpolator: Interpolator)
+    : CompletableOnSubscribe {
 
 
     lateinit private var numberOfAnimationsToRun: AtomicInteger
