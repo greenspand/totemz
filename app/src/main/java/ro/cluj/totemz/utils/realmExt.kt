@@ -14,19 +14,6 @@ inline fun realmConfiguration(func: RealmConfiguration.Builder.() -> Unit): Real
     return builder.build()
 }
 
-inline fun realmSyncConfiguration(user: SyncUser, uri: String, func: SyncConfiguration.Builder.() -> Unit)
-        : SyncConfiguration {
-    val builder = SyncConfiguration.Builder(user, uri)
-    builder.func()
-    return builder.build()
-}
-
-fun getRealmSyncConfiguration(user: SyncUser, uri: String, schemaVersion: Long): SyncConfiguration {
-    val config = realmSyncConfiguration(user, uri) {
-        schemaVersion(schemaVersion)
-    }
-    return config
-}
 
 fun Realm.saveToRealmAsync(realmObject: RealmObject) {
     this.executeTransactionAsync { realmObject.save() }
