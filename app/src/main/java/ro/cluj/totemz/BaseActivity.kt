@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import io.realm.Realm
 
 /**
@@ -22,6 +24,7 @@ abstract class BaseActivity : AppCompatActivity(), LazyKodeinAware {
     val notificationManager: () -> NotificationManager by withContext(this).provider()
     val sharedPrefs: () -> SharedPreferences by withContext(this).provider()
     val realm: () -> Realm by provider()
+    val firebaseAuth: () -> FirebaseAuth by provider()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
