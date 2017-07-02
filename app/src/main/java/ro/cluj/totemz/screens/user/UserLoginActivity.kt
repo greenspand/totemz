@@ -22,13 +22,13 @@ import com.google.firebase.auth.*
 import com.greenspand.kotlin_ext.editPrefs
 import com.greenspand.kotlin_ext.setString
 import com.greenspand.kotlin_ext.snack
+import com.greenspand.kotlin_ext.toast
 import com.twitter.sdk.android.core.Callback
 import com.twitter.sdk.android.core.Result
 import com.twitter.sdk.android.core.TwitterException
 import com.twitter.sdk.android.core.TwitterSession
 import io.reactivex.disposables.Disposable
 import io.reactivex.processors.BehaviorProcessor
-import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_user_login.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
@@ -39,7 +39,10 @@ import java.util.*
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
+class UserLoginActivity : BaseActivity(),
+        ViewUserLogin,
+        GoogleApiClient.OnConnectionFailedListener,
+        FacebookCallback<LoginResult> {
 
     private lateinit var callbackManager: CallbackManager
     private lateinit var gApiClient: GoogleApiClient
@@ -52,7 +55,6 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
     private lateinit var disposableGoogleAccount: Disposable
 
-    val firebaseAuth: FirebaseAuth by instance()
     val presenter: PresenterUserLogin by instance()
 
     @StringRes
@@ -133,13 +135,13 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
 
     override fun onStart() {
         super.onStart()
-        firebaseAuth.addAuthStateListener(authStateListener)
+        firebaseAuth.invoke().addAuthStateListener(authStateListener)
 
     }
 
     override fun onStop() {
         super.onStop()
-        firebaseAuth.removeAuthStateListener(authStateListener)
+        firebaseAuth.invoke().removeAuthStateListener(authStateListener)
     }
 
     override fun onDestroy() {
@@ -199,12 +201,13 @@ class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConne
     }
 
     fun firebaseSignIn(credential: AuthCredential) {
-        firebaseAuth.signInWithCredential(credential)
+        firebaseAuth.invoke().signInWithCredential(credential)
                 .addOnCompleteListener(this@UserLoginActivity) { task ->
                     Timber.i("signInWithCredential:onComplete:" + task.isSuccessful)
                     if (!task.isSuccessful) {
+                        Timber.e(task.exception)
                         Timber.e("signInWithCredential", task.exception)
-                        Toast.makeText(this@UserLoginActivity, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                      toast("Authentication failed.")
                     }
                 }
     }
