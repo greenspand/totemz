@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
 import com.crashlytics.android.Crashlytics
+import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
@@ -16,6 +17,9 @@ import io.realm.Realm
 import ro.cluj.totemz.screens.mapModule
 import ro.cluj.totemz.screens.user.userModule
 import ro.cluj.totemz.utils.RxBus
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import ro.cluj.totemz.firebase.firebaseModule
 
 
 /**
@@ -25,26 +29,24 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
 
     companion object {
         val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        const val AUTH_URL = "http://" + BuildConfig.OBJECT_SERVER_IP + ":9080/auth"
-        const val REALM_URL = "realm://" + BuildConfig.OBJECT_SERVER_IP + ":9080/~/userlocation"
-        const val DEFAULT_LIST_ID = "80EB1620-165B-4600-A1B1-D97032FDD9A0"
-
     }
 
     override val kodein by Kodein.lazy {
         import(mapModule)
         import(userModule)
         import(androidModule)
+        import(firebaseModule)
         bind<RxBus>() with singleton { RxBus }
-        bind<FirebaseAuth>() with singleton { FirebaseAuth.getInstance() }
         bind<Realm>() with singleton { Realm.getDefaultInstance() }
         bind<Context>() with singleton { applicationContext }
     }
 
     override fun onCreate() {
         super.onCreate()
+        FacebookSdk.sdkInitialize(this)
         /*Twitter config.*/
-        val authConfig = TwitterAuthConfig(getString(R.string.twitter_key), getString(R.string.twitter_secret))
+        val authConfig = TwitterAuthConfig(getString(R.string.twitter_key),
+                getString(R.string.twitter_secret))
         Fabric.with(this, Twitter(authConfig))
         Fabric.with(this@TotemzApp, Crashlytics())
 
@@ -53,6 +55,5 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
 
         /*Realm database init.*/
         Realm.init(this)
-
     }
 }
