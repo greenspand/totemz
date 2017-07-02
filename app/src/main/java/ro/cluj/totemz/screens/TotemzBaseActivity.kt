@@ -10,19 +10,18 @@ import android.util.Log
 import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
+import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.greenspand.kotlin_ext.snack
 import io.reactivex.disposables.CompositeDisposable
-import io.realm.ObjectServerError
-import io.realm.SyncCredentials
-import io.realm.SyncUser
 import kotlinx.android.synthetic.main.activity_main.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.TotemzApp.Companion.AUTH_URL
-import ro.cluj.totemz.UserManager
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.model.TotemzUser
+import ro.cluj.totemz.model.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
@@ -31,13 +30,15 @@ import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView, SyncUser.Callback {
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
 
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
-    val firebaseAuth: FirebaseAuth by instance()
+
+    val firebaseDB: () -> FirebaseDatabase by provider()
+    val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
 
 
     //Animation properties
@@ -53,7 +54,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     //Injections
     val presenter: TotemzBasePresenter by instance()
     val activityManager: ActivityManager by withContext(this).instance()
-    private val disposables = CompositeDisposable()
+    private val disposables by lazy { CompositeDisposable() }
     @StringRes
     override fun getActivityTitle(): Int {
         return R.string.app_name
@@ -104,27 +105,33 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
             if (user != null) {
-                val syncUser: SyncUser? = SyncUser.currentUser()
-                if (syncUser != null) {
-                    UserManager.setActiveUser(syncUser)
-                } else {
-                    for (userInfo in user.providerData) {
-                        when (userInfo.providerId) {
-                            "google.com" -> {
-                                val token = sharedPrefs.invoke().getString("GOOGLE_TOKEN", user.getToken(true).toString())
-                                SyncUser.loginAsync(SyncCredentials.google(token), AUTH_URL, this@TotemzBaseActivity)
-                            }
-                            "facebook.com" -> {
-                                val token = sharedPrefs.invoke().getString("FACEBOOK_TOKEN", user.getToken(true).toString())
-                                SyncUser.loginAsync(SyncCredentials.facebook(token), AUTH_URL, this@TotemzBaseActivity)
-                            }
+                for (userInfo in user.providerData) {
+                    when (userInfo.providerId) {
+                        "google.com" -> {
+                            val token = sharedPrefs.invoke().getString("GOOGLE_TOKEN", user.getToken(true).toString())
+//                                SyncUser.loginAsync(SyncCredentials.google(token), AUTH_URL, this@TotemzBaseActivity)
                         }
-
+                        "facebook.com" -> {
+                            val token = sharedPrefs.invoke().getString("FACEBOOK_TOKEN", user.getToken(true).toString())
+//                                SyncUser.loginAsync(SyncCredentials.facebook(token), AUTH_URL, this@TotemzBaseActivity)
+                        }
                     }
                 }
-
                 if (!serviceIsRunning()) {
                     startService(Intent(this, MQTTService::class.java))
+                    //TODO remove the firebase demo JSON read
+                    firebaseUserGroup.addValueEventListener(object : ValueEventListener {
+                        override fun onCancelled(dataSnapshot: DatabaseError?) {
+
+                        }
+
+                        override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                            // This method is called once with the initial value and again
+                            // whenever data at this location is updated.
+                            val value = dataSnapshot?.getValue(UserGroup::class.java)
+                            snack(container_totem, "Value is: $value")
+                        }
+                    })
                 }
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
@@ -134,15 +141,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             }
         }
 
-    }
-
-    override fun onSuccess(user: SyncUser?) {
-        UserManager.setActiveUser(user)
-    }
-
-    override fun onError(error: ObjectServerError?) {
-        Timber.e(error)
-        snack(container_totem, "Realm User Sync failed")
     }
 
     //TODO USE IT!
@@ -181,17 +179,24 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             if (!serviceIsRunning()) {
                 startService(Intent(this, MQTTService::class.java))
             }
+            val user = firebaseAuth.invoke().currentUser
+
+            //TODO this is just a test to see if a group gets created and then retrieved
+            firebaseUserGroup.setValue(UserGroup("PrimeGroup", TotemzUser(user?.email, user?.displayName, null)
+                    , arrayListOf(TotemzUser("whatever@yahoo.com", "Giusi", null)
+                    , TotemzUser("mastersorini@yahoo.com", "Sorin", null))))
+            firebaseUserGroup.push()
         }
     }
 
     override fun onStart() {
         super.onStart()
-        firebaseAuth.addAuthStateListener(authStateListener)
+        firebaseAuth.invoke().addAuthStateListener(authStateListener)
     }
 
     override fun onStop() {
         super.onStop()
-        firebaseAuth.removeAuthStateListener(authStateListener)
+        firebaseAuth.invoke().removeAuthStateListener(authStateListener)
     }
 
 

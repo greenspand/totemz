@@ -11,13 +11,13 @@ import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.provider
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.greenspand.kotlin_ext.toast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.realm.ObjectServerError
 import io.realm.Realm
-import io.realm.SyncUser
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -31,11 +31,12 @@ import ro.cluj.totemz.utils.save
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware, SyncUser.Callback {
+class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware {
 
     override val kodein = LazyKodein(appKodein)
     val rxBus: () -> RxBus by provider()
     val realm: () -> Realm by provider()
+    val firebaseDB: () -> FirebaseDatabase by provider()
     val TAG = MQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
@@ -44,8 +45,8 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     lateinit var presenter: PresenterMQTT
     lateinit var mqttClient: IMqttAsyncClient
     var clientID: String? = null
-    private val disposables = CompositeDisposable()
-
+    private val disposables by lazy { CompositeDisposable() }
+    private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -95,7 +96,6 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
 
-
         mqttClient = MqttAsyncClient(BROKER_URL, clientID, MemoryPersistence())
         val startMqtt = launch(CommonPool) {
             try {
@@ -136,7 +136,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     override fun messageArrived(topic: String, message: MqttMessage) {
         when (topic) {
             TOPIC_FRIEND -> {
-                //TODO FINALIZE PROTOBUF IMPLEMENTATION
+                //TODO FINALIZE PROTO-BUF IMPLEMENTATION
 //                val location = UserLocation.ADAPTER.decode(message.payload)
 //                if (location.clientID != clientID) {
 //                    rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
@@ -148,7 +148,11 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
                     if (data[0] != clientID) {
                         val lat = data[1].toDouble()
                         val lng = data[2].toDouble()
-                        rxBus.invoke().send(FriendLocation(LatLng(lat, lng)))
+                        val friendLoc = FriendLocation(LatLng(lat, lng))
+                        val fbLoc = firebaseDBRefFriendLocation.child("FriendsLocations")
+                        fbLoc.setValue(friendLoc)
+                        fbLoc.push()
+                        rxBus.invoke().send(friendLoc)
                     }
                 }
             }
@@ -169,16 +173,6 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
             toast("Something went wrong!" + e.message)
             e.printStackTrace()
         }
-    }
-
-
-    /**Realm database sync*/
-    override fun onSuccess(user: SyncUser) {
-//        val realm = Realm.getInstance(getRealmSyncConfiguration(user, TotemzApp.REALM_URL, 0))
-    }
-
-    override fun onError(error: ObjectServerError?) {
-        Timber.e(error)
     }
 
 }
