@@ -63,13 +63,7 @@ android {
     }
 
     buildTypes {
-        def localHost = InetAddress.getLocalHost().getCanonicalHostName()
-        def globalHost = "totemz.ddns.net"
         debug {
-            // This will automatically detect the IP address of the machine building RealmTasks.
-            // It is assumed that this machine is also running the Object Server.
-            // If not, replace 'host' with the IP of the machine hosting the server.
-            buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             multiDexEnabled true
             minifyEnabled false
             shrinkResources false
@@ -78,10 +72,6 @@ android {
             minifyEnabled true
             shrinkResources true
             multiDexEnabled true
-            // This will automatically detect the IP address of the machine building RealmTasks.
-            // It is assumed that this machine is also running the Object Server.
-            // If not, replace 'host' with the IP of the machine hosting the server.
-            buildConfigField "String", "OBJECT_SERVER_IP", "\"${localHost}\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -96,9 +86,6 @@ android {
     }
 }
 
-realm {
-    syncEnabled = true
-}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -131,11 +118,18 @@ dependencies {
     /**Firebase Core*/
     compile "com.google.firebase:firebase-core:$playServicesVersion"
 
+    /**Firebase DB*/
+    compile "com.google.firebase:firebase-database:$playServicesVersion"
+
+    /**Firebase Geofire*/
+    compile 'com.firebase:geofire-android:2.1.1'
+
     /**Firebase Push Notifications*/
     compile "com.google.firebase:firebase-messaging:$playServicesVersion"
 
     /**Firebase crashlitics*/
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
+
 
     /**Firebase authentication*/
     compile "com.google.firebase:firebase-auth:$playServicesVersion"

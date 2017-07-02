@@ -1,7 +1,9 @@
 {
   "project_info": {
     "project_number": "462430669536",
-    "project_id": "firebase-totemz"
+    "firebase_url": "https://fir-totemz.firebaseio.com",
+    "project_id": "firebase-totemz",
+    "storage_bucket": "firebase-totemz.appspot.com"
   },
   "client": [
     {
@@ -13,11 +15,47 @@
       },
       "oauth_client": [
         {
+          "client_id": "462430669536-fu9g36i6fpc5b2hr2rb5n92r8liud1f0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.cluj.totemz",
+            "certificate_hash": "ee48b5357f5c59300778f81b4a18b9dc0a28d1f5"
+          }
+        },
+        {
+          "client_id": "462430669536-l4e2k3jmre2ppoenjautb604j5220v5c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.cluj.totemz",
+            "certificate_hash": "685221bc0ca8fd4ad9882aa326f850cdeb6199ab"
+          }
+        },
+        {
+          "client_id": "462430669536-8jq3a1cji6r9i4trnmv1rt1a9r2fa9pj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.cluj.totemz",
+            "certificate_hash": "76b0077b46f97626f6488c77ec971f493490bb4b"
+          }
+        },
+        {
+          "client_id": "462430669536-apltgkg7t7ncpm8hvh5f3uq2lem0uh53.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ro.cluj.totemz",
+            "certificate_hash": "2af23c7e4c2e7b22ce0fe4a60f429f6e6144a23f"
+          }
+        },
+        {
+          "client_id": "462430669536-ac5n1s71bl1b5o06b0ra4rtcg996q5au.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
           "client_id": "462430669536-po83k146vumme8lpitsm4m40pgm8of4t.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "ro.cluj.totemz",
-            "certificate_hash": "87CCEFB9220ABA9E78E9E9420C86A938BBEE9AD1"
+            "certificate_hash": "87ccefb9220aba9e78e9e9420c86a938bbee9ad1"
           }
         },
         {
@@ -38,11 +76,16 @@
           }
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "462430669536-ac5n1s71bl1b5o06b0ra4rtcg996q5au.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }
