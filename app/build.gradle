@@ -24,7 +24,7 @@ def buildVersionCode = { ->
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    buildToolsVersion "26.0.0"
 
     /**CONFIGURE SPLITS*/
     splits {

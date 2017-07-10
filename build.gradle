@@ -9,13 +9,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.2'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.7.1'
         classpath 'com.google.gms:google-services:3.0.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        // Crashlytics
         classpath 'io.fabric.tools:gradle:1.+'
-        //Realm Mobile Database Support
         classpath "io.realm:realm-gradle-plugin:3.4.0"
     }
 }
@@ -25,15 +24,13 @@ allprojects {
     repositories {
         // check local
         mavenLocal()
-//        /*Artifactory*/
-//        // then snapshot
-//        maven {
-//            url "http://colosus-de-linux.ejykhx3vyg2trryh.myfritz.net:8081/artifactory/libs-snapshot-local"
-//            credentials {
-//                username = project.hasProperty('artifactoryPrivateUser') ? project.artifactoryPrivateUser : System.getenv('ARTIFACTORY_USER')
-//                password = project.hasProperty('artifactoryPrivatePass') ? project.artifactoryPrivatePass : System.getenv('ARTIFACTORY_PASSWORD')
-//            }
-//        }
+        google()
+        jcenter()
+        maven { url 'https://jitpack.io' }
+        /*MQTT Release versions*/
+        maven {
+            url "https://repo.eclipse.org/content/repositories/paho-releases/"
+        }
         /*Bintray*/
         maven { url "http://dl.bintray.com/populov/maven" }
         maven {
@@ -43,20 +40,24 @@ allprojects {
                 password project.hasProperty('bintrayPrivateKey') ? project.bintrayPrivateKey : System.getenv('BINTRAY_PASSWORD')
             }
         }
-        mavenCentral()
-        /*MQTT*/
-        maven {
-            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-        }
         maven {
             url "https://repo.eclipse.org/content/repositories/paho-releases/"
         }
 
-        /*Corutines*/
+//        /*Artifactory*/
+//        // then snapshot
+//        maven {
+//            url "http://colosus-de-linux.ejykhx3vyg2trryh.myfritz.net:8081/artifactory/libs-snapshot-local"
+//            credentials {
+//                username = project.hasProperty('artifactoryPrivateUser') ? project.artifactoryPrivateUser : System.getenv('ARTIFACTORY_USER')
+//                password = project.hasProperty('artifactoryPrivatePass') ? project.artifactoryPrivatePass : System.getenv('ARTIFACTORY_PASSWORD')
+//            }
+//        }
+
+        /*MQTT*/
         maven {
-            url "http://dl.bintray.com/kotlin/kotlin-eap-1.1"
+            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
         }
-        jcenter()
         maven { url 'https://maven.fabric.io/public' }
     }
 }
