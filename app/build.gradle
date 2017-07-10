@@ -6,11 +6,11 @@ apply plugin: 'realm-android'
 
 def versionMajor = 0
 def versionMinor = 1
-def versionPatch = 3
+def versionPatch = 4
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
-def buildNumberProduction = 4
+def buildNumberProduction = 12
 def buildNumberDebugging = 999999
 
 def buildVersionCode = { ->
