@@ -14,7 +14,7 @@ def buildNumberProduction = 4
 def buildNumberDebugging = 999999
 
 def buildVersionCode = { ->
-    if (gradle.startParameter.taskNames.contains(":app:assembleProductionRelease")) {
+    if (gradle.startParameter.taskNames.contains(":app:assembleRelease")) {
         return buildNumberProduction
     } else {
         return buildNumberDebugging
@@ -30,7 +30,7 @@ android {
     splits {
         abi {
             /*Enable splits only if we perform the build production release task*/
-            enable gradle.startParameter.taskNames.contains(":app:assembleProductionRelease")
+            enable gradle.startParameter.taskNames.contains(":app:assembleRelease")
             reset()
             include 'armeabi', 'armeabi-v7a', 'arm64-v8a', "x86", 'x86_64', "mips", 'mips64'
             /*No need for universal apk*/
