@@ -61,11 +61,11 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
                 .subscribe { o ->
                     when (o) {
                         is MyLocation -> {
-                            val realmLocation = LocationRealm()
-                            realmLocation.clientID = clientID
-                            realmLocation.lat = o.location.latitude
-                            realmLocation.lon = o.location.longitude
-                            realmLocation.save()
+//                            val realmLocation = LocationRealm()
+//                            realmLocation.clientID = clientID
+//                            realmLocation.lat = o.location.latitude
+//                            realmLocation.lon = o.location.longitude
+//                            realmLocation.save()
                             publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
                             //TODO FINALIZE PROTOBUF IMPLEMENTATION
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
@@ -89,11 +89,6 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-//        val options = MqttConnectOptions()
-//        options.isCleanSession = true
-//        options.connectionTimeout = 3000
-//        options.keepAliveInterval = 10 * 60
-
         mqttClient = createMqttClient(BROKER_URL, clientID, MemoryPersistence()) {
             val options = MqttConnectOptions().apply {
                 isCleanSession = true
