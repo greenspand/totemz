@@ -27,6 +27,7 @@ import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
+import ro.cluj.totemz.utils.createMqttClient
 import ro.cluj.totemz.utils.save
 import timber.log.Timber
 
@@ -41,10 +42,9 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
-    val ANDROID_OS = "-android"
     lateinit var presenter: PresenterMQTT
     lateinit var mqttClient: IMqttAsyncClient
-    var clientID: String? = null
+    val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
     override fun onBind(intent: Intent): IBinder? {
@@ -53,8 +53,6 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 
     override fun onCreate() {
         super.onCreate()
-
-        clientID = "${Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)}$ANDROID_OS"
         FirebaseAnalytics.getInstance(this).setUserId(clientID)
 
         disposables.add(rxBus.invoke().toObservable()
@@ -96,25 +94,30 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
 //        options.connectionTimeout = 3000
 //        options.keepAliveInterval = 10 * 60
 
-        mqttClient = MqttAsyncClient(BROKER_URL, clientID, MemoryPersistence())
-        val startMqtt = launch(CommonPool) {
-            try {
-                val token = mqttClient.connect()
-                token.waitForCompletion(3500)
-                mqttClient.setCallback(this@MQTTService)
-                mqttClient.subscribe(TOPIC_FRIEND, 2)
-                token.waitForCompletion(4000)
-                launch(UI) {
-                    toast("Connected")
-                }
-            } catch (e: Exception) {
-                launch(UI) {
-                    toast(e.localizedMessage)
+        mqttClient = createMqttClient(BROKER_URL, clientID, MemoryPersistence()) {
+            val options = MqttConnectOptions().apply {
+                isCleanSession = true
+                connectionTimeout = 3000
+                keepAliveInterval = 10 * 60
+            }
+            val startMqtt = launch(CommonPool) {
+                try {
+                    val iMqttToken = connect(options)
+                    iMqttToken.waitForCompletion(3500)
+                    setCallback(this@MQTTService)
+                    subscribe(TOPIC_FRIEND, 2)
+                    iMqttToken.waitForCompletion(4000)
+                    launch(UI) {
+                        toast("Connected")
+                    }
+                } catch (e: Exception) {
+                    launch(UI) {
+                        toast(e.localizedMessage)
+                    }
                 }
             }
+            startMqtt.start()
         }
-        startMqtt.start()
-
         return super.onStartCommand(intent, flags, startId)
     }
 
