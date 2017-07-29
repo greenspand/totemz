@@ -43,7 +43,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
     lateinit var presenter: PresenterMQTT
-    lateinit var mqttClient: IMqttAsyncClient
+    var mqttClient: IMqttAsyncClient? = null
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
@@ -79,7 +79,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     }
 
     private fun publishMsg(topic: String, msg: ByteArray) {
-        mqttClient.let {
+        mqttClient?.let {
             if (it.isConnected) {
                 val message = MqttMessage(msg)
                 it.publish(topic, message)
@@ -164,13 +164,14 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     override fun onDestroy() {
         disposables.dispose()
         try {
-            mqttClient.disconnect()
-            toast("Client disconnected")
+            mqttClient?.let {
+                if (it.isConnected) it.disconnect()
+                toast("Client disconnected")
+            }
         } catch (e: MqttException) {
             Timber.e(e)
             toast("Something went wrong!" + e.message)
             e.printStackTrace()
         }
     }
-
 }
