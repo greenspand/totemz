@@ -32,13 +32,13 @@ import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQTT, LazyKodeinAware {
+class TotemzMQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQTT, LazyKodeinAware {
 
     override val kodein = LazyKodein(appKodein)
     val rxBus: () -> RxBus by provider()
     val realm: () -> Realm by provider()
     val firebaseDB: () -> FirebaseDatabase by provider()
-    val TAG = MQTTService::class.java.simpleName
+    val TAG = TotemzMQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
@@ -52,8 +52,9 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
 
     companion object {
 
-        const val ACTION_USER_LOCATION = "com.moovel.ondemand.USER_LOCATION"
-        const val ACTION_SHUTTLE_LOCATION = "com.moovel.ondemand.SHUTTLE_LOCATION"
+        const val ACTION_USER_LOCATION = "ro.cluj.totemz.mqtt.USER_LOCATION"
+        const val ACTION_FRIEND_LOCATION = "ro.cluj.totemz.mqtt.ACTION_FRIEND_LOCATION"
+        const val PARAM_FRIEND_LOCATION = "ro.cluj.totemz.mqtt.PARAM_FRIEND_LOCATION"
     }
 
     /**
@@ -62,12 +63,12 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
      */
     inner class LocalBinder : Binder() {
 
-        val service: MQTTService = this@MQTTService
+        val service: TotemzMQTTService = this@TotemzMQTTService
     }
 
     override fun onBind(intent: Intent): IBinder? {
         val filter = IntentFilter(ACTION_USER_LOCATION)
-        LocalBroadcastManager.getInstance(this@MQTTService).registerReceiver(receiver, filter)
+        LocalBroadcastManager.getInstance(this@TotemzMQTTService).registerReceiver(receiver, filter)
         return binder
     }
 
@@ -175,6 +176,11 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
                         fbLoc.setValue(friendLoc)
                         fbLoc.push()
                         rxBus.invoke().send(friendLoc)
+
+                        //Alternative to rxBus(Broadcast receiver)
+                        val broadcastIntent = Intent(ACTION_FRIEND_LOCATION)
+                        broadcastIntent.putExtra(PARAM_FRIEND_LOCATION, friendLoc)
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
                     }
                 }
             }
