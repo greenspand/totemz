@@ -1,28 +1,32 @@
 package ro.cluj.totemz.screens
 
 import android.app.Activity
-import android.app.ActivityManager
-import android.content.Intent
+import android.content.*
 import android.os.Bundle
+import android.os.IBinder
 import android.support.annotation.StringRes
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.animation.BounceInterpolator
-import com.github.salomonbrys.kodein.android.withContext
-import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.greenspand.kotlin_ext.snack
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.TotemzUser
 import ro.cluj.totemz.model.UserGroup
-import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.mqtt.MqttBroadcastReceiver
+import ro.cluj.totemz.mqtt.TotemzMQTTService
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
@@ -30,31 +34,38 @@ import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
+class TotemzBaseActivity : BaseActivity(),
+        ViewPager.OnPageChangeListener,
+        MqttBroadcastReceiver.Receiver,
+        OnFragmentActionsListener,
+        TotemzBaseView {
 
-    val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
-
-    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
-
-    val firebaseDB: () -> FirebaseDatabase by provider()
-    val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
 
 
     //Animation properties
     val SCALE_UP = 1f
     val SCALE_DOWN = 0.7f
     val DURATION = 300L
-    val TAG = TotemzBaseActivity::class.java.simpleName
 
-    //Subscriptions
+    //MQTT Service
+    var isBound = false
+    var totemzMqttService: TotemzMQTTService? = null
+
+    //TABS
     val TAB_CAMERA = 0
     val TAB_MAP = 1
     val TAB_USER = 2
+
     //Injections
-    val presenter: TotemzBasePresenter by instance()
-    val activityManager: ActivityManager by withContext(this).instance()
+    val presenter: () -> TotemzBasePresenter by provider()
+
+    private val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
+    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+
+    private val receiver by lazy { MqttBroadcastReceiver() }
     private val disposables by lazy { CompositeDisposable() }
+
     @StringRes
     override fun getActivityTitle(): Int {
         return R.string.app_name
@@ -66,7 +77,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        presenter.attachView(this)
+        presenter.invoke().attachView(this)
 
         /* Instantiate pager adapter and set fragments*/
         val adapter = BaseFragAdapter(supportFragmentManager,
@@ -117,22 +128,20 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                         }
                     }
                 }
-                if (!serviceIsRunning()) {
-                    startService(Intent(this, MQTTService::class.java))
-                    //TODO remove the firebase demo JSON read
-                    firebaseUserGroup.addValueEventListener(object : ValueEventListener {
-                        override fun onCancelled(dataSnapshot: DatabaseError?) {
+                //TODO remove the firebase demo JSON read
+                firebaseUserGroup.addValueEventListener(object : ValueEventListener {
+                    override fun onCancelled(dataSnapshot: DatabaseError?) {
 
-                        }
+                    }
 
-                        override fun onDataChange(dataSnapshot: DataSnapshot?) {
-                            // This method is called once with the initial value and again
-                            // whenever data at this location is updated.
-                            val value = dataSnapshot?.getValue(UserGroup::class.java)
-                            snack(container_totem, "Value is: $value")
-                        }
-                    })
-                }
+                    override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                        // This method is called once with the initial value and again
+                        // whenever data at this location is updated.
+                        val value = dataSnapshot?.getValue(UserGroup::class.java)
+                        snack(container_totem, "Value is: $value")
+                    }
+                })
+
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
                 isLoggedIn = false
@@ -141,6 +150,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             }
         }
 
+        /*Instantiate MQTT BroadcastReceiver*/
+        receiver.setReceiver(this@TotemzBaseActivity)
     }
 
     //TODO USE IT!
@@ -158,27 +169,29 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     }
 
 
-    private fun stopMQTTLocationService() {
-        stopService(Intent(this, MQTTService::class.java))
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            isBound = true
+
+            /*We've bound to LocalService, cast the IBinder and get LocalService instance*/
+            val binder = service as TotemzMQTTService.LocalBinder
+            totemzMqttService = binder.service
+            val filter = IntentFilter(TotemzMQTTService.ACTION_FRIEND_LOCATION)
+            LocalBroadcastManager.getInstance(this@TotemzBaseActivity).registerReceiver(receiver, filter)
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            isBound = false
+            LocalBroadcastManager.getInstance(this@TotemzBaseActivity).unregisterReceiver(receiver)
+        }
     }
 
-    private fun serviceIsRunning(): Boolean {
-        for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
-            if (SERVICE_CLASSNAME == service.service.className) {
-                Log.i("MQTT", "SERVICE IS RUNNING")
-                return true
-            }
-        }
-        Log.i("MQTT", "SERVICE HAS STOPPED")
-        return false
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == RC_LOGIN) {
-            if (!serviceIsRunning()) {
-                startService(Intent(this, MQTTService::class.java))
-            }
+            /*Bind the MQTT service*/
+            bindService(Intent(this, TotemzMQTTService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
             val user = firebaseAuth.invoke().currentUser
 
             //TODO this is just a test to see if a group gets created and then retrieved
@@ -192,21 +205,25 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onStart() {
         super.onStart()
         firebaseAuth.invoke().addAuthStateListener(authStateListener)
+        /*Bind the MQTT service*/
+        bindService(Intent(this, TotemzMQTTService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStop() {
         super.onStop()
         firebaseAuth.invoke().removeAuthStateListener(authStateListener)
+        /*Unbind from the service*/
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
     }
 
 
     override fun onDestroy() {
-        presenter.detachView()
-        disposables.dispose()
-        if (serviceIsRunning()) {
-            stopMQTTLocationService()
-        }
         super.onDestroy()
+        presenter.invoke().detachView()
+        disposables.dispose()
     }
 
     override fun onPageScrollStateChanged(state: Int) {
@@ -239,21 +256,32 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         }
     }
 
-    fun scaleCameraAnim() = presenter.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
+            TotemzMQTTService.ACTION_FRIEND_LOCATION -> {
+                val friendLocation = intent.getSerializableExtra(
+                        TotemzMQTTService.PARAM_FRIEND_LOCATION) as FriendLocation
+                Timber.i("Friend location", "From broadcast receiver is: ",
+                        "${friendLocation.location.latitude} ${friendLocation.location.longitude}")
+            }
+        }
+    }
+
+    fun scaleCameraAnim(): Disposable = presenter.invoke().scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
             BounceInterpolator()).mergeWith(
-            presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
+            presenter.invoke().scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
                     DURATION, BounceInterpolator()))
             .subscribe()
 
-    fun scaleMapAnim() = presenter.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
+    fun scaleMapAnim(): Disposable = presenter.invoke().scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
             BounceInterpolator())
-            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION,
+            .mergeWith(presenter.invoke().scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION,
                     BounceInterpolator()))
             .subscribe()
 
-    fun scaleUserAnim() = presenter.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
+    fun scaleUserAnim(): Disposable = presenter.invoke().scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
             BounceInterpolator())
-            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION,
+            .mergeWith(presenter.invoke().scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION,
                     BounceInterpolator()))
             .subscribe()
 
