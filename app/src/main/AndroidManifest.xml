@@ -71,7 +71,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".mqtt.MQTTService"/>
+        <service android:name=".mqtt.TotemzMQTTService"/>
 
     </application>
 
