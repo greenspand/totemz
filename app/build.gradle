@@ -105,10 +105,6 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$supportlibVersion"
     compile "com.android.support:design:$supportlibVersion"
 
-    /**Android Architecture Components*/
-    compile "android.arch.lifecycle:runtime:$rxLifecycleVersion"
-    compile "android.arch.lifecycle:extensions:$rxLifecycleVersion"
-    annotationProcessor "android.arch.lifecycle:compiler:$rxLifecycleVersion"
 
     /**MultiDex*/
     compile 'com.android.support:multidex:1.0.1'
