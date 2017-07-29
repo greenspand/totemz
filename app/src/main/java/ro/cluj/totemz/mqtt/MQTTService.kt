@@ -2,9 +2,11 @@ package ro.cluj.totemz.mqtt
 
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.Binder
 import android.os.IBinder
 import android.provider.Settings
-import android.util.Log
+import android.support.v4.content.LocalBroadcastManager
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.android.appKodein
@@ -25,14 +27,12 @@ import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
-import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.createMqttClient
-import ro.cluj.totemz.utils.save
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, LazyKodeinAware {
+class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQTT, LazyKodeinAware {
 
     override val kodein = LazyKodein(appKodein)
     val rxBus: () -> RxBus by provider()
@@ -46,9 +46,33 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     var mqttClient: IMqttAsyncClient? = null
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
+    private val receiver by lazy { MqttBroadcastReceiver() }
+    private val binder by lazy { LocalBinder() }
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
+
+    companion object {
+
+        const val ACTION_USER_LOCATION = "com.moovel.ondemand.USER_LOCATION"
+        const val ACTION_SHUTTLE_LOCATION = "com.moovel.ondemand.SHUTTLE_LOCATION"
+    }
+
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    inner class LocalBinder : Binder() {
+
+        val service: MQTTService = this@MQTTService
+    }
+
     override fun onBind(intent: Intent): IBinder? {
-        return null
+        val filter = IntentFilter(ACTION_USER_LOCATION)
+        LocalBroadcastManager.getInstance(this@MQTTService).registerReceiver(receiver, filter)
+        return binder
+    }
+
+    override fun onUnbind(intent: Intent): Boolean {
+        return false
     }
 
     override fun onCreate() {
@@ -76,19 +100,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
                 })
         presenter = PresenterMQTT()
         presenter.attachView(this)
-    }
 
-    private fun publishMsg(topic: String, msg: ByteArray) {
-        mqttClient?.let {
-            if (it.isConnected) {
-                val message = MqttMessage(msg)
-                it.publish(topic, message)
-            }
-        }
-    }
-
-
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         mqttClient = createMqttClient(BROKER_URL, clientID, MemoryPersistence()) {
             val options = MqttConnectOptions().apply {
                 isCleanSession = true
@@ -97,11 +109,8 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
             }
             val startMqtt = launch(CommonPool) {
                 try {
-                    val iMqttToken = connect(options)
-                    iMqttToken.waitForCompletion(3500)
-                    setCallback(this@MQTTService)
-                    subscribe(TOPIC_FRIEND, 2)
-                    iMqttToken.waitForCompletion(4000)
+                    connect(options).waitForCompletion(6000)
+                    subscribe(TOPIC_FRIEND, 0).waitForCompletion()
                     launch(UI) {
                         toast("Connected")
                     }
@@ -113,20 +122,35 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
             }
             startMqtt.start()
         }
-        return super.onStartCommand(intent, flags, startId)
+
+
     }
 
+    private fun publishMsg(topic: String, msg: ByteArray) {
+        mqttClient?.let {
+            if (it.isConnected) {
+                val message = MqttMessage(msg)
+                it.publish(topic, message)
+            }
+        }
+    }
+
+    override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+        Timber.i("MQTT Connection Complete: $serverURI : reconnect: $reconnect")
+        toast("MQTT Connection Complete: $serverURI : reconnect: $reconnect")
+    }
 
     override fun connectionLost(cause: Throwable) {
         toast("Connection to Server lost")
     }
 
     override fun onSuccess(asyncActionToken: IMqttToken?) {
-        mqttClient.subscribe(TOPIC_FRIEND, 0)
+        mqttClient?.subscribe(TOPIC_FRIEND, 0)
         toast("Connected")
     }
 
     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+        Timber.e(exception, "MQTT Failed")
     }
 
 
@@ -158,7 +182,7 @@ class MQTTService : Service(), MqttCallback, IMqttActionListener, ViewMQTT, Lazy
     }
 
     override fun deliveryComplete(token: IMqttDeliveryToken) {
-        Log.i("MSG", "delivery complete")
+        Timber.i("MSG", "delivery complete. Message id: ${token.message.id}")
     }
 
     override fun onDestroy() {
