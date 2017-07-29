@@ -32,13 +32,16 @@ import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
 
-class TotemzMQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQTT, LazyKodeinAware {
+class TotemzMQTTService : Service(),
+        MqttCallbackExtended,
+        IMqttActionListener,
+        ViewMQTT,
+        LazyKodeinAware {
 
     override val kodein = LazyKodein(appKodein)
     val rxBus: () -> RxBus by provider()
     val realm: () -> Realm by provider()
     val firebaseDB: () -> FirebaseDatabase by provider()
-    val TAG = TotemzMQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
@@ -130,6 +133,7 @@ class TotemzMQTTService : Service(), MqttCallbackExtended, IMqttActionListener, 
     private fun publishMsg(topic: String, msg: ByteArray) {
         mqttClient?.let {
             if (it.isConnected) {
+                Timber.i("MSG Published")
                 val message = MqttMessage(msg)
                 it.publish(topic, message)
             }

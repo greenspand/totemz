@@ -141,7 +141,8 @@ class TotemzBaseActivity : BaseActivity(),
                         snack(container_totem, "Value is: $value")
                     }
                 })
-
+                /*Bind the MQTT service*/
+                bindService(Intent(this, TotemzMQTTService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
                 isLoggedIn = false
@@ -192,8 +193,8 @@ class TotemzBaseActivity : BaseActivity(),
         if (resultCode == Activity.RESULT_OK && requestCode == RC_LOGIN) {
             /*Bind the MQTT service*/
             bindService(Intent(this, TotemzMQTTService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
-            val user = firebaseAuth.invoke().currentUser
 
+            val user = firebaseAuth.invoke().currentUser
             //TODO this is just a test to see if a group gets created and then retrieved
             firebaseUserGroup.setValue(UserGroup("PrimeGroup", TotemzUser(user?.email, user?.displayName, null)
                     , arrayListOf(TotemzUser("whatever@yahoo.com", "Giusi", null)
@@ -205,18 +206,12 @@ class TotemzBaseActivity : BaseActivity(),
     override fun onStart() {
         super.onStart()
         firebaseAuth.invoke().addAuthStateListener(authStateListener)
-        /*Bind the MQTT service*/
-        bindService(Intent(this, TotemzMQTTService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
+
     }
 
     override fun onStop() {
         super.onStop()
         firebaseAuth.invoke().removeAuthStateListener(authStateListener)
-        /*Unbind from the service*/
-        if (isBound) {
-            unbindService(serviceConnection)
-            isBound = false
-        }
     }
 
 
@@ -224,6 +219,11 @@ class TotemzBaseActivity : BaseActivity(),
         super.onDestroy()
         presenter.invoke().detachView()
         disposables.dispose()
+        /*Unbind from the service*/
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
     }
 
     override fun onPageScrollStateChanged(state: Int) {
