@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.provider.Settings
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
@@ -37,7 +38,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
     val rxBus: () -> RxBus by provider()
     val realm: () -> Realm by provider()
     val firebaseDB: () -> FirebaseDatabase by provider()
-    val TAG = MQTTService::class.java.simpleName
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
@@ -48,6 +48,13 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    companion object {
+        const val ACTION_USER_LOCATION = "com.moovel.ondemand.USER_LOCATION"
+        const val ACTION_SHUTTLE_LOCATION = "com.moovel.ondemand.SHUTTLE_LOCATION"
+        const val PARAM_USER_LOCATION = "com.moovel.ondemand.rider.USER_LOCATION"
+        const val PARAM_SHUTTLE_LOCATION = "com.moovel.ondemand.rider.SHUTTLE_LOCATION"
     }
 
     override fun onCreate() {
@@ -152,6 +159,10 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
                         fbLoc.setValue(friendLoc)
                         fbLoc.push()
                         rxBus.invoke().send(friendLoc)
+                        val broadcastIntent = Intent(ACTION_SHUTTLE_LOCATION)
+                        /**Send out the received shuttle location*/
+                        broadcastIntent.putExtra(PARAM_SHUTTLE_LOCATION, friendLoc)
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
                     }
                 }
             }
@@ -161,6 +172,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
     override fun deliveryComplete(token: IMqttDeliveryToken) {
         Log.i("MSG", "delivery complete")
     }
+
 
     override fun onDestroy() {
         disposables.dispose()

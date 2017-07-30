@@ -2,9 +2,12 @@ package ro.cluj.totemz.screens
 
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.annotation.StringRes
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.animation.BounceInterpolator
@@ -20,9 +23,11 @@ import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.TotemzUser
 import ro.cluj.totemz.model.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.mqtt.MqttBroadcastReceiver
 import ro.cluj.totemz.screens.camera.FragmentCamera
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.FragmentUser
@@ -30,15 +35,16 @@ import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView {
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView, MqttBroadcastReceiver.Receiver {
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
 
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
 
-    val firebaseDB: () -> FirebaseDatabase by provider()
-    val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
+    private val firebaseDB: () -> FirebaseDatabase by provider()
+    private val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
+    private val receiver by lazy { MqttBroadcastReceiver() }
 
 
     //Animation properties
@@ -67,6 +73,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter.attachView(this)
+        /*Instantiate MQTT BroadcastReceiver*/
+        receiver.setReceiver(this@TotemzBaseActivity)
 
         /* Instantiate pager adapter and set fragments*/
         val adapter = BaseFragAdapter(supportFragmentManager,
@@ -132,6 +140,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                             snack(container_totem, "Value is: $value")
                         }
                     })
+                    val filter = IntentFilter(MQTTService.ACTION_SHUTTLE_LOCATION)
+                    LocalBroadcastManager.getInstance(this@TotemzBaseActivity).registerReceiver(receiver, filter)
                 }
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
@@ -141,6 +151,14 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             }
         }
 
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
+            MQTTService.ACTION_SHUTTLE_LOCATION -> {
+                val shuttleLocation = intent.getSerializableExtra(MQTTService.PARAM_SHUTTLE_LOCATION) as FriendLocation?
+            }
+        }
     }
 
     //TODO USE IT!
@@ -160,6 +178,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     private fun stopMQTTLocationService() {
         stopService(Intent(this, MQTTService::class.java))
+        LocalBroadcastManager.getInstance(this@TotemzBaseActivity).unregisterReceiver(receiver)
     }
 
     private fun serviceIsRunning(): Boolean {
