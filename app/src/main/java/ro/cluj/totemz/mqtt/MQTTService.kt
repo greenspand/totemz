@@ -25,10 +25,8 @@ import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
-import ro.cluj.totemz.realm.LocationRealm
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.createMqttClient
-import ro.cluj.totemz.utils.save
 import timber.log.Timber
 
 
@@ -103,9 +101,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
                     setCallback(this@MQTTService)
                     subscribe(TOPIC_FRIEND, 2)
                     iMqttToken.waitForCompletion(4000)
-                    launch(UI) {
-                        toast("Connected")
-                    }
                 } catch (e: Exception) {
                     launch(UI) {
                         toast(e.localizedMessage)
@@ -126,9 +121,12 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
         mqttClient?.subscribe(TOPIC_FRIEND, 0)
         toast("Connected")
     }
+
     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+        Timber.i("Connection complete", "Reconnect state is: $reconnect", "Server uri: $serverURI")
 
     }
+
     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
     }
 
