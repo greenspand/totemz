@@ -106,8 +106,11 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
                     val iMqttToken = connect(options)
                     iMqttToken.waitForCompletion(3500)
                     setCallback(this@MQTTService)
-                    subscribe(TOPIC_FRIEND, 2)
+                    subscribe(TOPIC_FRIEND, 0)
                     iMqttToken.waitForCompletion(4000)
+                    launch(UI) {
+                        toast("Connected")
+                    }
                 } catch (e: Exception) {
                     launch(UI) {
                         toast(e.localizedMessage)
@@ -125,8 +128,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
     }
 
     override fun onSuccess(asyncActionToken: IMqttToken?) {
-        mqttClient?.subscribe(TOPIC_FRIEND, 0)
-        toast("Connected")
+        Timber.i("Connected")
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String?) {

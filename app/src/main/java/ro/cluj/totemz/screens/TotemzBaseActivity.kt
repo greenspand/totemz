@@ -156,7 +156,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             MQTTService.ACTION_SHUTTLE_LOCATION -> {
-                val shuttleLocation = intent.getSerializableExtra(MQTTService.PARAM_SHUTTLE_LOCATION) as FriendLocation?
+                val friendLoc = intent.getSerializableExtra(MQTTService.PARAM_SHUTTLE_LOCATION) as FriendLocation
+                Timber.i("Broadcasted location ${friendLoc.location.latitude} ${friendLoc.location.longitude}")
             }
         }
     }
