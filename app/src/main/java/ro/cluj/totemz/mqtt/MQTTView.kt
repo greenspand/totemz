@@ -5,6 +5,6 @@ import ro.cluj.totemz.MvpBase
 /**
  * Created by sorin on 7/12/16.
  */
-interface ViewMQTT : MvpBase.View {
+interface MQTTView : MvpBase.View {
 
 }

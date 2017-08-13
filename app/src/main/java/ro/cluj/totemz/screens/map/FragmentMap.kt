@@ -31,7 +31,7 @@ import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
-import ro.cluj.totemz.screens.camera.FragmentCamera
+import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.utils.createAndAddMarker
 import ro.cluj.totemz.utils.loadMapStyle
 import timber.log.Timber
@@ -60,7 +60,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     val DEFAULT_ZOOM = 13f
     private val disposables = CompositeDisposable()
     lateinit var presenter: CameraPresenter
-    val TAG = FragmentCamera::class.java.simpleName
+    val TAG = CameraFragment::class.java.simpleName
 
     companion object {
         fun newInstance(): FragmentMap {

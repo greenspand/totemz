@@ -18,7 +18,7 @@ import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
-import ro.cluj.totemz.screens.camera.FragmentCamera
+import ro.cluj.totemz.screens.camera.CameraFragment
 import timber.log.Timber
 
 /**
@@ -29,18 +29,18 @@ import timber.log.Timber
  * All rights reserved<br>
 <p></p>
  */
-class FragmentUser : BaseFragment(), ViewFragmentUser {
+class UserFragment : BaseFragment(), ViewUser {
 
     private var isLoggedIn = false
     private val disposables = CompositeDisposable()
     private var authStateListener: FirebaseAuth.AuthStateListener? = null
-    val TAG = FragmentCamera::class.java.simpleName
+    val TAG = CameraFragment::class.java.simpleName
 
-    val presenter: PresenterFragmentUser by instance()
+    val presenter: UserPresenter by instance()
 
     companion object {
-        fun newInstance(): FragmentUser {
-            val fragment = FragmentUser()
+        fun newInstance(): UserFragment {
+            val fragment = UserFragment()
             return fragment
         }
     }

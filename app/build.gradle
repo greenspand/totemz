@@ -24,7 +24,7 @@ def buildVersionCode = { ->
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    buildToolsVersion "26.0.1"
 
     /*Disable splits if not building for production*/
     if (!project.hasProperty('production')) {
@@ -61,7 +61,7 @@ android {
         targetSdkVersion 25
         versionCode buildVersionCode()
 
-        versionName "${version}"
+        versionName "$version"
         vectorDrawables.useSupportLibrary = true
         /** Keep language resources in libraries only for supported locales*/
         resConfigs "en", "de", "ro"
@@ -105,7 +105,6 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$supportlibVersion"
     compile "com.android.support:design:$supportlibVersion"
 
-
     /**MultiDex*/
     compile 'com.android.support:multidex:1.0.1'
 
@@ -139,7 +138,6 @@ dependencies {
     /**Firebase crashlitics*/
     compile "com.google.firebase:firebase-crash:$playServicesVersion"
 
-
     /**Firebase authentication*/
     compile "com.google.firebase:firebase-auth:$playServicesVersion"
     compile "com.google.android.gms:play-services-auth:$playServicesVersion"
@@ -162,10 +160,9 @@ dependencies {
 
     /**MQTT*/
     compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqttVersion"
-    compile ("org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersionSnapshot@aar"){
+    compile("org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersionSnapshot@aar") {
         exclude module: 'support-v4'
     }
-
 
     /**DI Framework*/
     compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"

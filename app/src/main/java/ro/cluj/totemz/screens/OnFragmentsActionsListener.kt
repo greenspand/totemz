@@ -7,7 +7,7 @@ import ro.cluj.totemz.model.FragmentTypes
  * Created by sorin on 12.10.16.
  */
 
-interface OnFragmentActionsListener {
+interface OnFragmentsActionsListener {
     /**
      * Notifies changes related to actions performed on the OnboardingMapIcons fragments.
      * E.g. Click listeners, swipe events

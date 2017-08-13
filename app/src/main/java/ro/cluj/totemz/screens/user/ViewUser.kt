@@ -5,5 +5,5 @@ import ro.cluj.totemz.MvpBase
 /**
  * Created by sorin on 11.03.17.
  */
-interface ViewFragmentUser : MvpBase.View {
+interface ViewUser : MvpBase.View {
 }

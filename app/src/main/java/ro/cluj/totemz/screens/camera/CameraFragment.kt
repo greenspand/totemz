@@ -21,18 +21,18 @@ import ro.cluj.totemz.model.FragmentTypes
  * All rights reserved<br>
 <p></p>
  */
-class FragmentCamera : BaseFragment(), CameraView {
+class CameraFragment : BaseFragment(), CameraView {
 
     var CAMERA_REQUEST = 93
 
 
     private val subscriptions = CompositeDisposable()
     lateinit var presenter: CameraPresenter
-    val TAG = FragmentCamera::class.java.simpleName
+    val TAG = CameraFragment::class.java.simpleName
 
     companion object {
-        fun newInstance(): FragmentCamera {
-            val fragment = FragmentCamera()
+        fun newInstance(): CameraFragment {
+            val fragment = CameraFragment()
             return fragment
         }
     }

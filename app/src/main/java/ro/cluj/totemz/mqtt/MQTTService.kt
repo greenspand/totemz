@@ -31,7 +31,7 @@ import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
 
-class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQTT, LazyKodeinAware {
+class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
 
 
     override val kodein = LazyKodein(appKodein)
@@ -41,7 +41,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
-    lateinit var presenter: PresenterMQTT
+    lateinit var presenter: MQTTPresenter
     var mqttClient: IMqttAsyncClient? = null
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
@@ -80,7 +80,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, ViewMQ
                         }
                     }
                 })
-        presenter = PresenterMQTT()
+        presenter = MQTTPresenter()
         presenter.attachView(this)
     }
 

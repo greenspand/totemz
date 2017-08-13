@@ -28,14 +28,14 @@ import ro.cluj.totemz.model.TotemzUser
 import ro.cluj.totemz.model.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.mqtt.MqttBroadcastReceiver
-import ro.cluj.totemz.screens.camera.FragmentCamera
+import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.map.FragmentMap
-import ro.cluj.totemz.screens.user.FragmentUser
+import ro.cluj.totemz.screens.user.UserFragment
 import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentActionsListener, TotemzBaseView, MqttBroadcastReceiver.Receiver {
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentsActionsListener, TotemzBaseView, MqttBroadcastReceiver.Receiver {
 
     val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
@@ -78,7 +78,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
         /* Instantiate pager adapter and set fragments*/
         val adapter = BaseFragAdapter(supportFragmentManager,
-                arrayListOf(FragmentCamera.newInstance(), FragmentMap.newInstance(), FragmentUser.newInstance()))
+                arrayListOf(CameraFragment.newInstance(), FragmentMap.newInstance(), UserFragment.newInstance()))
 
         /*set custom trnasformer for fading text view*/
         pager_menu_switch.setPageTransformer(true, FadePageTransformer())

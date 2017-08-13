@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
-import android.widget.Toast
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -55,7 +54,7 @@ class UserLoginActivity : BaseActivity(),
     private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
     private lateinit var disposableGoogleAccount: Disposable
 
-    val presenter: PresenterUserLogin by instance()
+    val presenter: UserLoginPresenter by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
