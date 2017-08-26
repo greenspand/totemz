@@ -118,11 +118,12 @@ android {
         compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
         /**Coroutines**/
-        compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.17'
-        compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.17'
+        compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
+        compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.18'
 
         /**Firebase Core*/
         compile "com.google.firebase:firebase-core:$playServicesVersion"
+        compile "com.google.firebase:firebase-messaging:$playServicesVersion"
 
         /**Firebase DB*/
         compile "com.google.firebase:firebase-database:$playServicesVersion"
@@ -193,7 +194,6 @@ android {
         compile 'pl.bclogic:pulsator4droid:1.0.3'
     }
 }
-
 
 apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'com.google.gms.google-services'
