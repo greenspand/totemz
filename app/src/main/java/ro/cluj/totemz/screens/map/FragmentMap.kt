@@ -1,6 +1,7 @@
 package ro.cluj.totemz.screens.map
-
+/* ktlint-disable no-wildcard-imports */
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.location.Location
@@ -29,9 +30,9 @@ import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
 import ro.cluj.totemz.model.FriendLocation
 import ro.cluj.totemz.model.MyLocation
+import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
-import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.utils.createAndAddMarker
 import ro.cluj.totemz.utils.loadMapStyle
 import timber.log.Timber
@@ -96,7 +97,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_map, container, false)
         presenter = CameraPresenter()
-        mapView = view.findViewById(R.id.map_totemz) as MapView
+        mapView = view.findViewById<MapView>(R.id.map_totemz)
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
         Dexter.withActivity(activity)
@@ -124,6 +125,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     }
 
     // Permission request callback
+    @SuppressLint("MissingPermission")
     override fun onPermissionGranted(response: PermissionGrantedResponse?) {
         response?.let {
             if (response.permissionName == Manifest.permission.ACCESS_FINE_LOCATION) {
@@ -136,6 +138,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap?) {
         googleMap?.let {
             isMapReady = true

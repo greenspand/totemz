@@ -3,6 +3,7 @@ apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
+apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 def versionMajor = 0
 def versionMinor = 1
@@ -20,7 +21,6 @@ def buildVersionCode = { ->
         return buildNumberDebugging
     }
 }
-
 
 android {
     compileSdkVersion 26
@@ -60,7 +60,6 @@ android {
         minSdkVersion 18
         targetSdkVersion 26
         versionCode buildVersionCode()
-
         versionName "$version"
         vectorDrawables.useSupportLibrary = true
         /** Keep language resources in libraries only for supported locales*/
@@ -80,12 +79,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
+
+    // Specifies a flavour dimension for data
+    flavorDimensions "data"
+
     productFlavors {
         production {
-
+            dimension "data"
         }
     }
 
@@ -95,110 +95,110 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:$supportlibVersion"
-    compile "com.android.support:animated-vector-drawable:$supportlibVersion"
-    compile "com.android.support:cardview-v7:$supportlibVersion"
-    compile "com.android.support:customtabs:$supportlibVersion"
-    compile "com.android.support:recyclerview-v7:$supportlibVersion"
-    compile "com.android.support:design:$supportlibVersion"
-    compile "com.android.support:support-dynamic-animation:$supportlibVersion"
-    compile "com.android.support:support-core-utils:$supportlibVersion"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation "com.android.support:appcompat-v7:$supportlibVersion"
+    implementation "com.android.support:animated-vector-drawable:$supportlibVersion"
+    implementation "com.android.support:cardview-v7:$supportlibVersion"
+    implementation "com.android.support:customtabs:$supportlibVersion"
+    implementation "com.android.support:recyclerview-v7:$supportlibVersion"
+    implementation "com.android.support:design:$supportlibVersion"
+    implementation "com.android.support:support-dynamic-animation:$supportlibVersion"
+    implementation "com.android.support:support-core-utils:$supportlibVersion"
 
     /**Nearby API 2.0 Used for peer to peer communication*/
-    compile "com.google.android.gms:play-services-nearby:$playServicesVersion"
-    compile "com.google.android.gms:play-services-maps:$playServicesVersion"
-    compile "com.google.android.gms:play-services-ads:$playServicesVersion"
-    compile "com.google.android.gms:play-services-auth-base:$playServicesVersion"
-    compile "com.google.android.gms:play-services-location:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-nearby:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-auth-base:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-location:$playServicesVersion"
 
 
 
     /**MultiDex*/
-    compile 'com.android.support:multidex:1.0.1'
+    implementation 'com.android.support:multidex:1.0.2'
 
     /**Map Utils*/
-    compile 'com.google.maps.android:android-maps-utils:0.4+'
+    implementation 'com.google.maps.android:android-maps-utils:0.4+'
 
     /**Kotlin*/
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 
     /**Coroutines**/
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
-    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.18'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.18'
 
     /**Firebase Core*/
-    compile "com.google.firebase:firebase-core:$playServicesVersion"
-    compile "com.google.firebase:firebase-messaging:$playServicesVersion"
+    implementation "com.google.firebase:firebase-core:$playServicesVersion"
+    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
 
     /**Firebase DB*/
-    compile "com.google.firebase:firebase-database:$playServicesVersion"
+    implementation "com.google.firebase:firebase-database:$playServicesVersion"
 
     /**Firebase Geofire*/
-    compile 'com.firebase:geofire-android:2.1.1'
+    implementation 'com.firebase:geofire-android:2.1.1'
 
     /**Firebase Push Notifications*/
-    compile "com.google.firebase:firebase-messaging:$playServicesVersion"
+    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
 
     /**Firebase crashlitics*/
-    compile "com.google.firebase:firebase-crash:$playServicesVersion"
+    implementation "com.google.firebase:firebase-crash:$playServicesVersion"
 
     /**Firebase authentication*/
-    compile "com.google.firebase:firebase-auth:$playServicesVersion"
-    compile "com.google.android.gms:play-services-auth:$playServicesVersion"
+    implementation "com.google.firebase:firebase-auth:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     /**Kotlin extensions*/
-    compile "com.greenspand:kotlin-ext:$ktExtVersion"
+    implementation "com.greenspand:kotlin-ext:$ktExtVersion"
 
     /**Permissions*/
-    compile 'com.karumi:dexter:4.1.0'
+    implementation 'com.karumi:dexter:4.1.0'
 
     /**Logger*/
-    compile 'com.jakewharton.timber:timber:4.5.1'
+    implementation 'com.jakewharton.timber:timber:4.5.1'
 
     /**Img loader*/
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'jp.wasabeef:picasso-transformations:2.1.2'
 
     /**Protocol Buffers*/
-    compile 'com.squareup.wire:wire-runtime:2.2.0'
+    implementation 'com.squareup.wire:wire-runtime:2.2.0'
 
     /**MQTT*/
-    compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqttVersion"
-    compile("org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersionSnapshot@aar") {
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqttVersion"
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:$mqttVersionSnapshot@aar") {
         exclude module: 'support-v4'
     }
 
     /**DI Framework*/
-    compile "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
-    compile "com.github.salomonbrys.kodein:kodein-android:$kodeinVersion"
+    implementation "com.github.salomonbrys.kodein:kodein:$kodeinVersion"
+    implementation "com.github.salomonbrys.kodein:kodein-android:$kodeinVersion"
 
     /**Memory leaks detector*/
-    debugCompile "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
-    releaseCompile "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 
     // Android SDK
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
     // Audience Network SDK. Only versions 4.6.0 and above are available
-    compile 'com.facebook.android:audience-network-sdk:4.+'
+    implementation 'com.facebook.android:audience-network-sdk:4.+'
 
     /**Rx Java*/
-    compile "io.reactivex.rxjava2:rxandroid:$rxVersion"
-    compile "io.reactivex.rxjava2:rxjava:$rxVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxVersion"
+    implementation "io.reactivex.rxjava2:rxjava:$rxVersion"
 
     /**Fabric IO crashlytics*/
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
 
     /**Twitter authentication*/
-    compile('com.twitter.sdk.android:twitter:2.3.2@aar') {
+    implementation('com.twitter.sdk.android:twitter:2.3.2@aar') {
         transitive = true;
     }
 
     /**Pulse animation*/
-    compile 'pl.bclogic:pulsator4droid:1.0.3'
+    implementation 'pl.bclogic:pulsator4droid:1.0.3'
 }
 apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'com.google.gms.google-services'

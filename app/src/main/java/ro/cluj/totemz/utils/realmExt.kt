@@ -285,7 +285,7 @@ private fun <T> T.withQuery(block: (T) -> Unit): T {
     block(this); return this
 }
 
-private fun <T : RealmObject> T.hasPrimaryKey(realm: Realm) = realm.schema.get(this.javaClass.simpleName).hasPrimaryKey()
+private fun <T : RealmObject> T.hasPrimaryKey(realm: Realm) = realm.schema.get(this.javaClass.simpleName)?.hasPrimaryKey() ?: false
 
 
 
