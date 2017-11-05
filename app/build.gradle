@@ -34,11 +34,13 @@ buildscript {
 plugins { id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC5-2' }
 apply from: '../detekt.gradle'
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 apply plugin: "org.jlleitschuh.gradle.ktlint"
+
 
 def versionMajor = 0
 def versionMinor = 1
@@ -154,6 +156,9 @@ dependencies {
     implementation "com.google.android.gms:play-services-auth-base:$playServicesVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
 
+    /*Moshi JSON Parsing*/
+    compile 'com.squareup.moshi:moshi-kotlin:1.5.0'
+
     /*MultiDex*/
     implementation 'com.android.support:multidex:1.0.2'
 
@@ -170,6 +175,7 @@ dependencies {
     /*Firebase Core*/
     implementation "com.google.firebase:firebase-core:$playServicesVersion"
     implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
+    compile 'com.google.firebase:firebase-perf:11.4.2'
 
     /*Firebase DB*/
     implementation "com.google.firebase:firebase-database:$playServicesVersion"
