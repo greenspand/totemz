@@ -5,10 +5,13 @@
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBtkl2wnHN16OecmYlvWfGru6B3jUYDnFg</string>
 
     <!--Facebook-->
-    <string name="facebook_app_id">395531710826724</string>
-    <string name="facebook_login_protocol_scheme">fb395531710826724</string>
+    <string name="facebook_app_id">166225887296016</string>
+    <string name="facebook_login_protocol_scheme">fb166225887296016</string>
 
     <!--Twitter-->
     <string name="twitter_key">MqgUgkcFYgWqlRv0LaoxlRRUS</string>
     <string name="twitter_secret">OzA4jYtGXd43QdeN0Sf4Gf184v6lZZIIfW7aubacEj13aIzZiY</string>
+
+    <!-- hockey app -->
+    <string name="hockey_app_id" translatable="false">81e3d7a05bc644e7ab317fbc1c41b210</string>
 </resources>
