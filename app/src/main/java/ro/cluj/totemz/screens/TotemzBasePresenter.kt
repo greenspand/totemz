@@ -1,5 +1,7 @@
 package ro.cluj.totemz.screens
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.view.View
 import android.view.animation.Interpolator
 import io.reactivex.Completable
@@ -11,9 +13,6 @@ import ro.cluj.totemz.utils.ExpandViewsOnSubscribe
  */
 class TotemzBasePresenter : BasePresenter<TotemzBaseView>() {
 
-    fun scaleAnimation(items: MutableList<View>, scale: Float, duration: Long, interpolator: Interpolator): Completable = Completable
-            .create(ExpandViewsOnSubscribe(items, scale, duration, interpolator))
-
+    fun scaleAnimation(items: MutableList<View>, scale: Float, duration: Long, interpolator: Interpolator)
+          = Completable.create(ExpandViewsOnSubscribe(items, scale, duration, interpolator))
 }
-
-

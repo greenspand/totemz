@@ -1,5 +1,7 @@
 package ro.cluj.totemz
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter

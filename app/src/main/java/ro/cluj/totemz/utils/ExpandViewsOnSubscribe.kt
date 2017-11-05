@@ -1,5 +1,7 @@
 package ro.cluj.totemz.utils
 
+/* ktlint-disable no-wildcard-imports */
+
 /**
  * Created by sorin on 12.10.16.
  */
@@ -15,8 +17,7 @@ class ExpandViewsOnSubscribe(private val views: List<View>,
                              private val duration: Long,
                              private val interpolator: Interpolator) : CompletableOnSubscribe {
 
-
-    lateinit private var numberOfAnimationsToRun: AtomicInteger
+    private lateinit var numberOfAnimationsToRun: AtomicInteger
     override fun subscribe(e: CompletableEmitter?) {
         if (views.isEmpty()) {
             e?.onComplete()
@@ -39,6 +40,4 @@ class ExpandViewsOnSubscribe(private val views: List<View>,
                     }
         }
     }
-
-
 }

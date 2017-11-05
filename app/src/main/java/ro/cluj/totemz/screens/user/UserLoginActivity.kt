@@ -1,5 +1,7 @@
 package ro.cluj.totemz.screens.user
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -34,7 +36,6 @@ import ro.cluj.totemz.R
 import timber.log.Timber
 import java.util.*
 
-
 /**
  * Created by sorin on 04.03.17.
  */
@@ -47,14 +48,11 @@ class UserLoginActivity : BaseActivity(),
     private lateinit var gApiClient: GoogleApiClient
     private lateinit var gso: GoogleSignInOptions
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
-
     private var isLoggedIn = false
     private val RC_SIGN_IN = 78
-
     private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
     private lateinit var disposableGoogleAccount: Disposable
-
-    val presenter: UserLoginPresenter by instance()
+    private val presenter: UserLoginPresenter by instance()
 
     @StringRes
     override fun getActivityTitle(): Int {
@@ -98,14 +96,12 @@ class UserLoginActivity : BaseActivity(),
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
 
-
         /** Facebook login setup*/
         callbackManager = CallbackManager.Factory.create()
         LoginManager.getInstance().registerCallback(callbackManager, this@UserLoginActivity)
         btnFacebookLogin.setOnClickListener {
             LoginManager.getInstance().logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
         }
-
 
         /**Twitter login Setup*/
         btnTwitterLogin.callback = object : Callback<TwitterSession>() {
@@ -151,19 +147,15 @@ class UserLoginActivity : BaseActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         //Twitter login callback
         btnTwitterLogin.onActivityResult(requestCode, resultCode, data)
-
         // Facebook Login callback
         if (callbackManager.onActivityResult(requestCode, resultCode, data)) return
-
         //Google login callback
         when (requestCode) {
             RC_SIGN_IN -> Auth.GoogleSignInApi.getSignInResultFromIntent(data).handleLoginResult()
         }
     }
-
 
     private fun GoogleSignInResult.handleLoginResult() {
         if (this.isSuccess) {
@@ -173,7 +165,6 @@ class UserLoginActivity : BaseActivity(),
             snack(container_user_login, "User authentication failed !!!")
         }
     }
-
 
     private fun firebaseAuthWithFacebook(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
@@ -190,7 +181,6 @@ class UserLoginActivity : BaseActivity(),
         firebaseSignIn(credential)
     }
 
-
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
         val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
         firebaseSignIn(credential)
@@ -206,7 +196,7 @@ class UserLoginActivity : BaseActivity(),
                     if (!task.isSuccessful) {
                         Timber.e(task.exception)
                         Timber.e("signInWithCredential", task.exception)
-                      toast("Authentication failed.")
+                        toast("Authentication failed.")
                     }
                 }
     }
@@ -218,5 +208,4 @@ class UserLoginActivity : BaseActivity(),
     override fun showUserSavedToRealm() {
         Timber.i("USER WAS SAVED TO REALM")
     }
-
 }

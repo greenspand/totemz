@@ -28,12 +28,14 @@ import io.reactivex.schedulers.Schedulers
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.models.FragmentTypes
+import ro.cluj.totemz.models.User
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
 import ro.cluj.totemz.utils.createAndAddMarker
 import ro.cluj.totemz.utils.loadMapStyle
+import ro.cluj.totemz.utils.toLatLng
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -82,8 +84,10 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe { o ->
                             when (o) {
-                                is FriendLocation -> googleMap?.let {
-                                    googleMap?.createAndAddMarker(o.location, R.mipmap.ic_totem)
+                                is User -> googleMap?.let {
+                                    o.location?.let {
+                                        googleMap?.createAndAddMarker(it.toLatLng(), R.mipmap.ic_totem)
+                                    }
                                 }
                                 else -> {
                                 }
@@ -110,8 +114,6 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build()
-
-
         try {
             MapsInitializer.initialize(activity.applicationContext)
         } catch (e: Exception) {
@@ -195,7 +197,6 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         Timber.d("API CONNECTED")
     }
 
-
     override fun onCameraMove() {
     }
 
@@ -214,7 +215,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
             val subInterval = Observable.interval(6, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
-                rxBus.invoke().send(MyLocation(latLng))
+                rxBus.invoke().send(it)
             }
             disposables.add(subInterval)
         }

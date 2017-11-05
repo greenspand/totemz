@@ -1,13 +1,12 @@
 package ro.cluj.totemz.screens
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.app.Activity
 import android.app.ActivityManager
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.support.annotation.StringRes
-import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.animation.BounceInterpolator
@@ -22,12 +21,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.model.FragmentTypes
-import ro.cluj.totemz.model.User
-import ro.cluj.totemz.model.UserGroup
+import ro.cluj.totemz.models.FragmentTypes
+import ro.cluj.totemz.models.User
+import ro.cluj.totemz.models.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
-import ro.cluj.totemz.mqtt.MqttBroadcastReceiver
-import ro.cluj.totemz.mqtt.MqttManager
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.UserFragment
@@ -35,17 +32,13 @@ import ro.cluj.totemz.screens.user.UserLoginActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentsActionsListener, TotemzBaseView, MqttBroadcastReceiver.Receiver {
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentsActionsListener, TotemzBaseView {
 
-    val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
+    private val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
-
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
-
     private val firebaseDB: () -> FirebaseDatabase by provider()
     private val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
-    private val receiver by lazy { MqttBroadcastReceiver() }
-
 
     //Animation properties
     val SCALE_UP = 1f
@@ -60,32 +53,28 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     //Injections
     private val presenter: TotemzBasePresenter by instance()
     private val activityManager: ActivityManager by withContext(this).instance()
+    private val RC_LOGIN = 145
     private val disposables by lazy { CompositeDisposable() }
-    @StringRes
-    override fun getActivityTitle(): Int {
-        return R.string.app_name
-    }
 
-    val RC_LOGIN = 145
+    @StringRes
+    override fun getActivityTitle() = R.string.app_name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter.attachView(this)
-        /*Instantiate MQTT BroadcastReceiver*/
-        receiver.setReceiver(this@TotemzBaseActivity)
 
         /* Instantiate pager adapter and set fragments*/
         val adapter = BaseFragAdapter(supportFragmentManager,
                 arrayListOf(CameraFragment.newInstance(), FragmentMap.newInstance(), UserFragment.newInstance()))
-
         /*set custom trnasformer for fading text view*/
-        pager_menu_switch.setPageTransformer(true, FadePageTransformer())
-        pager_menu_switch.adapter = adapter
-
-        /*Set ofscreen page limit for fragment state retention*/
-        pager_menu_switch.offscreenPageLimit = 3
-        pager_menu_switch.addOnPageChangeListener(this)
+        pager_menu_switch.apply {
+            setPageTransformer(true, FadePageTransformer())
+            this.adapter = adapter
+            /*Set ofscreen page limit for fragment state retention*/
+            offscreenPageLimit = 3
+            addOnPageChangeListener(this@TotemzBaseActivity)
+        }
 
         // Set menu click listeners
         img_camera.setOnClickListener {
@@ -125,7 +114,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                     }
                 }
                 if (!serviceIsRunning()) {
-                    startService(Intent(this, MQTTService::class.java))
+//                    startService(Intent(this, MQTTService::class.java))
                     //TODO remove the firebase demo JSON read
                     firebaseUserGroup.addValueEventListener(object : ValueEventListener {
                         override fun onCancelled(dataSnapshot: DatabaseError?) {
@@ -139,24 +128,12 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                             snack(container_totem, "Value is: $value")
                         }
                     })
-                    val filter = IntentFilter(MQTTService.ACTION_SHUTTLE_LOCATION)
-                    LocalBroadcastManager.getInstance(this@TotemzBaseActivity).registerReceiver(receiver, filter)
                 }
             } else {
                 startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
                 isLoggedIn = false
                 // User is signed out
                 Timber.i("onAuthStateChanged:signed_out")
-            }
-        }
-
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        when (intent.action) {
-            MQTTService.ACTION_SHUTTLE_LOCATION -> {
-                val friendLoc = intent.getParcelableExtra<User>(MQTTService.PARAM_SHUTTLE_LOCATION)
-                Timber.i("Broadcasted location ${friendLoc.location?.latitude} ${friendLoc.location?.longitude}")
             }
         }
     }
@@ -181,7 +158,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
 
     private fun stopMQTTLocationService() {
         stopService(Intent(this, MQTTService::class.java))
-        LocalBroadcastManager.getInstance(this@TotemzBaseActivity).unregisterReceiver(receiver)
     }
 
     private fun serviceIsRunning(): Boolean {
@@ -258,7 +234,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             }
         }
     }
-
     fun scaleCameraAnim() = presenter.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
             BounceInterpolator()).mergeWith(
             presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
@@ -276,7 +251,5 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION,
                     BounceInterpolator()))
             .subscribe()
-
-
 }
 

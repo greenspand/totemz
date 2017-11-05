@@ -1,5 +1,7 @@
 package ro.cluj.totemz.utils
 
+/* ktlint-disable no-wildcard-imports */
+
 /**
  * Created by sorin on 12.10.16.
  */
@@ -16,15 +18,13 @@ class FadeInOutOnSubscribe(private val views: List<View>,
                            private val interpolator: Interpolator)
     : CompletableOnSubscribe {
 
-
-    lateinit private var numberOfAnimationsToRun: AtomicInteger
+    private lateinit var numberOfAnimationsToRun: AtomicInteger
     override fun subscribe(e: CompletableEmitter?) {
         if (views.isEmpty()) {
             e?.onComplete()
             return
         }
         numberOfAnimationsToRun = AtomicInteger(views.size)
-
         // We need to run as much as animations as there are views.
         for (i in views.indices) {
             ViewCompat.animate(views[i])
@@ -39,6 +39,4 @@ class FadeInOutOnSubscribe(private val views: List<View>,
                     }
         }
     }
-
-
 }

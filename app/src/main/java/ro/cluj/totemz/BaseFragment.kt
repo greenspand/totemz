@@ -3,11 +3,13 @@ package ro.cluj.totemz
 import android.app.Activity
 import android.content.Context
 import android.support.v4.app.Fragment
-import com.github.salomonbrys.kodein.*
+import com.github.salomonbrys.kodein.LazyKodein
+import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.android.appKodein
+import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
 import io.realm.Realm
-import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.models.FragmentTypes
 import ro.cluj.totemz.screens.OnFragmentsActionsListener
 import ro.cluj.totemz.utils.RxBus
 
@@ -18,7 +20,7 @@ abstract class BaseFragment : Fragment(), LazyKodeinAware, OnFragmentsActionsLis
      */
     override val kodein = LazyKodein(appKodein)
 
-    lateinit var onFragmentActionsListener: OnFragmentsActionsListener
+    private lateinit var onFragmentActionsListener: OnFragmentsActionsListener
 
     abstract fun getPresenter(): BasePresenter<*>
     abstract fun getFragType(): FragmentTypes

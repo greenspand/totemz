@@ -1,5 +1,7 @@
 package ro.cluj.totemz
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.content.Context
 import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate

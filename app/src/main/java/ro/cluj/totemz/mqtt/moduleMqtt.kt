@@ -1,5 +1,7 @@
 package ro.cluj.totemz.mqtt
 
+/* ktlint-disable no-wildcard-imports */
+
 import com.github.salomonbrys.kodein.*
 import ro.cluj.totemz.utils.RxBus
 

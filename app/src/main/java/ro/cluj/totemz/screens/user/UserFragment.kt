@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.frag_user_profile.*
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.models.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.CameraFragment
 import timber.log.Timber

@@ -1,5 +1,7 @@
 package ro.cluj.totemz.screens.camera
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -11,30 +13,17 @@ import io.reactivex.disposables.CompositeDisposable
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
-import ro.cluj.totemz.model.FragmentTypes
+import ro.cluj.totemz.models.FragmentTypes
 
-/**
- * Created by sorin on 11.10.16.
- *
- * Copyright (c) 2016 moovel GmbH<br>
- *
- * All rights reserved<br>
-<p></p>
- */
 class CameraFragment : BaseFragment(), CameraView {
-
     var CAMERA_REQUEST = 93
-
-
     private val subscriptions = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = CameraFragment::class.java.simpleName
 
     companion object {
-        fun newInstance(): CameraFragment {
-            val fragment = CameraFragment()
-            return fragment
-        }
+        @JvmStatic
+        fun newInstance(): CameraFragment = CameraFragment()
     }
 
     override fun getFragType(): FragmentTypes {

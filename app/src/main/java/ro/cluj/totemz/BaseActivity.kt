@@ -1,15 +1,17 @@
 package ro.cluj.totemz
 
+/* ktlint-disable no-wildcard-imports */
 
 import android.app.NotificationManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.github.salomonbrys.kodein.*
+import com.github.salomonbrys.kodein.LazyKodein
+import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.android.withContext
+import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import io.realm.Realm
 
 /**
