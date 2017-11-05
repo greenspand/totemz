@@ -1,5 +1,6 @@
 package ro.cluj.totemz.mqtt
 
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import ro.cluj.totemz.MvpBase
 
 /**
@@ -7,4 +8,5 @@ import ro.cluj.totemz.MvpBase
  */
 interface MQTTView : MvpBase.View {
 
+    fun showMessage(topic: String, message: MqttMessage)
 }

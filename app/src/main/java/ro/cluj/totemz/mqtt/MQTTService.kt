@@ -3,15 +3,14 @@ package ro.cluj.totemz.mqtt
 /* ktlint-disable no-wildcard-imports */
 import android.app.Service
 import android.content.Intent
+import android.location.Location
 import android.os.IBinder
 import android.provider.Settings
-import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.provider
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -29,24 +28,20 @@ import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
-
 class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
-
     override val kodein = LazyKodein(appKodein)
-    val rxBus: () -> RxBus by provider()
-    val realm: () -> Realm by provider()
-    val firebaseDB: () -> FirebaseDatabase by provider()
+    private val rxBus: () -> RxBus by provider()
+    private val realm: () -> Realm by provider()
+    private val firebaseDB: () -> FirebaseDatabase by provider()
+    private val presenter: () -> MQTTPresenter by provider()
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
-    lateinit var presenter: MQTTPresenter
     var mqttClient: IMqttAsyncClient? = null
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
-    private val firebaseDBRefFriendLocation: DatabaseReference by lazy { firebaseDB.invoke().getReference("FriendLocation") }
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    private val firebaseDBRefFriendLocation: DatabaseReference by lazy {
+        firebaseDB.invoke().getReference("FriendLocation") }
 
     companion object {
         const val ACTION_USER_LOCATION = "com.moovel.ondemand.USER_LOCATION"
@@ -58,27 +53,20 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     override fun onCreate() {
         super.onCreate()
         FirebaseAnalytics.getInstance(this).setUserId(clientID)
-
         disposables.add(rxBus.invoke().toObservable()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o ->
                     when (o) {
-//                            val realmLocation = LocationRealm()
-//                            realmLocation.clientID = clientID
-//                            realmLocation.lat = o.location.latitude
-//                            realmLocation.lon = o.location.longitude
-//                            realmLocation.save()
-//                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
-                            //TODO FINALIZE PROTOBUF IMPLEMENTATION
+                        is Location ->
+                            publishMsg(TOPIC_USER, "$clientID:${o.latitude}:${o.longitude}".toByteArray())
+                    //TODO FINALIZE PROTOBUF IMPLEMENTATION
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
 //                            val payload = UserLocation.ADAPTER.encode(userLocation)
 //                            publishMsg(TOPIC_USER, payload)
-
                     }
                 })
-        presenter = MQTTPresenter()
-        presenter.attachView(this)
+        presenter.invoke().attachView(this)
     }
 
     private fun publishMsg(topic: String, msg: ByteArray) {
@@ -89,7 +77,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
             }
         }
     }
-
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         mqttClient = createMqttClient(BROKER_URL, clientID, MemoryPersistence()) {
@@ -119,7 +106,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
         return super.onStartCommand(intent, flags, startId)
     }
 
-
     override fun connectionLost(cause: Throwable) {
         toast("Connection to Server lost")
     }
@@ -130,14 +116,14 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
 
     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
         Timber.i("Connection complete", "Reconnect state is: $reconnect", "Server uri: $serverURI")
-
     }
 
     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
     }
 
+    override fun showMessage(topic: String, message: MqttMessage) {
 
-    @Throws(Exception::class)
+    }
     override fun messageArrived(topic: String, message: MqttMessage) {
         when (topic) {
             TOPIC_FRIEND -> {
@@ -158,10 +144,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
 //                        fbLoc.setValue(friendLoc)
 //                        fbLoc.push()
 //                        rxBus.invoke().send(friendLoc)
-//                        val broadcastIntent = Intent(ACTION_SHUTTLE_LOCATION)
-//                        /**Send out the received shuttle location*/
-//                        broadcastIntent.putExtra(PARAM_SHUTTLE_LOCATION, friendLoc)
-//                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
 //                    }
 //                }
             }
@@ -171,7 +153,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     override fun deliveryComplete(token: IMqttDeliveryToken) {
         Log.i("MSG", "delivery complete")
     }
-
 
     override fun onDestroy() {
         disposables.dispose()
@@ -185,5 +166,9 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
             toast("Something went wrong!" + e.message)
             e.printStackTrace()
         }
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 }

@@ -7,15 +7,15 @@ import ro.cluj.totemz.BasePresenter
 /**
  * Created by sorin on 7/12/16.
  */
-class MQTTPresenter(private val mqttManager: MqttManager, private val mqttEventBus: MqttEventBus) : BasePresenter<MQTTView>() {
+class MQTTPresenter(private val mqttManager: MqttManager, private val mqttEventBus: MqttEventBus)
+    : BasePresenter<MQTTView>() {
 
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
 
     fun startMqttManager() {
         mqttManager.connect(arrayOf(TOPIC_FRIEND), intArrayOf(1))
-        mqttEventBus
-                .toObservableMqttMsg()
+        mqttEventBus.toObservableMqttMsg()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -34,9 +34,8 @@ class MQTTPresenter(private val mqttManager: MqttManager, private val mqttEventB
         mqttEventBus.toObservableConnState()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
+                .subscribe {}
 
-                }
     }
 
     /**

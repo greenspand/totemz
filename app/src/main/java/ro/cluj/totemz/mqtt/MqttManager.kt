@@ -3,8 +3,6 @@ package ro.cluj.totemz.mqtt
 /* ktlint-disable no-wildcard-imports */
 import android.app.Application
 import android.provider.Settings
-import com.github.salomonbrys.kodein.Kodein
-import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
