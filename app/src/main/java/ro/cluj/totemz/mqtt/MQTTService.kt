@@ -25,15 +25,12 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import ro.cluj.totemz.model.FriendLocation
-import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.utils.RxBus
 import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
 
 class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
-
 
     override val kodein = LazyKodein(appKodein)
     val rxBus: () -> RxBus by provider()
@@ -67,18 +64,17 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { o ->
                     when (o) {
-                        is MyLocation -> {
 //                            val realmLocation = LocationRealm()
 //                            realmLocation.clientID = clientID
 //                            realmLocation.lat = o.location.latitude
 //                            realmLocation.lon = o.location.longitude
 //                            realmLocation.save()
-                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
+//                            publishMsg(TOPIC_USER, "$clientID:${o.location.latitude}:${o.location.longitude}".toByteArray())
                             //TODO FINALIZE PROTOBUF IMPLEMENTATION
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
 //                            val payload = UserLocation.ADAPTER.encode(userLocation)
 //                            publishMsg(TOPIC_USER, payload)
-                        }
+
                     }
                 })
         presenter = MQTTPresenter()
@@ -151,23 +147,23 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
 //                    rxBus.send(FriendLocation(LatLng(location.latitude, location.longitude)))
 //                }
 
-                val msg = String(message.payload)
-                if (msg.isNotEmpty()) {
-                    val data = msg.split(":")
-                    if (data[0] != clientID) {
-                        val lat = data[1].toDouble()
-                        val lng = data[2].toDouble()
-                        val friendLoc = FriendLocation(LatLng(lat, lng))
-                        val fbLoc = firebaseDBRefFriendLocation.child("FriendsLocations")
-                        fbLoc.setValue(friendLoc)
-                        fbLoc.push()
-                        rxBus.invoke().send(friendLoc)
-                        val broadcastIntent = Intent(ACTION_SHUTTLE_LOCATION)
-                        /**Send out the received shuttle location*/
-                        broadcastIntent.putExtra(PARAM_SHUTTLE_LOCATION, friendLoc)
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
-                    }
-                }
+//                val msg = String(message.payload)
+//                if (msg.isNotEmpty()) {
+//                    val data = msg.split(":")
+//                    if (data[0] != clientID) {
+//                        val lat = data[1].toDouble()
+//                        val lng = data[2].toDouble()
+//                        val friendLoc = FriendLocation(LatLng(lat, lng))
+//                        val fbLoc = firebaseDBRefFriendLocation.child("FriendsLocations")
+//                        fbLoc.setValue(friendLoc)
+//                        fbLoc.push()
+//                        rxBus.invoke().send(friendLoc)
+//                        val broadcastIntent = Intent(ACTION_SHUTTLE_LOCATION)
+//                        /**Send out the received shuttle location*/
+//                        broadcastIntent.putExtra(PARAM_SHUTTLE_LOCATION, friendLoc)
+//                        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent)
+//                    }
+//                }
             }
         }
     }
