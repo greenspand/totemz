@@ -13,4 +13,7 @@ class TotemzBasePresenter : BasePresenter<TotemzBaseView>() {
 
     fun scaleAnimation(items: MutableList<View>, scale: Float, duration: Long, interpolator: Interpolator): Completable = Completable
             .create(ExpandViewsOnSubscribe(items, scale, duration, interpolator))
+
 }
+
+

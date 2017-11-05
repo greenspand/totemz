@@ -23,11 +23,11 @@ import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
-import ro.cluj.totemz.model.FriendLocation
-import ro.cluj.totemz.model.TotemzUser
+import ro.cluj.totemz.model.User
 import ro.cluj.totemz.model.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.mqtt.MqttBroadcastReceiver
+import ro.cluj.totemz.mqtt.MqttManager
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.map.FragmentMap
 import ro.cluj.totemz.screens.user.UserFragment
@@ -58,14 +58,13 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     val TAB_MAP = 1
     val TAB_USER = 2
     //Injections
-    val presenter: TotemzBasePresenter by instance()
-    val activityManager: ActivityManager by withContext(this).instance()
+    private val presenter: TotemzBasePresenter by instance()
+    private val activityManager: ActivityManager by withContext(this).instance()
     private val disposables by lazy { CompositeDisposable() }
     @StringRes
     override fun getActivityTitle(): Int {
         return R.string.app_name
     }
-
 
     val RC_LOGIN = 145
 
@@ -156,8 +155,8 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             MQTTService.ACTION_SHUTTLE_LOCATION -> {
-                val friendLoc = intent.getSerializableExtra(MQTTService.PARAM_SHUTTLE_LOCATION) as FriendLocation
-                Timber.i("Broadcasted location ${friendLoc.location.latitude} ${friendLoc.location.longitude}")
+                val friendLoc = intent.getParcelableExtra<User>(MQTTService.PARAM_SHUTTLE_LOCATION)
+                Timber.i("Broadcasted location ${friendLoc.location?.latitude} ${friendLoc.location?.longitude}")
             }
         }
     }
@@ -176,6 +175,9 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         }
     }
 
+    override fun showFriendLocation(user: User) {
+
+    }
 
     private fun stopMQTTLocationService() {
         stopService(Intent(this, MQTTService::class.java))
@@ -199,13 +201,12 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
             if (!serviceIsRunning()) {
                 startService(Intent(this, MQTTService::class.java))
             }
-            val user = firebaseAuth.invoke().currentUser
-
-            //TODO this is just a test to see if a group gets created and then retrieved
-            firebaseUserGroup.setValue(UserGroup("PrimeGroup", TotemzUser(user?.email, user?.displayName, null)
-                    , arrayListOf(TotemzUser("whatever@yahoo.com", "Giusi", null)
-                    , TotemzUser("mastersorini@yahoo.com", "Sorin", null))))
-            firebaseUserGroup.push()
+            firebaseAuth.invoke().currentUser?.let {
+                //TODO this is just a test to see if a group gets created and then retrieved
+                val user = User(it.uid, it.displayName, it.displayName, null)
+                firebaseUserGroup.setValue(UserGroup("PrimeGroup", user, arrayListOf(user, user)))
+                firebaseUserGroup.push()
+            }
         }
     }
 
@@ -218,7 +219,6 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         super.onStop()
         firebaseAuth.invoke().removeAuthStateListener(authStateListener)
     }
-
 
     override fun onDestroy() {
         presenter.detachView()

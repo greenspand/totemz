@@ -1,4 +1,5 @@
 package ro.cluj.totemz.screens.map
+
 /* ktlint-disable no-wildcard-imports */
 import android.Manifest
 import android.annotation.SuppressLint
@@ -28,8 +29,6 @@ import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.model.FragmentTypes
-import ro.cluj.totemz.model.FriendLocation
-import ro.cluj.totemz.model.MyLocation
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
@@ -190,6 +189,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun onConnected(connectionHint: Bundle?) {
         getLocationAndAnimateMarker(LocationServices.FusedLocationApi.getLastLocation(googleApiClient))
         Timber.d("API CONNECTED")
@@ -207,15 +207,14 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     private fun getLocationAndAnimateMarker(location: Location?) {
         location?.let {
-            val lat = location.latitude
-            val lng = location.longitude
-            rxBus.invoke().send(MyLocation(LatLng(lat, lng)))
-            googleMap?.createAndAddMarker(LatLng(lat, lng), R.mipmap.ic_totem)
-            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), DEFAULT_ZOOM))
+            rxBus.invoke().send(it)
+            val latLng = LatLng(location.latitude, location.longitude)
+            googleMap?.createAndAddMarker(latLng, R.mipmap.ic_totem)
+            googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM))
             val subInterval = Observable.interval(6, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
-                rxBus.invoke().send(MyLocation(LatLng(lat, lng)))
+                rxBus.invoke().send(MyLocation(latLng))
             }
             disposables.add(subInterval)
         }
