@@ -10,13 +10,11 @@ import java.util.*
  */
 class BaseFragAdapter(fm: FragmentManager, var fragments: ArrayList<Fragment>) : FragmentPagerAdapter(fm) {
 
-
     override fun getItem(position: Int): Fragment? {
         return this.fragments[position]
     }
 
     override fun getCount(): Int {
-        // Show pages.
         return fragments.size
     }
 }
