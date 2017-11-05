@@ -1,3 +1,5 @@
+@file:JvmName("RealmExtensions")
+
 package ro.cluj.totemz.utils
 
 import io.realm.*
@@ -7,13 +9,11 @@ import io.realm.*
  * Created by sorin on 19.11.16.
  */
 
-
-inline fun realmConfiguration(func: RealmConfiguration.Builder.() -> Unit): RealmConfiguration {
+inline fun realmConfiguration(func: RealmConfiguration.Builder.() -> Unit): RealmConfiguration.Builder {
     val builder = RealmConfiguration.Builder()
     builder.func()
-    return builder.build()
+    return builder
 }
-
 
 fun Realm.saveToRealmAsync(realmObject: RealmObject) {
     this.executeTransactionAsync { realmObject.save() }
@@ -41,14 +41,14 @@ val <T : RealmObject> T.lastItem: T?
     }
 
 
-/**
+/**com/daimler/moovel/android/utils/realmExt.kt:46
  * Computed variable for getting all entities in database
  */
 @Deprecated("Deprecated in 1.0.6, use queryAll() method instead", ReplaceWith("this.queryAll()"))
 val <T : RealmObject> T.allItems: List<T>
     get() {
         Realm.getDefaultInstance().use { realm ->
-            val result: List<T> = realm.forEntity(this).findAll()
+            val result: RealmResults<T> = realm.forEntity(this).findAll()
             return realm.copyFromRealm(result)
         }
     }
@@ -63,7 +63,6 @@ fun <T : RealmObject> T.query(query: (RealmQuery<T>) -> Unit): List<T> {
         return realm.copyFromRealm(result)
     }
 }
-
 
 /**
  * Query to the database with RealmQuery instance as argument and returns all items founded
@@ -169,7 +168,7 @@ fun Realm.transaction(action: (Realm) -> Unit) {
 }
 
 /**
- * Creates a new entry in database. Usefull for RealmObject with no primary key.
+ * Creates a new entry in database. Useful for RealmObject with no primary key.
  */
 fun <T : RealmObject> T.create() {
     Realm.getDefaultInstance().transaction {
@@ -273,19 +272,17 @@ fun <T : RealmObject> T.delete(myQuery: (RealmQuery<T>) -> Unit) {
     }
 }
 
-
 /**
  * UTILITY METHODS
  */
-private fun <T : RealmObject> Realm.forEntity(instance: T): RealmQuery<T> {
-    return RealmQuery.createQuery(this, instance.javaClass)
-}
+private fun <T : RealmObject> Realm.forEntity(instance: T): RealmQuery<T> = this.where(instance.javaClass)
 
 private fun <T> T.withQuery(block: (T) -> Unit): T {
     block(this); return this
 }
 
 private fun <T : RealmObject> T.hasPrimaryKey(realm: Realm) = realm.schema.get(this.javaClass.simpleName)?.hasPrimaryKey() ?: false
+
 
 
 

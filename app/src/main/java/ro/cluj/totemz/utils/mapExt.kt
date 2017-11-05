@@ -1,5 +1,7 @@
 package ro.cluj.totemz.utils
 
+/* ktlint-disable no-wildcard-imports */
+
 import android.content.Context
 import android.content.res.Resources
 import android.location.Address
@@ -12,6 +14,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import ro.cluj.totemz.models.StreetAddress
 import timber.log.Timber
 import java.util.*
 
@@ -29,9 +32,6 @@ fun Context.getStreetAddress(location: Location?): StreetAddress? {
         return null
     }
 }
-
-data class StreetAddress(val street: String, val postalCode: String, val locality: String)
-
 
 fun GoogleMap.createAndAddMarker(latLng: LatLng, @DrawableRes markerResource: Int) {
     this.addMarker(MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(markerResource)))
