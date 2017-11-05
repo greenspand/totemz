@@ -9,12 +9,9 @@ import com.squareup.wire.ProtoReader;
 import com.squareup.wire.ProtoWriter;
 import com.squareup.wire.WireField;
 import com.squareup.wire.internal.Internal;
+
 import java.io.IOException;
-import java.lang.Double;
-import java.lang.Object;
-import java.lang.Override;
-import java.lang.String;
-import java.lang.StringBuilder;
+
 import okio.ByteString;
 
 public final class UserLocation extends Message<UserLocation, UserLocation.Builder> {

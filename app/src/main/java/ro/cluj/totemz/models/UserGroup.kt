@@ -1,4 +1,4 @@
-package ro.cluj.totemz.model
+package ro.cluj.totemz.models
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
@@ -9,4 +9,4 @@ import kotlinx.android.parcel.Parcelize
  */
 @SuppressLint("ParcelCreator")
 @Parcelize
-data class UserGroup(val name: String, val owner: User, val users: List<User>) : Parcelable
+data class UserGroup(val name: String? = null, val owner: User? = null, val users: List<User>? = null) : Parcelable
