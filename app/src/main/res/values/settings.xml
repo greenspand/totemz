@@ -6,7 +6,7 @@
 
     <!--Facebook-->
     <string name="facebook_app_id">166225887296016</string>
-    <string name="facebook_login_protocol_scheme">fb166225887296016</string>
+    <string name="fb_login_protocol_scheme">fb166225887296016</string>
 
     <!--Twitter-->
     <string name="twitter_key">MqgUgkcFYgWqlRv0LaoxlRRUS</string>
