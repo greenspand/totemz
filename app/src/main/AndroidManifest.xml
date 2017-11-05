@@ -18,6 +18,10 @@
         tools:replace="android:supportsRtl">
 
         <meta-data
+            android:name="net.hockeyapp.android.appIdentifier"
+            android:value="@string/hockey_app_id"/>
+
+        <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="279bb68bcb0c7c8513677fdc4e88e0719f9e0556"/>
 

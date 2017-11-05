@@ -1,32 +1,8 @@
-apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'realm-android'
-apply plugin: "org.jlleitschuh.gradle.ktlint"
-
-def versionMajor = 0
-def versionMinor = 1
-def versionPatch = 4
-
-version "${versionMajor}.${versionMinor}.${versionPatch}"
-
-def buildNumberProduction = 12
-def buildNumberDebugging = 999999
-
-def buildVersionCode = { ->
-    if (gradle.startParameter.taskNames.contains(":app:assembleRelease")) {
-        return buildNumberProduction
-    } else {
-        return buildNumberDebugging
-    }
-}
-
 buildscript {
     ext {
         supportLibVersion = '26.1.0'
         kotlinVersion = '1.1.51'
-        coroutinesVersion = '0.19'
+        coroutinesVersion = '0.19.3'
         retrofitVersion = '2.3.0'
         playServicesVersion = '11.4.2'
         lifecycleVersion = "1.0.0-alpha9-1"
@@ -54,6 +30,34 @@ buildscript {
         classpath "gradle.plugin.org.jlleitschuh.gradle:ktlint-gradle:2.1.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
+}
+plugins { id 'io.gitlab.arturbosch.detekt' version '1.0.0.RC5-2' }
+apply from: '../detekt.gradle'
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'realm-android'
+apply plugin: "org.jlleitschuh.gradle.ktlint"
+
+def versionMajor = 0
+def versionMinor = 1
+def versionPatch = 4
+
+version "${versionMajor}.${versionMinor}.${versionPatch}"
+
+def buildNumberProduction = 12
+def buildNumberDebugging = 999999
+
+def buildVersionCode = { ->
+    if (gradle.startParameter.taskNames.contains(":app:assembleRelease")) {
+        return buildNumberProduction
+    } else {
+        return buildNumberDebugging
+    }
+}
+androidExtensions {
+    experimental = true
 }
 
 android {
@@ -124,8 +128,11 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        abortOnError true
+        absolutePaths false
+        lintConfig rootProject.file('lint.xml')
     }
+
 }
 
 dependencies {
@@ -151,7 +158,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.2'
 
     /*Map Utils*/
-    implementation 'com.google.maps.android:android-maps-utils:0.4+'
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
     /*Kotlin*/
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
@@ -175,6 +182,8 @@ dependencies {
 
     /*Firebase crashlitics*/
     implementation "com.google.firebase:firebase-crash:$playServicesVersion"
+
+    implementation 'net.hockeyapp.android:HockeySDK:5.0.3'
 
     /*Firebase authentication*/
     implementation "com.google.firebase:firebase-auth:$playServicesVersion"

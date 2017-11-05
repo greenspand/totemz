@@ -23,6 +23,25 @@
 #Kodein
 -keepattributes Signature
 
+#paho rules
+-keepclasseswithmembers class org.eclipse.paho.** { *; }
+-keepclasseswithmembernames class org.eclipse.paho.** { *; }
+-keep class org.eclipse.paho.** { *; }
+
+#kotlin toolbelt
+-keepclasseswithmembers class com.moovel.kotlintoolbelt.** { *; }
+-keepclasseswithmembernames class com.moovel.kotlintoolbelt.** { *; }
+-keep class com.moovel.kotlintoolbelt.** { *; }
+
+#kotlin
+-keepclassmembers class **$WhenMappings {
+    <fields>;
+}
+
+#Koltin coroutines
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
 # OkHttp3
 -keepattributes Signature
 -keepattributes *Annotation*
