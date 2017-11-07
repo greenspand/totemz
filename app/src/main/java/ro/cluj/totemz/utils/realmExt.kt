@@ -1,5 +1,7 @@
 @file:JvmName("RealmExtensions")
 
+/* ktlint-disable no-wildcard-imports */
+
 package ro.cluj.totemz.utils
 
 import io.realm.*
@@ -39,7 +41,6 @@ val <T : RealmObject> T.lastItem: T?
     get() {
         return if (queryAll().isNotEmpty() && queryAll().last().isValid) queryAll().last() else null
     }
-
 
 /**com/daimler/moovel/android/utils/realmExt.kt:46
  * Computed variable for getting all entities in database
@@ -282,9 +283,6 @@ private fun <T> T.withQuery(block: (T) -> Unit): T {
 }
 
 private fun <T : RealmObject> T.hasPrimaryKey(realm: Realm) = realm.schema.get(this.javaClass.simpleName)?.hasPrimaryKey() ?: false
-
-
-
 
 
 

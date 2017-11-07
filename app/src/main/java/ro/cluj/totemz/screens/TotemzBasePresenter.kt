@@ -12,7 +12,6 @@ import ro.cluj.totemz.utils.ExpandViewsOnSubscribe
  * Created by sorin on 7/12/16.
  */
 class TotemzBasePresenter : BasePresenter<TotemzBaseView>() {
-
     fun scaleAnimation(items: MutableList<View>, scale: Float, duration: Long, interpolator: Interpolator)
-          = Completable.create(ExpandViewsOnSubscribe(items, scale, duration, interpolator))
+            = Completable.create(ExpandViewsOnSubscribe(items, scale, duration, interpolator))
 }
