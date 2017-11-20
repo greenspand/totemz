@@ -1,12 +1,11 @@
 buildscript {
     ext {
         supportLibVersion = '26.1.0'
-        kotlinVersion = '1.1.51'
+        kotlinVersion = '1.1.60'
         coroutinesVersion = '0.19.3'
         retrofitVersion = '2.3.0'
         playServicesVersion = '11.6.0'
         lifecycleVersion = "1.0.0-alpha9-1"
-        kotlinExtVersion = '1.0.6'
         rxVersion = '2.0.1'
         onDemandSdkVersion = '0.1.0-SNAPSHOT'
         kodeinVersion = "4.1.0"
@@ -14,8 +13,7 @@ buildscript {
         kodeinVersion= '4.1.0'
         mqttVersion='1.1.1'
         mqttVersionSnapshot='1.1.2-SNAPSHOT'
-        spekVersion='1.1.0'
-        ktExtVersion='1.0.6'
+        kotlinExtVersion = '1.0.8'
     }
 
     repositories {
@@ -62,8 +60,7 @@ androidExtensions {
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
 
     /*Disable splits if not building for production*/
     if (!project.hasProperty('production')) {
@@ -97,7 +94,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
         minSdkVersion 18
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode buildVersionCode()
         versionName "$version"
         vectorDrawables.useSupportLibrary = true
@@ -195,7 +192,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:$playServicesVersion"
 
     /*Kotlin extensions*/
-    implementation "com.greenspand:kotlin-ext:$ktExtVersion"
+    implementation "com.greenspand:kotlin-ext:$kotlinExtVersion"
 
     /*Permissions*/
     implementation 'com.karumi:dexter:4.2.0'
