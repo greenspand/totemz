@@ -76,7 +76,7 @@ class UserFragment : BaseFragment(), ViewUser {
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btn_logout.signOutListener()
     }
@@ -117,7 +117,7 @@ class UserFragment : BaseFragment(), ViewUser {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
-                activity.stopService(Intent(activity, MQTTService::class.java))
+                activity?.stopService(Intent(activity, MQTTService::class.java))
                 startActivity(Intent(activity, UserLoginActivity::class.java))
             }
         }

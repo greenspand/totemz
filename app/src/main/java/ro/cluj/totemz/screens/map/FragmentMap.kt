@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.salomonbrys.kodein.provider
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationServices
@@ -57,7 +58,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     lateinit var mapView: MapView
     lateinit var googleApiClient: GoogleApiClient
     var isMapReady = false
-
+    val context: () -> Context by provider()
     // Map properties
     val DEFAULT_ZOOM = 13f
     private val disposables = CompositeDisposable()
@@ -65,10 +66,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     val TAG = CameraFragment::class.java.simpleName
 
     companion object {
-        fun newInstance(): FragmentMap {
-            val fragment = FragmentMap()
-            return fragment
-        }
+        fun newInstance(): FragmentMap = FragmentMap()
     }
 
     override fun getFragType(): FragmentTypes {
@@ -100,7 +98,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.frag_map, container, false)
         presenter = CameraPresenter()
-        mapView = view.findViewById<MapView>(R.id.map_totemz)
+        mapView = view.findViewById(R.id.map_totemz)
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
         Dexter.withActivity(activity)
@@ -109,13 +107,13 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
                 .check()
 
         //init google API client
-        googleApiClient = GoogleApiClient.Builder(activity)
+        googleApiClient = GoogleApiClient.Builder(context.invoke())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build()
         try {
-            MapsInitializer.initialize(activity.applicationContext)
+            MapsInitializer.initialize(activity?.applicationContext)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -144,7 +142,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
         googleMap?.let {
             isMapReady = true
             Timber.i("Map Ready")
-            it.loadMapStyle(activity, R.raw.google_map_style)
+            it.loadMapStyle(context.invoke(), R.raw.google_map_style)
             this.googleMap = googleMap
             getLocationAndAnimateMarker(LocationServices.FusedLocationApi.getLastLocation(googleApiClient))
         }
