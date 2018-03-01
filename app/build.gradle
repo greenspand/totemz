@@ -1,8 +1,8 @@
 buildscript {
     ext {
-        supportLibVersion = '27.0.2'
+        supportLibVersion = '27.1.0'
         kotlinVersion = '1.2.30'
-        coroutinesVersion = '0.21'
+        coroutinesVersion = '0.22.3'
         retrofitVersion = '2.3.0'
         playServicesVersion = '11.8.0'
         lifecycleVersion = "1.0.0"
@@ -33,6 +33,7 @@ apply from: '../detekt.gradle'
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 apply plugin: "org.jlleitschuh.gradle.ktlint"
@@ -44,7 +45,7 @@ def versionPatch = 4
 
 version "${versionMajor}.${versionMinor}.${versionPatch}"
 
-def buildNumberProduction = 12
+def buildNumberProduction = 13
 def buildNumberDebugging = 999999
 
 def buildVersionCode = { ->
@@ -157,7 +158,7 @@ dependencies {
     implementation 'com.squareup.moshi:moshi-kotlin:1.5.0'
 
     /*MultiDex*/
-    implementation 'com.android.support:multidex:1.0.2'
+    implementation 'com.android.support:multidex:1.0.3'
 
     /*Map Utils*/
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
@@ -185,7 +186,7 @@ dependencies {
     /*Firebase crashlitics*/
     implementation "com.google.firebase:firebase-crash:$playServicesVersion"
 
-    implementation 'net.hockeyapp.android:HockeySDK:5.0.3'
+    implementation 'net.hockeyapp.android:HockeySDK:5.1.0'
 
     /*Firebase authentication*/
     implementation "com.google.firebase:firebase-auth:$playServicesVersion"
@@ -197,7 +198,7 @@ dependencies {
     implementation 'com.karumi:dexter:4.2.0'
 
     /*Logger*/
-    implementation 'com.jakewharton.timber:timber:4.5.1'
+    implementation 'com.jakewharton.timber:timber:4.6.0'
 
     /*Img loader*/
     implementation 'com.squareup.picasso:picasso:2.5.2'
