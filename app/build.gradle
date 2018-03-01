@@ -1,10 +1,10 @@
 buildscript {
     ext {
-        supportLibVersion = '27.0.1'
-        kotlinVersion = '1.1.60'
-        coroutinesVersion = '0.19.3'
+        supportLibVersion = '27.0.2'
+        kotlinVersion = '1.2.30'
+        coroutinesVersion = '0.21'
         retrofitVersion = '2.3.0'
-        playServicesVersion = '11.6.0'
+        playServicesVersion = '11.8.0'
         lifecycleVersion = "1.0.0"
         rxVersion = '2.0.1'
         kodeinVersion = "4.1.0"
@@ -12,7 +12,7 @@ buildscript {
         kodeinVersion= '4.1.0'
         mqttVersion='1.1.1'
         mqttVersionSnapshot='1.1.2-SNAPSHOT'
-        kotlinExtVersion = '1.0.8'
+        kotlinExtVersion = '1.0.9'
     }
 
     repositories {
