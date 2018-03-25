@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import io.reactivex.disposables.CompositeDisposable
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
@@ -17,7 +16,6 @@ import ro.cluj.totemz.models.FragmentTypes
 
 class CameraFragment : BaseFragment(), CameraView {
     var CAMERA_REQUEST = 93
-    private val subscriptions = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = CameraFragment::class.java.simpleName
 
@@ -44,10 +42,5 @@ class CameraFragment : BaseFragment(), CameraView {
         if (requestCode == CAMERA_REQUEST && resultCode == AppCompatActivity.RESULT_OK) {
             val photo = data?.extras?.get("data") as Bitmap
         }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        subscriptions.clear()
     }
 }

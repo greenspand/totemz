@@ -10,7 +10,6 @@ import com.github.salomonbrys.kodein.instance
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.picasso.Picasso
-import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.frag_user_profile.*
 import ro.cluj.totemz.BaseFragment
@@ -33,7 +32,6 @@ import timber.log.Timber
 class UserViewFragment : BaseFragment(), UserView {
 
     private var isLoggedIn = false
-    private val disposables = CompositeDisposable()
     private var authStateListener: FirebaseAuth.AuthStateListener? = null
     val TAG = CameraFragment::class.java.simpleName
 
@@ -94,11 +92,6 @@ class UserViewFragment : BaseFragment(), UserView {
         authStateListener?.let {
             firebaseAuth.invoke().removeAuthStateListener(it)
         }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        disposables.clear()
     }
 
     fun FirebaseUser.setupLoggedIn() {

@@ -7,7 +7,6 @@ import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
-import android.system.Os
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,23 +22,16 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.models.FragmentTypes
-import ro.cluj.totemz.models.User
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
 import ro.cluj.totemz.utils.createAndAddMarker
 import ro.cluj.totemz.utils.loadMapStyle
-import ro.cluj.totemz.utils.toLatLng
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by sorin on 11.10.16.
@@ -63,7 +55,6 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
     val context: () -> Context by provider()
     // Map properties
     val DEFAULT_ZOOM = 13f
-    private val disposables = CompositeDisposable()
     lateinit var presenter: CameraPresenter
     val TAG = CameraFragment::class.java.simpleName
 
@@ -79,20 +70,16 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
         super.onAttach(context)
         context?.let {
             if (context is Activity) {
-                disposables.add(rxBus.invoke().toObservable()
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { o ->
-                            when (o) {
-                                is User -> googleMap?.let {
-                                    o.location?.let {
-                                        googleMap?.createAndAddMarker(it.toLatLng(), R.mipmap.ic_totem)
-                                    }
-                                }
-                                else -> {
-                                }
-                            }
-                        })
+                //FIXME replace with coroutine that adds the marker when we get the location
+//                when (o) {
+//                    is User -> googleMap?.let {
+//                        o.location?.let {
+//                            googleMap?.createAndAddMarker(it.toLatLng(), R.mipmap.ic_totem)
+//                        }
+//                    }
+//                    else -> {
+//                    }
+//                }
             }
         }
     }
@@ -177,7 +164,6 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     override fun onDestroy() {
         super.onDestroy()
-        disposables.clear()
         mapView.onDestroy()
     }
 
@@ -208,16 +194,15 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
 
     private fun getLocationAndAnimateMarker(location: Location?) {
         location?.let {
-            rxBus.invoke().send(it)
             val latLng = LatLng(location.latitude, location.longitude)
             googleMap?.createAndAddMarker(latLng, R.mipmap.ic_totem)
             googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM))
-            val subInterval = Observable.interval(6, TimeUnit.SECONDS)
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe {
-                        rxBus.invoke().send(it)
-                    }
-            disposables.add(subInterval)
+            //FIXME replace with coorutines channel for locatrion sending
+//            val subInterval = Observable.interval(6, TimeUnit.SECONDS)
+//                    .subscribeOn(Schedulers.computation())
+//                    .observeOn(AndroidSchedulers.mainThread()).subscribe {
+//                        rxBus.invoke().send(it)
+//                    }
         }
     }
 
