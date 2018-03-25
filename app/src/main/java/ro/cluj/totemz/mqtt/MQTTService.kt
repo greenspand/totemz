@@ -15,22 +15,20 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.greenspand.kotlin_ext.toast
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.channels.ReceiveChannel
+import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.launch
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import ro.cluj.totemz.utils.RxBus
+import ro.cluj.totemz.models.TotemzMqttMessage
 import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
 class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
     override val kodein = LazyKodein(appKodein)
-    private val rxBus: () -> RxBus by provider()
     private val realm: () -> Realm by provider()
     private val firebaseDB: () -> FirebaseDatabase by provider()
     private val presenter: () -> MQTTPresenter by provider()
@@ -39,28 +37,39 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
     var mqttClient: IMqttAsyncClient? = null
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
-    private val disposables by lazy { CompositeDisposable() }
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy {
         firebaseDB.invoke().getReference("FriendLocation")
+    }
+    private val sendMsg by lazy {
+        sendMessage(TotemzMqttMessage.UserLocation("Sorin Test", Location("")))
     }
 
     override fun onCreate() {
         super.onCreate()
         FirebaseAnalytics.getInstance(this).setUserId(clientID)
-        disposables.add(rxBus.invoke().toObservable()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { o ->
-                    when (o) {
-                        is Location ->
-                            publishMsg(TOPIC_USER, "$clientID:${o.latitude}:${o.longitude}".toByteArray())
-                    //TODO FINALIZE PROTOBUF IMPLEMENTATION
+
+//        publishMsg(TOPIC_USER, "$clientID:${o.latitude}:${o.longitude}".toByteArray())
+        //TODO FINALIZE PROTOBUF IMPLEMENTATION
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
 //                            val payload = UserLocation.ADAPTER.encode(userLocation)
 //                            publishMsg(TOPIC_USER, payload)
-                    }
-                })
+        sendMsg
         presenter.invoke().attachView(this)
+        receiveMessage(sendMsg)
+    }
+
+    fun sendMessage(userLocation: TotemzMqttMessage.UserLocation) = produce<TotemzMqttMessage> {
+        send(userLocation)
+    }
+
+    fun receiveMessage(channel: ReceiveChannel<TotemzMqttMessage>) = produce<TotemzMqttMessage> {
+        for (msg in channel) {
+            when (msg) {
+                is TotemzMqttMessage.UserLocation -> Timber.w("UserLocation msg is: ${msg.name}")
+                is TotemzMqttMessage.User -> Timber.w("User is: ${msg.name}")
+                is TotemzMqttMessage.ChatMessage -> Timber.w("User is: ${msg.title}")
+            }
+        }
     }
 
     private fun publishMsg(topic: String, msg: ByteArray) {
@@ -150,7 +159,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     }
 
     override fun onDestroy() {
-        disposables.dispose()
         try {
             mqttClient?.let {
                 if (it.isConnected) it.disconnect()

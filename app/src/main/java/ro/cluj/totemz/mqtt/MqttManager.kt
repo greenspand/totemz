@@ -4,22 +4,17 @@ package ro.cluj.totemz.mqtt
 import android.app.Application
 import android.provider.Settings
 import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class MqttManager(val application: Application) {
-    private var dispMqttMsgs: Disposable? = null
     private var established = false
     val BROKER_URL = "tcp://totemz.ddns.net:4000"
     private var topics: Array<String>? = null
     private var qos: IntArray? = null
-    private val MQTT_URL_EXTRA = "MQTT-URL"
-    private val mqttEventBus by lazy { MqttEventBus }
     val clientID by lazy { Settings.Secure.getString(application.contentResolver, Settings.Secure.ANDROID_ID) }
     private val mqttClient: MqttAsyncClient by lazy { MqttAsyncClient(BROKER_URL, clientID, MemoryPersistence()) }
 
@@ -43,21 +38,20 @@ class MqttManager(val application: Application) {
             override fun messageArrived(topic: String, message: MqttMessage) {
                 val msg = message.payload.toString(Charsets.UTF_8)
                 Timber.w("Message arrived: $msg")
-                mqttEventBus.publishMqttMsg(topic to message)
+//                mqttEventBus.publishMqttMsg(topic to message)
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) = Unit
 
             override fun connectionLost(cause: Throwable) {
-                mqttEventBus.publishMqttConnectionState(false)
-                dispMqttMsgs?.let { if (!it.isDisposed) it.dispose() }
+//                mqttEventBus.publishMqttConnectionState(false)
                 retry(RETRY_DELAY_AFTER_ERROR)
                 Timber.w(cause, "MQTT connection lost")
             }
         })
         val connectAction: IMqttActionListener = object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                mqttEventBus.publishMqttConnectionState(true)
+//                mqttEventBus.publishMqttConnectionState(true)
                 Timber.w("MQTT connected")
                 mqttClient.subscribe(topics, qos, null, object : IMqttActionListener {
 
@@ -72,8 +66,7 @@ class MqttManager(val application: Application) {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable) {
-                mqttEventBus.publishMqttConnectionState(false)
-                dispMqttMsgs?.let { if (!it.isDisposed) it.dispose() }
+//                mqttEventBus.publishMqttConnectionState(false)
                 retry(RETRY_DELAY_AFTER_ERROR)
                 Timber.e(exception, "MQTT could not establish connection")
             }
@@ -85,10 +78,9 @@ class MqttManager(val application: Application) {
         if (!established) return
         val disconnectAction: IMqttActionListener = object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                mqttEventBus.publishMqttConnectionState(false)
+//                mqttEventBus.publishMqttConnectionState(false)
                 Timber.w("Mqtt Client disconnected")
                 established = false
-                dispMqttMsgs?.let { if (!it.isDisposed) it.dispose() }
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable) {
@@ -103,7 +95,7 @@ class MqttManager(val application: Application) {
                 established = false
                 Timber.e(cause, "Client is already disconnected!")
             } else {
-                Timber.e("Disconnection error: ", cause)
+                Timber.e(cause, "Disconnection error: ")
             }
         }
     }
@@ -123,13 +115,14 @@ class MqttManager(val application: Application) {
         else postDelayed(delay, operation)
     }
 
-    private fun postDelayed(delay: Long, run: () -> Unit) {
-        if (delay <= 0) {
+    private fun postDelayed(restartDelay: Long, run: () -> Unit) {
+        if (restartDelay <= 0) {
             run()
         } else {
-            Observable.timer(delay, TimeUnit.MILLISECONDS)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { run() }
+            launch {
+                delay(restartDelay)
+                run()
+            }
         }
     }
 }
