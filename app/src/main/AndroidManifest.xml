@@ -45,8 +45,7 @@
             android:resource="@color/colorAccent"/>
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="b15b0f29a487c86f6288ff3dc763bd0ccda184d1"
-            />
+            android:value="b15b0f29a487c86f6288ff3dc763bd0ccda184d1"/>
 
         <activity
             android:name=".screens.TotemzBaseActivity"
@@ -59,7 +58,7 @@
         </activity>
 
         <activity
-            android:name=".screens.user.UserLoginActivity"
+            android:name=".screens.user.login.UserLoginViewActivity"
             android:screenOrientation="portrait"/>
 
         <activity

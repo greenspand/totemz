@@ -1,34 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/container_user_login"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:id="@+id/container_user_login"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/btnFacebookLogin"
+        style="@style/Totemz.Facebook"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:drawableStart="@drawable/vector_facebook_logo"
+        android:text="@string/login"
+        app:layout_constraintBottom_toTopOf="@+id/btnTwitterLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/btnGoogleLogin"
+        style="@style/Totemz.Google"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:drawableStart="@drawable/vector_google_signin"
+        android:paddingEnd="@dimen/grid1"
+        android:paddingLeft="@dimen/grid1"
+        android:paddingRight="@dimen/grid1"
+        android:paddingStart="@dimen/grid1"
+        android:text="@string/login"
+        app:layout_constraintBottom_toTopOf="@+id/btnFacebookLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+    <Button
+        android:id="@+id/btnTwitterLogin"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="145dp"
-        android:orientation="vertical">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
 
-        <include
-            android:id="@+id/btnFacebookLogin"
-            layout="@layout/view_facebook_button"/>
-
-        <include
-            android:id="@+id/btnGoogleLogin"
-            layout="@layout/view_google_button"/>
-
-
-        <com.twitter.sdk.android.core.identity.TwitterLoginButton
-            android:id="@+id/btnTwitterLogin"
-            android:layout_marginTop="@dimen/grid2"
-            android:layout_width="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

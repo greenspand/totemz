@@ -8,15 +8,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.StringRes
 import android.support.v4.view.ViewPager
-import android.util.Log
-import android.view.animation.BounceInterpolator
 import com.github.salomonbrys.kodein.android.withContext
 import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.greenspand.kotlin_ext.snack
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
@@ -26,38 +23,28 @@ import ro.cluj.totemz.models.User
 import ro.cluj.totemz.models.UserGroup
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.CameraFragment
-import ro.cluj.totemz.screens.map.FragmentMap
-import ro.cluj.totemz.screens.user.UserFragment
-import ro.cluj.totemz.screens.user.UserLoginActivity
+import ro.cluj.totemz.screens.map.MapFragment
+import ro.cluj.totemz.screens.user.UserViewFragment
+import ro.cluj.totemz.screens.user.login.UserLoginViewActivity
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
-class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFragmentsActionsListener, TotemzBaseView {
+private const val TAB_CAMERA = 0
+private const val TAB_MAP = 1
+private const val TAB_USER = 2
+private const val RC_LOGIN = 145
+
+class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, FragmentsActionsListener, TotemzBaseView {
 
     private val SERVICE_CLASSNAME = "ro.cluj.totemz.mqtt.MQTTService"
     private var isLoggedIn = false
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
     private val firebaseDB: () -> FirebaseDatabase by provider()
     private val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
-
-    //Animation properties
-    val SCALE_UP = 1f
-    val SCALE_DOWN = 0.7f
-    val DURATION = 300L
-    val TAG = TotemzBaseActivity::class.java.simpleName
-
-    //Subscriptions
-    val TAB_CAMERA = 0
-    val TAB_MAP = 1
-    val TAB_USER = 2
-    //Injections
     private val presenter: TotemzBasePresenter by instance()
     private val activityManager: ActivityManager by withContext(this).instance()
-    private val RC_LOGIN = 145
-    private val disposables by lazy { CompositeDisposable() }
 
-    @StringRes
-    override fun getActivityTitle() = R.string.app_name
+    @StringRes override fun getActivityTitle() = R.string.app_name
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,13 +52,10 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         presenter.attachView(this)
 
         /* Instantiate pager adapter and set fragments*/
-        val adapter = BaseFragAdapter(supportFragmentManager,
-                arrayListOf(CameraFragment.newInstance(), FragmentMap.newInstance(), UserFragment.newInstance()))
-        /*set custom trnasformer for fading text view*/
         pager_menu_switch.apply {
             setPageTransformer(true, FadePageTransformer())
-            this.adapter = adapter
-            /*Set ofscreen page limit for fragment state retention*/
+            this.adapter = BaseFragAdapter(supportFragmentManager,
+                    arrayListOf(CameraFragment.newInstance(), MapFragment.newInstance(), UserViewFragment.newInstance()))
             offscreenPageLimit = 3
             addOnPageChangeListener(this@TotemzBaseActivity)
         }
@@ -79,21 +63,18 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
         // Set menu click listeners
         img_camera.setOnClickListener {
             pager_menu_switch.currentItem = TAB_CAMERA
-            disposables.add(scaleCameraAnim())
             cont_pulse_camera.start()
             cont_pulse_compass.stop()
         }
 
         img_compass.setOnClickListener {
             pager_menu_switch.currentItem = TAB_MAP
-            disposables.add(scaleMapAnim())
             cont_pulse_compass.start()
 
         }
 
         img_user.setOnClickListener {
             pager_menu_switch.currentItem = TAB_USER
-            disposables.add(scaleUserAnim())
         }
 
         pager_menu_switch.currentItem = TAB_MAP
@@ -105,11 +86,9 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                     when (userInfo.providerId) {
                         "google.com" -> {
                             val token = sharedPrefs.invoke().getString("GOOGLE_TOKEN", user.getToken(true).toString())
-//                                SyncUser.loginAsync(SyncCredentials.google(token), AUTH_URL, this@TotemzBaseActivity)
                         }
                         "facebook.com" -> {
                             val token = sharedPrefs.invoke().getString("FACEBOOK_TOKEN", user.getToken(true).toString())
-//                                SyncUser.loginAsync(SyncCredentials.facebook(token), AUTH_URL, this@TotemzBaseActivity)
                         }
                     }
                 }
@@ -130,7 +109,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
                     })
                 }
             } else {
-                startActivityForResult(Intent(this, UserLoginActivity::class.java), RC_LOGIN)
+                startActivityForResult(Intent(this, UserLoginViewActivity::class.java), RC_LOGIN)
                 isLoggedIn = false
                 // User is signed out
                 Timber.i("onAuthStateChanged:signed_out")
@@ -163,11 +142,11 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     private fun serviceIsRunning(): Boolean {
         for (service in activityManager.getRunningServices(Integer.MAX_VALUE)) {
             if (SERVICE_CLASSNAME == service.service.className) {
-                Log.i("MQTT", "SERVICE IS RUNNING")
+                Timber.w("MQTT Service is running...")
                 return true
             }
         }
-        Log.i("MQTT", "SERVICE HAS STOPPED")
+        Timber.w("MQTT Service has stopped.")
         return false
     }
 
@@ -197,12 +176,11 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         presenter.detachView()
-        disposables.dispose()
         if (serviceIsRunning()) {
             stopMQTTLocationService()
         }
-        super.onDestroy()
     }
 
     override fun onPageScrollStateChanged(state: Int) {
@@ -215,41 +193,21 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, OnFra
     override fun onPageSelected(pos: Int) {
         when (pos) {
             TAB_CAMERA -> {
-                scaleCameraAnim()
                 cont_pulse_camera.start()
                 cont_pulse_compass.stop()
                 cont_pulse_user.stop()
             }
             TAB_MAP -> {
-                scaleMapAnim()
                 cont_pulse_camera.stop()
                 cont_pulse_compass.start()
                 cont_pulse_user.stop()
             }
             TAB_USER -> {
-                scaleUserAnim()
                 cont_pulse_camera.stop()
                 cont_pulse_compass.stop()
                 cont_pulse_user.start()
             }
         }
     }
-    fun scaleCameraAnim() = presenter.scaleAnimation(arrayListOf(img_camera), SCALE_UP, DURATION,
-            BounceInterpolator()).mergeWith(
-            presenter.scaleAnimation(arrayListOf(img_compass, img_user), SCALE_DOWN,
-                    DURATION, BounceInterpolator()))
-            .subscribe()
-
-    fun scaleMapAnim() = presenter.scaleAnimation(arrayListOf(img_compass), SCALE_UP, DURATION,
-            BounceInterpolator())
-            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_user), SCALE_DOWN, DURATION,
-                    BounceInterpolator()))
-            .subscribe()
-
-    fun scaleUserAnim() = presenter.scaleAnimation(arrayListOf(img_user), SCALE_UP, DURATION,
-            BounceInterpolator())
-            .mergeWith(presenter.scaleAnimation(arrayListOf(img_camera, img_compass), SCALE_DOWN, DURATION,
-                    BounceInterpolator()))
-            .subscribe()
 }
 

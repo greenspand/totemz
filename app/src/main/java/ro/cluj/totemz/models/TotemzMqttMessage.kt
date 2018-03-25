@@ -7,13 +7,13 @@ import kotlinx.android.parcel.Parcelize
 /**
  * Created by mihai on 3/25/2018.
  */
-sealed class MqttMessage {
+sealed class TotemzMqttMessage {
     @Parcelize
-    data class User(val id: String, val name: String, val email, val location: Location) : MqttMessage(), Parcelable
+    data class User(val id: String, val name: String, val email: String, val location: Location) : TotemzMqttMessage(), Parcelable
 
     @Parcelize
-    data class UserLocation(val name, val location: Location) : MqttMessage(), Parcelable
+    data class UserLocation(val name: String, val location: Location) : TotemzMqttMessage(), Parcelable
 
     @Parcelize
-    data class ChatMessage(val id: String, val title: String, val content: String) : MqttMessage(), Parcelable
+    data class ChatMessage(val id: String, val title: String, val content: String) : TotemzMqttMessage(), Parcelable
 }

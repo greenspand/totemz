@@ -19,6 +19,7 @@ import ro.cluj.totemz.R
 import ro.cluj.totemz.models.FragmentTypes
 import ro.cluj.totemz.mqtt.MQTTService
 import ro.cluj.totemz.screens.camera.CameraFragment
+import ro.cluj.totemz.screens.user.login.UserLoginViewActivity
 import timber.log.Timber
 
 /**
@@ -29,7 +30,7 @@ import timber.log.Timber
  * All rights reserved<br>
 <p></p>
  */
-class UserFragment : BaseFragment(), ViewUser {
+class UserViewFragment : BaseFragment(), UserView {
 
     private var isLoggedIn = false
     private val disposables = CompositeDisposable()
@@ -39,8 +40,8 @@ class UserFragment : BaseFragment(), ViewUser {
     val presenter: UserPresenter by instance()
 
     companion object {
-        fun newInstance(): UserFragment {
-            val fragment = UserFragment()
+        fun newInstance(): UserViewFragment {
+            val fragment = UserViewFragment()
             return fragment
         }
     }
@@ -66,7 +67,7 @@ class UserFragment : BaseFragment(), ViewUser {
                 // User is signed out
                 isLoggedIn = false
                 Timber.i("onAuthStateChanged:signed_out")
-                startActivity(Intent(activity, UserLoginActivity::class.java))
+                startActivity(Intent(activity, UserLoginViewActivity::class.java))
             }
         }
     }
@@ -118,7 +119,7 @@ class UserFragment : BaseFragment(), ViewUser {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
                 activity?.stopService(Intent(activity, MQTTService::class.java))
-                startActivity(Intent(activity, UserLoginActivity::class.java))
+                startActivity(Intent(activity, UserLoginViewActivity::class.java))
             }
         }
     }

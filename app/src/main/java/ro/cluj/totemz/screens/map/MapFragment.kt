@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
+import android.system.Os
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,14 +49,15 @@ import java.util.concurrent.TimeUnit
  * All rights reserved<br>
 <p></p>
  */
-class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
+class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
         GoogleMap.OnCameraMoveListener,
         LocationSource.OnLocationChangedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, CameraView {
 
     var googleMap: GoogleMap? = null
-    lateinit var mapView: MapView
+    private lateinit var mapView: MapView
+    lateinit var totemzMapView: TotemzMapView
     lateinit var googleApiClient: GoogleApiClient
     var isMapReady = false
     val context: () -> Context by provider()
@@ -66,7 +68,7 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
     val TAG = CameraFragment::class.java.simpleName
 
     companion object {
-        fun newInstance(): FragmentMap = FragmentMap()
+        fun newInstance(): MapFragment = MapFragment()
     }
 
     override fun getFragType(): FragmentTypes {
@@ -213,8 +215,8 @@ class FragmentMap : BaseFragment(), PermissionListener, OnMapReadyCallback,
             val subInterval = Observable.interval(6, TimeUnit.SECONDS)
                     .subscribeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
-                rxBus.invoke().send(it)
-            }
+                        rxBus.invoke().send(it)
+                    }
             disposables.add(subInterval)
         }
     }

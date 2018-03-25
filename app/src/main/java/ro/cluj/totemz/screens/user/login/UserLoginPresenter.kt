@@ -1,4 +1,4 @@
-package ro.cluj.totemz.screens.user
+package ro.cluj.totemz.screens.user.login
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import ro.cluj.totemz.BasePresenter
@@ -8,7 +8,7 @@ import ro.cluj.totemz.utils.save
 /**
  * Created by sorin on 7/12/16.
  */
-class UserLoginPresenter : BasePresenter<ViewUserLogin>() {
+class UserLoginPresenter : BasePresenter<UserLoginView>() {
 
     fun saveUserInfoToRealm(signInAccount: GoogleSignInAccount?) {
         val realmUserInfo = UserInfoRealm()

@@ -10,22 +10,20 @@ import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
 import io.realm.Realm
 import ro.cluj.totemz.models.FragmentTypes
-import ro.cluj.totemz.screens.OnFragmentsActionsListener
-import ro.cluj.totemz.utils.RxBus
+import ro.cluj.totemz.screens.FragmentsActionsListener
 
-abstract class BaseFragment : Fragment(), LazyKodeinAware, OnFragmentsActionsListener {
+abstract class BaseFragment : Fragment(), LazyKodeinAware, FragmentsActionsListener {
 
     /**
      * Init injector
      */
     override val kodein = LazyKodein(appKodein)
 
-    private lateinit var onFragmentActionsListener: OnFragmentsActionsListener
+    private lateinit var fragmentActionsListener: FragmentsActionsListener
 
     abstract fun getPresenter(): BasePresenter<*>
     abstract fun getFragType(): FragmentTypes
 
-    val rxBus: () -> RxBus by provider()
     val realm: () -> Realm by provider()
     val firebaseAuth: () -> FirebaseAuth by provider()
 
@@ -34,7 +32,7 @@ abstract class BaseFragment : Fragment(), LazyKodeinAware, OnFragmentsActionsLis
 
         context?.let {
             if (context is Activity) {
-                onFragmentActionsListener = context as OnFragmentsActionsListener
+                fragmentActionsListener = context as FragmentsActionsListener
             }
         }
     }

@@ -2,16 +2,18 @@ package ro.cluj.totemz
 
 /* ktlint-disable no-wildcard-imports */
 
+import android.app.Application
 import android.content.Context
 import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
+import android.util.Log
 import com.facebook.FacebookSdk
-import com.facebook.appevents.AppEventsLogger
 import com.github.salomonbrys.kodein.*
 import com.github.salomonbrys.kodein.android.androidModule
-import com.twitter.sdk.android.Twitter
+import com.twitter.sdk.android.core.DefaultLogger
+import com.twitter.sdk.android.core.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
-import io.fabric.sdk.android.Fabric
+import com.twitter.sdk.android.core.TwitterConfig
 import io.realm.Realm
 import net.hockeyapp.android.CrashManager
 import ro.cluj.totemz.firebase.firebaseModule
@@ -28,6 +30,7 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
     }
 
     override val kodein by Kodein.lazy {
+        bind<Application>() with singleton { this@TotemzApp }
         bind<Context>() with singleton { applicationContext }
         bind<Realm>() with singleton { Realm.getDefaultInstance() }
         import(screensModule)
@@ -38,20 +41,15 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
 
     override fun onCreate() {
         super.onCreate()
-
         /*HockeyApp*/
         CrashManager.register(this)
-
         /*Facebook*/
         FacebookSdk.sdkInitialize(this)
-        /*Facebook event logger*/
-        AppEventsLogger.activateApp(this)
-
         /*Twitter*/
-        val authConfig = TwitterAuthConfig(getString(R.string.twitter_key),
-                getString(R.string.twitter_secret))
-        Fabric.with(this, Twitter(authConfig))
-
+        val authConfig = TwitterConfig.Builder(this).logger(DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(TwitterAuthConfig(getString(R.string.twitter_key),
+                        getString(R.string.twitter_secret))).build()
+        Twitter.initialize(authConfig)
         /*Realm*/
         Realm.init(this)
     }
