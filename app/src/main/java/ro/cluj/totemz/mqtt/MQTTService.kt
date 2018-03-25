@@ -41,13 +41,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     val clientID by lazy { Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) }
     private val disposables by lazy { CompositeDisposable() }
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy {
-        firebaseDB.invoke().getReference("FriendLocation") }
-
-    companion object {
-        const val ACTION_USER_LOCATION = "com.moovel.ondemand.USER_LOCATION"
-        const val ACTION_SHUTTLE_LOCATION = "com.moovel.ondemand.SHUTTLE_LOCATION"
-        const val PARAM_USER_LOCATION = "com.moovel.ondemand.rider.USER_LOCATION"
-        const val PARAM_SHUTTLE_LOCATION = "com.moovel.ondemand.rider.SHUTTLE_LOCATION"
+        firebaseDB.invoke().getReference("FriendLocation")
     }
 
     override fun onCreate() {
@@ -115,7 +109,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     }
 
     override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-        Timber.i("Connection complete", "Reconnect state is: $reconnect", "Server uri: $serverURI")
+        Timber.w("Reconnect state is: $reconnect Server uri: $serverURI")
     }
 
     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -124,6 +118,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     override fun showMessage(topic: String, message: MqttMessage) {
 
     }
+
     override fun messageArrived(topic: String, message: MqttMessage) {
         when (topic) {
             TOPIC_FRIEND -> {
