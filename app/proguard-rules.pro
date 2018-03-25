@@ -1,7 +1,17 @@
-#For wire protocol buffers
+#Wire
 -keep class com.squareup.wire.** { *; }
 -keep class com.yourcompany.yourgeneratedcode.** { *; }
 
+#Moshi
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <methods>;
+}
+-keep @com.squareup.moshi.JsonQualifier interface *
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
+}
 
 #paho rules
 -keepclasseswithmembers class org.eclipse.paho.** { *; }
@@ -16,20 +26,9 @@
 -keepclasseswithmembernames com.greenspand.kotlin-ext.** { *; }
 -keep class com.greenspand.kotlin-ext.** { *; }
 
-#kotlin
+#Kotlin
 -keepclassmembers class **$WhenMappings {
     <fields>;
-}
-
-#Moshi
--dontwarn okio.**
--dontwarn javax.annotation.**
--keepclasseswithmembers class * {
-    @com.squareup.moshi.* <methods>;
-}
--keep @com.squareup.moshi.JsonQualifier interface *
--keepclassmembers class kotlin.Metadata {
-    public <methods>;
 }
 
 #Koltin coroutines

@@ -5,7 +5,6 @@ package ro.cluj.totemz
 import android.content.Context
 import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
-import com.crashlytics.android.Crashlytics
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.github.salomonbrys.kodein.*
@@ -52,7 +51,6 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
         val authConfig = TwitterAuthConfig(getString(R.string.twitter_key),
                 getString(R.string.twitter_secret))
         Fabric.with(this, Twitter(authConfig))
-        Fabric.with(this@TotemzApp, Crashlytics())
 
         /*Realm*/
         Realm.init(this)
