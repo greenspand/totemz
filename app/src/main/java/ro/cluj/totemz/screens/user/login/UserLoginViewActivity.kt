@@ -39,11 +39,7 @@ import java.util.*
 /**
  * Created by sorin on 04.03.17.
  */
-class UserLoginActivity : BaseActivity(),
-        ViewUserLogin,
-        GoogleApiClient.OnConnectionFailedListener,
-        FacebookCallback<LoginResult> {
-
+class UserLoginActivity : BaseActivity(), ViewUserLogin, GoogleApiClient.OnConnectionFailedListener, FacebookCallback<LoginResult> {
     private lateinit var callbackManager: CallbackManager
     private lateinit var gApiClient: GoogleApiClient
     private lateinit var gso: GoogleSignInOptions
@@ -54,10 +50,7 @@ class UserLoginActivity : BaseActivity(),
     private lateinit var disposableGoogleAccount: Disposable
     private val presenter: UserLoginPresenter by instance()
 
-    @StringRes
-    override fun getActivityTitle(): Int {
-        return 0
-    }
+    @StringRes override fun getActivityTitle() = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +80,7 @@ class UserLoginActivity : BaseActivity(),
         }
 
         disposableGoogleAccount = behaviourGoogleAccount.subscribe {
-            //            presenter.saveUserInfoToRealm(it)
+            presenter.saveUserInfoToRealm(it)
             firebaseAuthWithGoogle(it)
         }
 
@@ -100,7 +93,8 @@ class UserLoginActivity : BaseActivity(),
         callbackManager = CallbackManager.Factory.create()
         LoginManager.getInstance().registerCallback(callbackManager, this@UserLoginActivity)
         btnFacebookLogin.setOnClickListener {
-            LoginManager.getInstance().logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
+            LoginManager.getInstance()
+                    .logInWithReadPermissions(this@UserLoginActivity, Arrays.asList("email", "public_profile", "user_friends"))
         }
 
         /**Twitter login Setup*/
@@ -181,21 +175,20 @@ class UserLoginActivity : BaseActivity(),
         firebaseSignIn(credential)
     }
 
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount?) {
-        val credential = GoogleAuthProvider.getCredential(acct?.idToken, null)
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+        val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         firebaseSignIn(credential)
         sharedPrefs.invoke().editPrefs {
-            setString("GOOGLE_TOKEN" to acct?.idToken as String)
+            setString("GOOGLE_TOKEN" to acct.idToken as String)
         }
     }
 
-    fun firebaseSignIn(credential: AuthCredential) {
+    private fun firebaseSignIn(credential: AuthCredential) {
         firebaseAuth.invoke().signInWithCredential(credential)
                 .addOnCompleteListener(this@UserLoginActivity) { task ->
-                    Timber.i("signInWithCredential:onComplete:" + task.isSuccessful)
+                    Timber.i("signInWithCredential:onComplete: ${task.isSuccessful}")
                     if (!task.isSuccessful) {
                         Timber.e(task.exception)
-                        Timber.e("signInWithCredential", task.exception)
                         toast("Authentication failed.")
                     }
                 }
@@ -206,6 +199,6 @@ class UserLoginActivity : BaseActivity(),
     }
 
     override fun showUserSavedToRealm() {
-        Timber.i("USER WAS SAVED TO REALM")
+        Timber.i("Logged in User saved to realm")
     }
 }

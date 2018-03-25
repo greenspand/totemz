@@ -5,5 +5,5 @@ import ro.cluj.totemz.MvpBase
 /**
  * Created by sorin on 7/12/16.
  */
-interface ViewMap : MvpBase.View {
+interface MapView : MvpBase.View {
 }
