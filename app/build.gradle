@@ -5,6 +5,8 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 apply plugin: "org.jlleitschuh.gradle.ktlint"
+apply plugin: 'com.getkeepsafe.dexcount'
+
 
 def versionMajor = 0
 def versionMinor = 1
