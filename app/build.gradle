@@ -123,6 +123,10 @@ android {
         //org.knowm.xchange
         all*.exclude group: 'org.java-websocket'
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 dependencies {
