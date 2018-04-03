@@ -29,6 +29,7 @@ import ro.cluj.totemz.models.FragmentTypes
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.camera.CameraPresenter
 import ro.cluj.totemz.screens.camera.CameraView
+import ro.cluj.totemz.utils.EventBus
 import ro.cluj.totemz.utils.createAndAddMarker
 import ro.cluj.totemz.utils.loadMapStyle
 import timber.log.Timber
@@ -137,36 +138,6 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        googleApiClient.connect()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        googleApiClient.disconnect()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
     override fun onLocationChanged(location: Location?) {
         location?.let {
             googleMap?.clear()
@@ -203,6 +174,7 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
 //                    .observeOn(AndroidSchedulers.mainThread()).subscribe {
 //                        rxBus.invoke().send(it)
 //                    }
+            EventBus().send(it)
         }
     }
 
@@ -215,5 +187,33 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun getPresenter(): BasePresenter<*> {
         return presenter
     }
+    override fun onStart() {
+        super.onStart()
+        googleApiClient.connect()
+    }
 
+    override fun onStop() {
+        super.onStop()
+        googleApiClient.disconnect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapView.onDestroy()
+    }
 }

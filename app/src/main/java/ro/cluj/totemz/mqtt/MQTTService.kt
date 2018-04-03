@@ -40,9 +40,6 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
     private val firebaseDBRefFriendLocation: DatabaseReference by lazy {
         firebaseDB.invoke().getReference("FriendLocation")
     }
-    private val sendMsg by lazy {
-        sendMessage(TotemzMqttMessage.UserLocation("Sorin Test", Location("")))
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -53,24 +50,9 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
 //                            val userLocation = UserLocation.Builder().clientID(clientID).latitude(o.location.latitude).longitude(o.location.longitude).build()
 //                            val payload = UserLocation.ADAPTER.encode(userLocation)
 //                            publishMsg(TOPIC_USER, payload)
-        sendMsg
         presenter.invoke().attachView(this)
-        receiveMessage(sendMsg)
     }
 
-    fun sendMessage(userLocation: TotemzMqttMessage.UserLocation) = produce<TotemzMqttMessage> {
-        send(userLocation)
-    }
-
-    fun receiveMessage(channel: ReceiveChannel<TotemzMqttMessage>) = produce<TotemzMqttMessage> {
-        for (msg in channel) {
-            when (msg) {
-                is TotemzMqttMessage.UserLocation -> Timber.w("UserLocation msg is: ${msg.name}")
-                is TotemzMqttMessage.User -> Timber.w("User is: ${msg.name}")
-                is TotemzMqttMessage.ChatMessage -> Timber.w("User is: ${msg.title}")
-            }
-        }
-    }
 
     private fun publishMsg(topic: String, msg: ByteArray) {
         mqttClient?.let {

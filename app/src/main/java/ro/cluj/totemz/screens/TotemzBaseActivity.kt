@@ -5,6 +5,7 @@ package ro.cluj.totemz.screens
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import android.support.annotation.StringRes
 import android.support.v4.view.ViewPager
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.greenspand.kotlin_ext.snack
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.launch
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.BaseFragAdapter
 import ro.cluj.totemz.R
@@ -26,6 +28,7 @@ import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.map.MapFragment
 import ro.cluj.totemz.screens.user.UserViewFragment
 import ro.cluj.totemz.screens.user.login.UserLoginViewActivity
+import ro.cluj.totemz.utils.EventBus
 import ro.cluj.totemz.utils.FadePageTransformer
 import timber.log.Timber
 
@@ -43,6 +46,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, Fragm
     private val firebaseUserGroup: DatabaseReference by lazy { firebaseDB.invoke().getReference("userGroups") }
     private val presenter: TotemzBasePresenter by instance()
     private val activityManager: ActivityManager by withContext(this).instance()
+    val channel = EventBus().asChannel<Any>()
 
     @StringRes override fun getActivityTitle() = R.string.app_name
 
@@ -93,7 +97,7 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, Fragm
                     }
                 }
                 if (!serviceIsRunning()) {
-//                    startService(Intent(this, MQTTService::class.java))
+                    startService(Intent(this, MQTTService::class.java))
                     //TODO remove the firebase demo JSON read
                     firebaseUserGroup.addValueEventListener(object : ValueEventListener {
                         override fun onCancelled(dataSnapshot: DatabaseError?) {
@@ -168,6 +172,13 @@ class TotemzBaseActivity : BaseActivity(), ViewPager.OnPageChangeListener, Fragm
     override fun onStart() {
         super.onStart()
         firebaseAuth.invoke().addAuthStateListener(authStateListener)
+        launch {
+            for (item in channel) {
+                when (item) {
+                    is Location -> Timber.w("Channel message is: ${item.altitude}")
+                }
+            }
+        }
     }
 
     override fun onStop() {
