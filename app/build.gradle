@@ -44,12 +44,10 @@ ext {
 
 android {
     compileSdkVersion 27
-
     /*Disable splits if not building for production*/
     if (!project.hasProperty('production')) {
         splits.abi.enable = false
     }
-
     /*CONFIGURE SPLITS*/
     splits {
         abi {
@@ -61,10 +59,8 @@ android {
             universalApk false
         }
     }
-
     // map for the version code
     project.ext.versionCodes = ['armeabi': 1, 'armeabi-v7a': 2, 'arm64-v8a': 3, 'mips': 4, 'x86': 5, 'x86_64': 6, 'mips64': 7]
-
     android.applicationVariants.all { variant ->
         // assign different version code for each output
         variant.outputs.each { output ->
@@ -72,7 +68,6 @@ android {
                     project.ext.versionCodes.get(output.getFilter(com.android.build.OutputFile.ABI), 0) + buildNumberProduction
         }
     }
-
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         applicationId "ro.cluj.totemz"
@@ -84,7 +79,6 @@ android {
         /* Keep language resources in libraries only for supported locales*/
         resConfigs "en", "de", "ro"
     }
-
     buildTypes {
         debug {
             multiDexEnabled true
@@ -98,22 +92,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     // Specifies a flavour dimension for data
     flavorDimensions "data"
-
     productFlavors {
         production {
             dimension "data"
         }
     }
-
     lintOptions {
         abortOnError true
         absolutePaths false
         lintConfig rootProject.file('lint.xml')
     }
-
     configurations {
         // IOTA
         all*.exclude module: 'gson'
@@ -124,8 +114,12 @@ android {
         all*.exclude group: 'org.java-websocket'
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildToolsVersion '27.0.3'
+    dexOptions {
+        incremental true
     }
 }
 
@@ -175,13 +169,11 @@ dependencies {
     /*Coroutines**/
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-
     implementation 'net.hockeyapp.android:HockeySDK:5.1.0'
 
     /*Kotlin extensions*/
     implementation "com.greenspand:kotlin-ext:$kotlinExtVersion"
     implementation 'androidx.core:core-ktx:0.2'
-
     implementation 'com.google.code.gson:gson:2.8.2'
 
     /*Permissions*/
