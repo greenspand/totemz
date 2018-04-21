@@ -26,6 +26,8 @@ import com.greenspand.kotlin_ext.snack
 import com.greenspand.kotlin_ext.toast
 import com.twitter.sdk.android.core.TwitterSession
 import kotlinx.android.synthetic.main.activity_user_login.*
+import kotlinx.coroutines.experimental.channels.*
+import kotlinx.coroutines.experimental.launch
 import ro.cluj.totemz.BaseActivity
 import ro.cluj.totemz.R
 import timber.log.Timber
@@ -41,10 +43,8 @@ class UserLoginViewActivity : BaseActivity(), UserLoginView, GoogleApiClient.OnC
     private lateinit var authStateListener: FirebaseAuth.AuthStateListener
     private var isLoggedIn = false
     private val RC_SIGN_IN = 78
-    //    private val behaviourGoogleAccount: BehaviorProcessor<GoogleSignInAccount> = BehaviorProcessor.create()
-//    private lateinit var disposableGoogleAccount: Disposable
     private val presenter: UserLoginPresenter by instance()
-
+    private val channelGoogleSignIn by lazy { BroadcastChannel<GoogleSignInAccount>(1) }
     @StringRes override fun getActivityTitle() = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,10 +74,12 @@ class UserLoginViewActivity : BaseActivity(), UserLoginView, GoogleApiClient.OnC
             }
         }
 
-//        disposableGoogleAccount = behaviourGoogleAccount.subscribe {
-//            presenter.saveUserInfoToRealm(it)
-//            firebaseAuthWithGoogle(it)
-//        }
+        launch {
+            channelGoogleSignIn.openSubscription().consumeEach {
+                presenter.saveUserInfoToRealm(it)
+                firebaseAuthWithGoogle(it)
+            }
+        }
 
         btnGoogleLogin.setOnClickListener {
             val signInIntent = Auth.GoogleSignInApi.getSignInIntent(gApiClient)
@@ -130,6 +132,7 @@ class UserLoginViewActivity : BaseActivity(), UserLoginView, GoogleApiClient.OnC
 
     override fun onDestroy() {
         super.onDestroy()
+        channelGoogleSignIn.close()
         presenter.detachView()
     }
 
@@ -146,9 +149,10 @@ class UserLoginViewActivity : BaseActivity(), UserLoginView, GoogleApiClient.OnC
     }
 
     private fun GoogleSignInResult.handleLoginResult() {
-        if (this.isSuccess) {
-            val signInAccount = this.signInAccount
-//            behaviourGoogleAccount.onNext(signInAccount)
+        if (isSuccess) {
+            launch {
+                signInAccount?.let { channelGoogleSignIn.send(it) }
+            }
         } else {
             snack(container_user_login, "User authentication failed !!!")
         }
