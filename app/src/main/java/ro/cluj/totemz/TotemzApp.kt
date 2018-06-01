@@ -8,13 +8,16 @@ import android.support.multidex.MultiDexApplication
 import android.support.v7.app.AppCompatDelegate
 import android.util.Log
 import com.facebook.FacebookSdk
-import com.github.salomonbrys.kodein.*
+import com.github.salomonbrys.kodein.Kodein
+import com.github.salomonbrys.kodein.KodeinAware
 import com.github.salomonbrys.kodein.android.androidModule
+import com.github.salomonbrys.kodein.bind
+import com.github.salomonbrys.kodein.lazy
+import com.github.salomonbrys.kodein.singleton
 import com.twitter.sdk.android.core.DefaultLogger
 import com.twitter.sdk.android.core.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
 import com.twitter.sdk.android.core.TwitterConfig
-import io.realm.Realm
 import net.hockeyapp.android.CrashManager
 import ro.cluj.totemz.firebase.firebaseModule
 import ro.cluj.totemz.mqtt.mqttModule
@@ -25,32 +28,31 @@ import ro.cluj.totemz.screens.screensModule
  */
 open class TotemzApp : MultiDexApplication(), KodeinAware {
 
-    companion object {
-        val compat = AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+  companion object {
+    init {
+      AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
+  }
 
-    override val kodein by Kodein.lazy {
-        bind<Application>() with singleton { this@TotemzApp }
-        bind<Context>() with singleton { applicationContext }
-        bind<Realm>() with singleton { Realm.getDefaultInstance() }
-        import(screensModule)
-        import(mqttModule)
-        import(androidModule)
-        import(firebaseModule)
-    }
+  override val kodein by Kodein.lazy {
+    bind<Application>() with singleton { this@TotemzApp }
+    bind<Context>() with singleton { applicationContext }
+    import(screensModule)
+    import(mqttModule)
+    import(androidModule)
+    import(firebaseModule)
+  }
 
-    override fun onCreate() {
-        super.onCreate()
-        /*HockeyApp*/
-        CrashManager.register(this)
-        /*Facebook*/
-        FacebookSdk.sdkInitialize(this)
-        /*Twitter*/
-        val authConfig = TwitterConfig.Builder(this).logger(DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(TwitterAuthConfig(getString(R.string.twitter_key),
-                        getString(R.string.twitter_secret))).build()
-        Twitter.initialize(authConfig)
-        /*Realm*/
-        Realm.init(this)
-    }
+  override fun onCreate() {
+    super.onCreate()
+    /*HockeyApp*/
+    CrashManager.register(this)
+    /*Facebook*/
+    FacebookSdk.sdkInitialize(this)
+    /*Twitter*/
+    val authConfig = TwitterConfig.Builder(this).logger(DefaultLogger(Log.DEBUG))
+        .twitterAuthConfig(TwitterAuthConfig(getString(R.string.twitter_key),
+            getString(R.string.twitter_secret))).build()
+    Twitter.initialize(authConfig)
+  }
 }
