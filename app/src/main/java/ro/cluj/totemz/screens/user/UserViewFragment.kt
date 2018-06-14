@@ -16,7 +16,7 @@ import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
 import ro.cluj.totemz.models.FragmentTypes
-import ro.cluj.totemz.mqtt.MQTTService
+import ro.cluj.totemz.mqtt.FirendsLocationService
 import ro.cluj.totemz.screens.camera.CameraFragment
 import ro.cluj.totemz.screens.user.login.UserLoginViewActivity
 import timber.log.Timber
@@ -38,10 +38,7 @@ class UserViewFragment : BaseFragment(), UserView {
     val presenter: UserPresenter by instance()
 
     companion object {
-        fun newInstance(): UserViewFragment {
-            val fragment = UserViewFragment()
-            return fragment
-        }
+        fun newInstance() = UserViewFragment()
     }
 
     override fun getFragType(): FragmentTypes {
@@ -111,7 +108,7 @@ class UserViewFragment : BaseFragment(), UserView {
         this.setOnClickListener {
             if (isLoggedIn) {
                 FirebaseAuth.getInstance().signOut()
-                activity?.stopService(Intent(activity, MQTTService::class.java))
+                activity?.stopService(Intent(activity, FirendsLocationService::class.java))
                 startActivity(Intent(activity, UserLoginViewActivity::class.java))
             }
         }

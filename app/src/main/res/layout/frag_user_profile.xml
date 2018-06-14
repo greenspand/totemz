@@ -8,10 +8,10 @@
         android:id="@+id/cont_logged_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/btn_logout"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="70dp">
+        android:layout_below="@+id/btn_logout"
+        android:layout_marginTop="70dp"
+        android:orientation="vertical">
 
         <ImageView
             android:id="@+id/img_logged_in"
@@ -42,14 +42,15 @@
             android:textSize="@dimen/txt_size_ml"/>
 
     </LinearLayout>
-<Button
-    android:layout_width="wrap_content"
-    android:id="@+id/btn_logout"
-    android:text="Logout"
-    android:layout_height="wrap_content"
-    android:layout_marginEnd="20dp"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentEnd="true"
-    android:layout_marginTop="19dp"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="19dp"
+        android:text="Logout"/>
 
 </RelativeLayout>

@@ -10,9 +10,10 @@ class MQTTPresenter(private val mqttManager: MqttManager)
 
     var TOPIC_USER = "/user/"
     var TOPIC_FRIEND = "/friend/"
+    val BROKER_URL = "tcp://totemz.ddns.net:4000"
 
     fun startMqttManager() {
-        mqttManager.connect(arrayOf(TOPIC_FRIEND), intArrayOf(1))
+        mqttManager.connect(BROKER_URL, arrayOf(TOPIC_FRIEND), intArrayOf(1))
 //        mqttEventBus.toObservableMqttMsg()
 //                .subscribeOn(Schedulers.computation())
 //                .observeOn(AndroidSchedulers.mainThread())

@@ -1,9 +1,7 @@
 package ro.cluj.totemz.mqtt
 
-/* ktlint-disable no-wildcard-imports */
 import android.app.Service
 import android.content.Intent
-import android.location.Location
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
@@ -15,21 +13,16 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.greenspand.kotlin_ext.toast
-import io.realm.Realm
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.launch
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import ro.cluj.totemz.models.TotemzMqttMessage
 import ro.cluj.totemz.utils.createMqttClient
 import timber.log.Timber
 
-class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
+class FirendsLocationService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTView, LazyKodeinAware {
     override val kodein = LazyKodein(appKodein)
-    private val realm: () -> Realm by provider()
     private val firebaseDB: () -> FirebaseDatabase by provider()
     private val presenter: () -> MQTTPresenter by provider()
     var TOPIC_USER = "/user/"
@@ -74,7 +67,7 @@ class MQTTService : Service(), MqttCallbackExtended, IMqttActionListener, MQTTVi
                 try {
                     val iMqttToken = connect(options)
                     iMqttToken.waitForCompletion(3500)
-                    setCallback(this@MQTTService)
+                    setCallback(this@FirendsLocationService)
                     subscribe(TOPIC_FRIEND, 0)
                     iMqttToken.waitForCompletion(4000)
                     launch(UI) {

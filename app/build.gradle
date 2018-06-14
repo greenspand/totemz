@@ -3,7 +3,6 @@ apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'realm-android'
 apply plugin: "org.jlleitschuh.gradle.ktlint"
 apply plugin: 'com.getkeepsafe.dexcount'
 
@@ -28,17 +27,15 @@ androidExtensions {
     experimental = true
 }
 ext {
-    supportLibVersion = '27.1.0'
+    supportLibVersion = '27.1.1'
     coroutinesVersion = '0.22.5'
-    retrofitVersion = '2.3.0'
-    playServicesVersion = '12.0.1'
+    playServicesVersion = '15.0.0'
     lifecycleVersion = "1.0.0"
-    rxVersion = '2.0.1'
     kodeinVersion = "4.1.0"
-    iotaVersion = "0.9.10"
+    ktxVersion = "1.0.0-alpha1"
     leakCanaryVersion = "1.5"
-    kodeinVersion= '4.1.0'
-    mqttVersion='1.2.0'
+    kodeinVersion = '4.1.0'
+    mqttVersion = '1.2.0'
     kotlinExtVersion = '1.0.9'
 }
 
@@ -82,7 +79,7 @@ android {
     buildTypes {
         debug {
             multiDexEnabled true
-            minifyEnabled false
+            minifyEnabled true
             shrinkResources false
         }
         release {
@@ -92,67 +89,39 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    // Specifies a flavour dimension for data
-    flavorDimensions "data"
-    productFlavors {
-        production {
-            dimension "data"
-        }
-    }
     lintOptions {
         abortOnError true
         absolutePaths false
         lintConfig rootProject.file('lint.xml')
     }
-    configurations {
-        // IOTA
-        all*.exclude module: 'gson'
-        all*.exclude group: 'org.apache.commons'
-        all*.exclude group: 'commons-io'
-        all*.exclude group: 'org.slf4j'
-        //org.knowm.xchange
-        all*.exclude group: 'org.java-websocket'
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '27.0.3'
-    dexOptions {
-        incremental true
+    configurations.all {
+        resolutionStrategy.force "com.android.support:support-v4:$supportLibVersion"
     }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //noinspection GradleCompatible
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
-    implementation "com.android.support:animated-vector-drawable:$supportLibVersion"
-    implementation "com.android.support:cardview-v7:$supportLibVersion"
-    implementation "com.android.support:customtabs:$supportLibVersion"
-    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
     implementation "com.android.support:design:$supportLibVersion"
-    implementation "com.android.support:support-dynamic-animation:$supportLibVersion"
-    implementation "com.android.support:support-core-utils:$supportLibVersion"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 
     /*Play services*/
-    implementation "com.google.android.gms:play-services-nearby:$playServicesVersion"
     implementation "com.google.android.gms:play-services-maps:$playServicesVersion"
-    implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
-    implementation "com.google.android.gms:play-services-auth-base:$playServicesVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
     implementation "com.google.android.gms:play-services-auth:$playServicesVersion"
 
     /*Firebase*/
-    implementation "com.google.firebase:firebase-core:$playServicesVersion"
-    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
-    implementation "com.google.firebase:firebase-database:$playServicesVersion"
-    implementation 'com.firebase:geofire-android:2.2.0'
-    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
+    implementation 'com.google.firebase:firebase-core:15.0.2'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    implementation 'com.google.firebase:firebase-database:15.0.1'
+    implementation "com.google.firebase:firebase-firestore:$playServicesVersion"
+    implementation "com.google.firebase:firebase-perf:$playServicesVersion"
     implementation "com.google.firebase:firebase-auth:$playServicesVersion"
-
-    /*IOTA*/
-    implementation "com.github.iotaledger:iota~lib~java:$iotaVersion"
+    implementation "com.google.firebase:firebase-storage:$playServicesVersion"
 
     /*Moshi JSON Parsing*/
     implementation 'com.squareup.moshi:moshi-kotlin:1.5.0'
@@ -169,12 +138,12 @@ dependencies {
     /*Coroutines**/
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+
+    /*Debug Distribution*/
     implementation 'net.hockeyapp.android:HockeySDK:5.1.0'
 
     /*Kotlin extensions*/
     implementation "com.greenspand:kotlin-ext:$kotlinExtVersion"
-    implementation 'androidx.core:core-ktx:0.2'
-    implementation 'com.google.code.gson:gson:2.8.2'
 
     /*Permissions*/
     implementation 'com.karumi:dexter:4.2.0'
@@ -208,9 +177,6 @@ dependencies {
     implementation('com.twitter.sdk.android:twitter:3.2.0@aar') {
         transitive = true
     }
-
-    /*Pulse animation*/
-    implementation 'pl.bclogic:pulsator4droid:1.0.3'
 
     /*Testing*/
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {

@@ -3,6 +3,7 @@
   <color name="colorPrimary">#3F51B5</color>
   <color name="colorPrimaryDark">#303F9F</color>
   <color name="colorAccent">#FF4081</color>
+  <color name="colorWhite">#FFFF</color>
   <color name="colorSettings">#3CA692</color>
   <color name="colorCompassFill">#C75C5C</color>
   <color name="colorCameraFill">#e0995e</color>

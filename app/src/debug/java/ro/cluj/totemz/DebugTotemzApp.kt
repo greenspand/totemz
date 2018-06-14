@@ -1,8 +1,6 @@
 package ro.cluj.totemz
 
-import android.util.Log
 import com.squareup.leakcanary.LeakCanary
-import io.realm.log.RealmLog
 import timber.log.Timber
 
 /**
@@ -12,7 +10,6 @@ class DebugTotemzApp : TotemzApp() {
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
-            RealmLog.setLevel(Log.VERBOSE)
             Timber.plant(Timber.DebugTree())
             if (LeakCanary.isInAnalyzerProcess(this)) {
                 return

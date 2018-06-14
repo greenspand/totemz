@@ -1,6 +1,4 @@
 <resources>
-
-
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -9,9 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-
     <style name="Totemz" parent="AppTheme"/>
-
 
     <style name="Totemz.Facebook">
         <item name="android:layout_width">@dimen/grid36</item>

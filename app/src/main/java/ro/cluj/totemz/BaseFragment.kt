@@ -5,10 +5,8 @@ import android.content.Context
 import android.support.v4.app.Fragment
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
-import com.github.salomonbrys.kodein.android.appKodein
 import com.github.salomonbrys.kodein.provider
 import com.google.firebase.auth.FirebaseAuth
-import io.realm.Realm
 import ro.cluj.totemz.models.FragmentTypes
 import ro.cluj.totemz.screens.FragmentsActionsListener
 
@@ -24,7 +22,6 @@ abstract class BaseFragment : Fragment(), LazyKodeinAware, FragmentsActionsListe
     abstract fun getPresenter(): BasePresenter<*>
     abstract fun getFragType(): FragmentTypes
 
-    val realm: () -> Realm by provider()
     val firebaseAuth: () -> FirebaseAuth by provider()
 
     override fun onAttach(context: Context?) {

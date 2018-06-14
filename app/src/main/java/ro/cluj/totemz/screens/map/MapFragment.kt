@@ -187,6 +187,7 @@ class MapFragment : BaseFragment(), PermissionListener, OnMapReadyCallback,
     override fun getPresenter(): BasePresenter<*> {
         return presenter
     }
+
     override fun onStart() {
         super.onStart()
         googleApiClient.connect()

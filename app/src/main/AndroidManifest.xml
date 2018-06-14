@@ -74,7 +74,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".mqtt.MQTTService"/>
+        <service android:name=".mqtt.FirendsLocationService"/>
 
     </application>
 

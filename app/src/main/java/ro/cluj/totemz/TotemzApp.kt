@@ -14,7 +14,6 @@ import com.twitter.sdk.android.core.DefaultLogger
 import com.twitter.sdk.android.core.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
 import com.twitter.sdk.android.core.TwitterConfig
-import io.realm.Realm
 import net.hockeyapp.android.CrashManager
 import ro.cluj.totemz.firebase.firebaseModule
 import ro.cluj.totemz.mqtt.mqttModule
@@ -32,7 +31,6 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
     override val kodein by Kodein.lazy {
         bind<Application>() with singleton { this@TotemzApp }
         bind<Context>() with singleton { applicationContext }
-        bind<Realm>() with singleton { Realm.getDefaultInstance() }
         import(screensModule)
         import(mqttModule)
         import(androidModule)
@@ -50,7 +48,5 @@ open class TotemzApp : MultiDexApplication(), KodeinAware {
                 .twitterAuthConfig(TwitterAuthConfig(getString(R.string.twitter_key),
                         getString(R.string.twitter_secret))).build()
         Twitter.initialize(authConfig)
-        /*Realm*/
-        Realm.init(this)
     }
 }
