@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
@@ -34,8 +33,7 @@ ext {
     kodeinVersion = "4.1.0"
     ktxVersion = "1.0.0-alpha1"
     leakCanaryVersion = "1.5"
-    kodeinVersion = '4.1.0'
-    mqttVersion = '1.2.0'
+    mqttVersion='1.2.0'
     kotlinExtVersion = '1.0.9'
 }
 
@@ -97,9 +95,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }
-    configurations.all {
-        resolutionStrategy.force "com.android.support:support-v4:$supportLibVersion"
     }
 }
 
@@ -174,7 +169,7 @@ dependencies {
     implementation 'com.facebook.android:facebook-login:[4,5)'
 
     /*Twitter authentication*/
-    implementation('com.twitter.sdk.android:twitter:3.2.0@aar') {
+    implementation('com.twitter.sdk.android:twitter:3.3.0@aar') {
         transitive = true
     }
 

@@ -11,7 +11,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.CropCircleTransformation
-import kotlinx.android.synthetic.main.frag_user_profile.*
+import kotlinx.android.synthetic.main.frag_user_profile.btn_logout
+import kotlinx.android.synthetic.main.frag_user_profile.img_logged_in
+import kotlinx.android.synthetic.main.frag_user_profile.tv_email
+import kotlinx.android.synthetic.main.frag_user_profile.tv_id
+import kotlinx.android.synthetic.main.frag_user_profile.tv_user_name
 import ro.cluj.totemz.BaseFragment
 import ro.cluj.totemz.BasePresenter
 import ro.cluj.totemz.R
@@ -31,78 +35,66 @@ import timber.log.Timber
  */
 class UserViewFragment : BaseFragment(), UserView {
 
-    private var isLoggedIn = false
-    private var authStateListener: FirebaseAuth.AuthStateListener? = null
-    val TAG = CameraFragment::class.java.simpleName
+  private var isLoggedIn = false
+  private var authStateListener: FirebaseAuth.AuthStateListener? = null
 
-    val presenter: UserPresenter by instance()
+  val presenter: UserPresenter by instance()
 
     companion object {
         fun newInstance() = UserViewFragment()
     }
 
-    override fun getFragType(): FragmentTypes {
-        return FragmentTypes.FRAG_USER
-    }
+  }
 
-    override fun getPresenter(): BasePresenter<*> {
-        return presenter
-    }
+  override fun getFragType(): FragmentTypes {
+    return FragmentTypes.FRAG_USER
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            val user = firebaseAuth.currentUser
-            if (user != null) {
-                Timber.i("User is logged in")
-                //USer signed in
-                isLoggedIn = true
-                user.setupLoggedIn()
-            } else {
-                // User is signed out
-                isLoggedIn = false
-                Timber.i("onAuthStateChanged:signed_out")
-                startActivity(Intent(activity, UserLoginViewActivity::class.java))
-            }
-        }
-    }
+  override fun getPresenter(): BasePresenter<*> {
+    return presenter
+  }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.frag_user_profile, container, false)
-        return view
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+      val user = firebaseAuth.currentUser
+      if (user != null) {
+        Timber.i("User is logged in")
+        //USer signed in
+        isLoggedIn = true
+        user.setupLoggedIn()
+      } else {
+        // User is signed out
+        isLoggedIn = false
+        Timber.i("onAuthStateChanged:signed_out")
+        startActivity(Intent(activity, UserLoginViewActivity::class.java))
+      }
     }
+  }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        btn_logout.signOutListener()
-    }
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    val view = inflater.inflate(R.layout.frag_user_profile, container, false)
+    return view
+  }
 
-    override fun onStart() {
-        super.onStart()
-        authStateListener?.let {
-            firebaseAuth.invoke().addAuthStateListener(it)
-        }
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    btn_logout.signOutListener()
+  }
 
-    override fun onStop() {
-        super.onStop()
-        authStateListener?.let {
-            firebaseAuth.invoke().removeAuthStateListener(it)
-        }
+  override fun onStart() {
+    super.onStart()
+    authStateListener?.let {
+      firebaseAuth.invoke().addAuthStateListener(it)
     }
+  }
 
-    fun FirebaseUser.setupLoggedIn() {
-        // User is signed in
-        Timber.i("onAuthStateChanged:signed_in:" + this.uid)
-        tv_email.text = this.email
-        tv_id.text = this.uid
-        tv_user_name.text = this.displayName
-        Picasso.with(activity)
-                .load(this.photoUrl)
-                .error(R.drawable.vector_profle)
-                .transform(CropCircleTransformation())
-                .into(img_logged_in)
+  override fun onStop() {
+    super.onStop()
+    authStateListener?.let {
+      firebaseAuth.invoke().removeAuthStateListener(it)
     }
+  }
 
     fun Button.signOutListener() {
         this.setOnClickListener {
@@ -113,4 +105,5 @@ class UserViewFragment : BaseFragment(), UserView {
             }
         }
     }
+  }
 }
