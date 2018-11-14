@@ -2,10 +2,7 @@ package ro.cluj.totemz
 
 import android.app.Application
 
-/**
- * Created by Sorin Albu-Irimies on 8/27/2016.
- */
-open class TotemzApp : Application() {
+class TotemzApp : Application() {
 
     override fun onCreate() {
         super.onCreate()

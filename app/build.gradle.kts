@@ -35,9 +35,9 @@ android {
 
         create("develop") {
             buildConfigField(booleanType, Config.BuildFurniture.ENABLE_CRASHLYTICS, true.toString())
-            isShrinkResources = true
-            isMinifyEnabled = true
-            isUseProguard = true
+            isShrinkResources = false
+            isMinifyEnabled = false
+            isUseProguard = false
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
 
@@ -76,16 +76,21 @@ dependencies {
     /*Android X*/
     implementation(Depends.Android.supportAppcompat)
     implementation(Depends.Android.constraintLayout)
-//    implementation("com.android.support:design:28.0.0") //TODO this needs to be migrated
     implementation(Depends.Android.lifecycleViewModel)
-    implementation(Depends.Android.navFragment)
-    implementation(Depends.Android.navUi)
+    implementation(Depends.Android.navFragment) {
+        exclude("com.android.support")
+    }
+    implementation(Depends.Android.navUi) {
+        exclude("com.android.support")
+    }
     implementation(Depends.Android.lifecycleViewModelExtensions)
     implementation(Depends.Android.ktxCore)
     implementation(Depends.Android.ktxLifecycleViewModel)
 
     /*Firebase*/
-    implementation(Depends.Firebase.firebaseAuth)
+    implementation(Depends.Firebase.firebaseAuth) {
+        exclude("com.android.support")
+    }
 
     /*Network*/
     implementation(Depends.Network.retrofit2)
@@ -102,5 +107,4 @@ dependencies {
     androidTestImplementation(Depends.TestLibraries.jUnitRunner)
     androidTestImplementation(Depends.TestLibraries.espressoCore)
     testImplementation(Depends.TestLibraries.jUnit)
-
 }
