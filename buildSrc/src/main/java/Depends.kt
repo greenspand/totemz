@@ -14,10 +14,12 @@ object Depends {
         const val ktxCore = "androidx.core:core-ktx:${Versions.androidKtxCoreVersion}"
         const val ktxLifecycleViewModel =
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.androidKtxLifecycleViewModelVersion}"
-        const val supportAppcompat = "androidx.appcompat:appcompat:${Versions.androidSupportVersion}"
+        const val supportAppCompat = "androidx.appcompat:appcompat:${Versions.androidSupportVersion}"
+        const val material = " com.google.android.material:material:${Versions.androidMaterialVersion}"
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayoutVersion}"
         const val navFragment = "android.arch.navigation:navigation-fragment:${Versions.androidNavVersion}"
         const val navUi = "android.arch.navigation:navigation-ui:${Versions.androidNavVersion}"
+        const val navFragmentTesting = "android.arch.navigation:navigation-testing:${Versions.androidNavVersion}"
     }
 
     object Kotlin {

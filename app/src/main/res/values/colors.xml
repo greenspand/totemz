@@ -3,4 +3,19 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorContour">#EEEEEE</color>
+    <color name="colorSuperLightGrey">#B0B4B8</color>
+    <color name="colorFoodCard">#9DC69A</color>
+    <color name="colorCameraFill">#e0995e</color>
+    <color name="colorLightGrey">#6b7888</color>
+    <color name="colorGrey">#5d6773</color>
+    <color name="colorDarkGrey">#3d414c</color>
+    <color name="colorWhite">#FFFF</color>
+    <color name="colorSettings">#3CA692</color>
+    <color name="colorConnected">#28CC65</color>
+    <color name="colorDisconnected">#F01A30</color>
+    <color name="colorCompassFill">#C75C5C</color>
+    <color name="colorUserFill">#4F5D73</color>
+    <color name="colorGoogleSignin">#4285f4</color>
+    <color name="colorFacebookSignin">#3b5998</color>
 </resources>
