@@ -8,7 +8,7 @@ object Versions {
     }
 
     /*Kotlin*/
-    const val kotlinVersion = "1.3.0"
+    const val kotlinVersion = "1.3.10"
     const val kotlinCoroutines = "1.0.0"
 
     /*Android X*/
@@ -18,14 +18,14 @@ object Versions {
     const val androidMaterialVersion = "1.0.0-rc01"
     const val androidKtxCoreVersion = "1.0.0"
     const val androidNavVersion = "1.0.0-alpha07"
-    const val androidKtxLifecycleViewModelVersion = "2.0.0"
     const val constraintLayoutVersion = "2.0.0-alpha2"
-    const val androidLifecycleViewModelVersion = "2.0.0"
-    const val androidLifecycleViewModelRuntimeVersion = "2.0.0"
-    const val androidLifecycleViewModelExtVersion = "2.0.0"
+    const val lifecycleVersion = "2.0.0"
+    const val lifecycleVersionOld = "1.1.1"
 
-    /*Firebase*/
+    /*User Auth*/
     const val firebaseAuthVersion = "16.0.5"
+    const val twitterVersion = "16.0.5"
+    const val facebookVersion = "16.0.5"
 
     /* Network*/
     const val retrofit2Version = "2.4.0"

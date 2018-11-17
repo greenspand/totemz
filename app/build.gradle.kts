@@ -72,18 +72,24 @@ dependencies {
     implementation(Depends.Kotlin.coroutines)
 
     /*Android X*/
-    implementation(Depends.Android.supportAppCompat)
+    implementation("com.android.support:support-compat:28.0.0") //TODO this needs to be migrated
     implementation(Depends.Android.constraintLayout)
     implementation("com.android.support:design:28.0.0") //TODO this needs to be migrated
-    implementation(Depends.Android.lifecycleViewModel)
-    implementation(Depends.Android.navFragment)
-    implementation(Depends.Android.navUi)
-    implementation(Depends.Android.lifecycleViewModelExtensions)
+    implementation(Depends.Android.navFragment)//TODO this needs to be migrated
+    implementation(Depends.Android.navUi)//TODO this needs to be migrated
+    implementation(Depends.Android.lifecycleExtOld)//TODO this needs to be migrated
+    implementation(Depends.Android.lifecycleRuntimeOld)//TODO this needs to be migrated
     implementation(Depends.Android.ktxCore)
-    implementation(Depends.Android.ktxLifecycleViewModel)
 
-    /*Firebase*/
-    implementation(Depends.Firebase.firebaseAuth)
+    /*User auth*/
+    implementation(Depends.UserAuth.firebaseAuth)
+    implementation(Depends.UserAuth.fbLogin)
+    implementation(Depends.UserAuth.twitterLogin) {
+        isTransitive = true
+    }
+
+    /*C.I.*/
+    implementation(Depends.CI.hockeyApp)
 
     /*Network*/
     implementation(Depends.Network.retrofit2)
