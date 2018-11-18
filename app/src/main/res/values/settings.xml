@@ -2,7 +2,9 @@
 <resources>
 
     <!--Google-->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBtkl2wnHN16OecmYlvWfGru6B3jUYDnFg</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyBtkl2wnHN16OecmYlvWfGru6B3jUYDnFg
+    </string>
 
     <!--Facebook-->
     <string name="facebook_app_id">166225887296016</string>

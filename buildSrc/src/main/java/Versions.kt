@@ -12,26 +12,27 @@ object Versions {
     const val kotlinCoroutines = "1.0.0"
 
     /*Android X*/
-    const val androidGradlePluginVersion = "3.2.1"
+    const val gradlePluginVersion = "3.2.1"
     const val androidActivityVersion = "1.0.0-alpha01"
     const val androidSupportVersion = "1.0.0-rc01"
     const val androidMaterialVersion = "1.0.0-rc01"
-    const val androidKtxCoreVersion = "1.0.0"
-    const val androidNavVersion = "1.0.0-alpha07"
+    const val ktxVersion = "1.0.0"
     const val constraintLayoutVersion = "2.0.0-alpha2"
     const val lifecycleVersion = "2.0.0"
-    const val lifecycleVersionOld = "1.1.1"
+
+    /*Firebase*/
+    const val fireaAuthVersion = "16.0.5"
+    const val fireStoreVersion = "17.1.2"
 
     /*User Auth*/
-    const val firebaseAuthVersion = "16.0.5"
-    const val twitterVersion = "16.0.5"
-    const val facebookVersion = "16.0.5"
+    const val facebookVersion = "[4,5)"
+    const val twitterVersion = "3.3.0@aar"
 
-    /* Network*/
+    /*Network*/
     const val retrofit2Version = "2.4.0"
     const val retrofit2CorutinesAdapter = "0.9.2"
 
-    /* Testing*/
+    /*Testing*/
     const val junitVersion = "4.12"
     const val junitRunnerVersion = androidSupportVersion
     const val espressoCoreVersion = "3.1.0"

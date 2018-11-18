@@ -1,28 +1,21 @@
 object Depends {
 
     object BuildPlugins {
-        const val androidPlugin = "com.android.tools.build:gradle:${Versions.androidGradlePluginVersion}"
+        const val androidPlugin = "com.android.tools.build:gradle:${Versions.gradlePluginVersion}"
         const val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlinVersion}"
     }
 
     object Android {
-        /*Android X*/
         const val supportAnnotations = "androidx.annotation:annotation:${Versions.androidSupportVersion}"
+        const val supportAppCompat = "androidx.appcompat:appcompat:${Versions.androidSupportVersion}"
         const val lifecycleExt =
-            "androidx.lifecycle:lifecycle-extensions-ktx:${Versions.lifecycleVersion}"
+            "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycleVersion}"
         const val lifecycleRuntime =
             "androidx.lifecycle:lifecycle-runtime:${Versions.lifecycleVersion}"
-        const val ktxCore = "androidx.core:core-ktx:${Versions.androidKtxCoreVersion}"
+        const val ktxCore = "androidx.core:core-ktx:${Versions.ktxVersion}"
+        const val ktxFragment = "androidx.fragment:fragment-ktx:${Versions.ktxVersion}"
         const val material = " com.google.android.material:material:${Versions.androidMaterialVersion}"
         const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayoutVersion}"
-        const val supportAppCompat = "androidx.appcompat:appcompat:${Versions.androidSupportVersion}"
-
-        /*Pre Android X*/
-        const val lifecycleExtOld = "android.arch.lifecycle:extensions:${Versions.lifecycleVersionOld}"
-        const val lifecycleRuntimeOld = "android.arch.lifecycle:runtime:${Versions.lifecycleVersionOld}"
-        const val navFragment = "android.arch.navigation:navigation-fragment:${Versions.androidNavVersion}"
-        const val navUi = "android.arch.navigation:navigation-ui:${Versions.androidNavVersion}"
-        const val navFragmentTesting = "android.arch.navigation:navigation-testing:${Versions.androidNavVersion}"
     }
 
     object CI {
@@ -34,10 +27,14 @@ object Depends {
         const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlinVersion}"
     }
 
+    object Firebase {
+        const val fireStore = "com.google.firebase:firebase-firestore:${Versions.fireStoreVersion}"
+        const val fireAuth = "com.google.firebase:firebase-auth:${Versions.fireaAuthVersion}"
+    }
+
     object UserAuth {
-        const val firebaseAuth = "com.google.firebase:firebase-auth:${Versions.firebaseAuthVersion}"
-        const val fbLogin = "com.facebook.android:facebook-android-sdk:[4,5)"
-        const val twitterLogin = "com.twitter.sdk.android:twitter:3.3.0@aar"
+        const val fbLogin = "com.facebook.android:facebook-android-sdk:${Versions.facebookVersion}"
+        const val twitterLogin = "com.twitter.sdk.android:twitter:${Versions.twitterVersion}"
     }
 
     object Network {

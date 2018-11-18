@@ -2,7 +2,6 @@ package ro.cluj.totemz
 
 import android.app.Application
 import android.util.Log
-import com.facebook.FacebookSdk
 import com.twitter.sdk.android.core.DefaultLogger
 import com.twitter.sdk.android.core.Twitter
 import com.twitter.sdk.android.core.TwitterAuthConfig
@@ -14,7 +13,6 @@ class TotemzApp : Application() {
     override fun onCreate() {
         super.onCreate()
         CrashManager.register(this)
-        FacebookSdk.sdkInitialize(this)
         val authConfig = TwitterConfig.Builder(this).logger(DefaultLogger(Log.DEBUG))
             .twitterAuthConfig(
                 TwitterAuthConfig(

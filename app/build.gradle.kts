@@ -17,6 +17,10 @@ val versionName = Versions.Android.appVersionName
 android {
     compileSdkVersion(Versions.Android.compileSdkVersion)
 
+    compileOptions {
+        setSourceCompatibility(JavaVersion.VERSION_1_8)
+        setTargetCompatibility(JavaVersion.VERSION_1_8)
+    }
     defaultConfig {
         applicationId = Config.Application.applicationId
         minSdkVersion(Versions.Android.minSdkVersion)
@@ -72,28 +76,28 @@ dependencies {
     implementation(Depends.Kotlin.coroutines)
 
     /*Android X*/
-    implementation("com.android.support:support-compat:28.0.0") //TODO this needs to be migrated
     implementation(Depends.Android.constraintLayout)
+    implementation(Depends.Android.supportAppCompat)
+    implementation(Depends.Android.supportAnnotations)
     implementation("com.android.support:design:28.0.0") //TODO this needs to be migrated
-    implementation(Depends.Android.navFragment)//TODO this needs to be migrated
-    implementation(Depends.Android.navUi)//TODO this needs to be migrated
-    implementation(Depends.Android.lifecycleExtOld)//TODO this needs to be migrated
-    implementation(Depends.Android.lifecycleRuntimeOld)//TODO this needs to be migrated
+    implementation(Depends.Android.lifecycleExt)
+    implementation(Depends.Android.lifecycleRuntime)
     implementation(Depends.Android.ktxCore)
+    implementation(Depends.Android.ktxFragment)
 
-    /*User auth*/
-    implementation(Depends.UserAuth.firebaseAuth)
-    implementation(Depends.UserAuth.fbLogin)
-    implementation(Depends.UserAuth.twitterLogin) {
-        isTransitive = true
-    }
-
-    /*C.I.*/
-    implementation(Depends.CI.hockeyApp)
+    /*Firestore*/
+    implementation(Depends.Firebase.fireStore)
 
     /*Network*/
     implementation(Depends.Network.retrofit2)
     implementation(Depends.Network.retrofit2CoroutinesAdapter)
+
+    /*User auth*/
+    implementation(Depends.Firebase.fireAuth)
+    implementation(Depends.UserAuth.fbLogin)
+    implementation(Depends.UserAuth.twitterLogin) {
+        isTransitive = true
+    }
 
     /*Jwt*/
     api("io.jsonwebtoken:jjwt-api:0.10.5")
@@ -102,8 +106,10 @@ dependencies {
         exclude(group = "org.json", module = "json") //provided by Android natively
     }
 
+    /*C.I.*/
+    implementation(Depends.CI.hockeyApp)
+
     /*Tests*/
-    androidTestImplementation(Depends.Android.navFragmentTesting)
     androidTestImplementation(Depends.TestLibraries.jUnitRunner)
     androidTestImplementation(Depends.TestLibraries.espressoCore)
     testImplementation(Depends.TestLibraries.jUnit)

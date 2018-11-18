@@ -1,4 +1,4 @@
-package ro.cluj.totemz
+package ro.cluj.totemz.ui.user
 
 import androidx.lifecycle.ViewModel
 
