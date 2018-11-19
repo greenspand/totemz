@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.twitter.sdk.android:twitter-3.3.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/twitter-3.3.0.aar/13dd17b2c6c05e2d70f9e426a652ecf5/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/twitter-3.3.0.aar/13dd17b2c6c05e2d70f9e426a652ecf5/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.twitter.sdk.android/twitter/3.3.0/2b9204c72297034ebbdb8f33d7b0d152020e1def/twitter-3.3.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
