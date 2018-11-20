@@ -28,9 +28,13 @@ object Versions {
     const val facebookVersion = "[4,5)"
     const val twitterVersion = "3.3.0@aar"
 
+    /*Json*/
+    const val moshiVersion = "1.8.0"
+
     /*Network*/
     const val retrofit2Version = "2.4.0"
-    const val retrofit2CorutinesAdapter = "0.9.2"
+    const val okHttp3InterceptorVersion = "3.12.0"
+    const val retrofit2CorutinesAdapterVersion = "0.9.2"
 
     /*Testing*/
     const val junitVersion = "4.12"

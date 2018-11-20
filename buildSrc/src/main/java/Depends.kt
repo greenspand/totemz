@@ -37,10 +37,18 @@ object Depends {
         const val twitterLogin = "com.twitter.sdk.android:twitter:${Versions.twitterVersion}"
     }
 
+    object Json {
+        const val moshi = "com.squareup.moshi:moshi:${Versions.moshiVersion}"
+        const val moshiKotlin = "com.squareup.moshi:moshi-kotlin:${Versions.moshiVersion}"
+        const val moshiCodeGen = "com.squareup.moshi:moshi-kotlin-codegen:${Versions.moshiVersion}"
+    }
+
     object Network {
         const val retrofit2 = "com.squareup.retrofit2:retrofit:${Versions.retrofit2Version}"
+        const val moshiConverterFactory = "com.squareup.retrofit2:converter-moshi:${Versions.retrofit2Version}"
         const val retrofit2CoroutinesAdapter =
-            "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${Versions.retrofit2CorutinesAdapter}"
+            "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:${Versions.retrofit2CorutinesAdapterVersion}"
+        const val retrofit2Logger = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp3InterceptorVersion}"
     }
 
     object TestLibraries {

@@ -10,6 +10,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-android-extensions")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 val versionName = Versions.Android.appVersionName
@@ -50,6 +51,7 @@ android {
             buildConfigField(booleanType, Config.BuildFurniture.ENABLE_CRASHLYTICS, true.toString())
             isShrinkResources = true
             isMinifyEnabled = true
+            isDebuggable = true
             isUseProguard = true
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
@@ -89,8 +91,14 @@ dependencies {
     /*Firestore*/
     implementation(Depends.Firebase.fireStore)
 
+    /*JSON*/
+    implementation(Depends.Json.moshi)
+    kapt(Depends.Json.moshiCodeGen)
+
     /*Network*/
     implementation(Depends.Network.retrofit2)
+    implementation(Depends.Network.moshiConverterFactory)
+    implementation(Depends.Network.retrofit2Logger)
     implementation(Depends.Network.retrofit2CoroutinesAdapter)
 
     /*User auth*/
