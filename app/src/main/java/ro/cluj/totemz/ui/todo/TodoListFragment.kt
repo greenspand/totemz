@@ -1,4 +1,4 @@
-package ro.cluj.totemz.ui.chat
+package ro.cluj.totemz.ui.todo
 
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -9,24 +9,24 @@ import android.view.ViewGroup
 
 import ro.cluj.totemz.R
 
-class ChatGroupsFragment : Fragment() {
+class TodoListFragment : Fragment() {
 
     companion object {
-        fun newInstance() = ChatGroupsFragment()
+        fun newInstance() = TodoListFragment()
     }
 
-    private lateinit var viewModel: ChatGroupsViewModel
+    private lateinit var viewModel: TodoListViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.chat_groups_fragment, container, false)
+        return inflater.inflate(R.layout.todo_list_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(ChatGroupsViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(TodoListViewModel::class.java)
         // TODO: Use the ViewModel
     }
 

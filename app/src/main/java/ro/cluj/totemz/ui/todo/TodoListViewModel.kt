@@ -1,7 +1,7 @@
-package ro.cluj.totemz.ui.chat
+package ro.cluj.totemz.ui.todo
 
 import androidx.lifecycle.ViewModel;
 
-class ChatGroupsViewModel : ViewModel() {
+class TodoListViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }
